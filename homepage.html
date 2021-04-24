@@ -9,12 +9,18 @@
 </head>
 
 <body class="text-center">
-    <h1 class="mb-3">Homepage User</h1>
+  <div id="fb-root"></div>
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>
+  
+  
+  <h1 class="mb-3">Homepage User</h1><br>
 
-    <a href="http://localhost:8000/token">
-        <button class="mb-3" type="button">Get User Info</button>
-    </a>
-    
+  <a href="http://localhost:8000/token">
+      <button class="mb-3" type="button">Get User Info</button><br>
+  </a>
+                                                                    
+  <div class="fb-share-button" data-href="http://127.0.0.1:8000" data-layout="button" data-size="large"><a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2F127.0.0.1%3A8000%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Condividi</a></div>
+  
 </body>
 
 </html>

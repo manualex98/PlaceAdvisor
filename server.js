@@ -12,7 +12,7 @@ var token="";
 var code="";
 
 app.get('/log',function (req,res){
-  res.redirect("https://www.facebook.com/v10.0/dialog/oauth?client_id="+process.env.CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code&scopes=user_birthday&user_hometown&user_gender");
+  res.redirect("https://www.facebook.com/v10.0/dialog/oauth?client_id="+process.env.CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
 });
 
 
@@ -39,11 +39,11 @@ app.get('/token',function (req,res){
     //console.log('Upload successful!  Server responded with:', body);
     var info = JSON.parse(body);
     token = info.access_token;
-    res.redirect('/api');
+    res.redirect('/user_info');
   });
 });
 
-app.get('/api',function (req,res){
+app.get('/user_info',function (req,res){
 
   var url = 'https://graph.facebook.com/me?fields=id,name,birthday,hometown,gender&access_token='+token
         var headers = {'Authorization': 'Bearer '+token};
@@ -62,11 +62,7 @@ app.get('/api',function (req,res){
             });
 
 });
-
-
-
-
-
+    
 
 app.get('/',function (req,res){
   res.sendFile(path.resolve('index.html'));
@@ -76,8 +72,6 @@ app.get('/',function (req,res){
 app.get('/bootstrap.min.css',function (req,res){
   res.sendFile(path.resolve('bootstrap.min.css'));
 });
-
-
 
 var server = app.listen(8000, function () {
   var host = server.address().address;
