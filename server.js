@@ -9,7 +9,7 @@ require('dotenv').config()
 
 var token="";
 var code="";
-
+let connected=false;
 
 app.get('/log',function (req,res){
   res.redirect("https://www.facebook.com/v10.0/dialog/oauth?client_id="+process.env.CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
@@ -20,7 +20,8 @@ app.get('/log',function (req,res){
 
 app.get('/homepage', function (req,res){
   code=req.query.code;
-  res.sendFile(path.resolve('homepage.html'));
+  if(!connected) res.redirect('/token');
+  else res.sendFile(path.resolve('homepage.html'));
 });
 
 app.get('/token',function (req,res){
@@ -39,14 +40,19 @@ app.get('/token',function (req,res){
     }
     console.log('Upload successful!  Server responded with:', body);
     var info = JSON.parse(body);
-    token = info.access_token;
-    res.redirect('/user_info');
+
+    if(info.error != undefined){res.send('<h2>Error occurred on login<br><a href="http://localhost:8000"><button>Go back to login</button></a></h2>');}
+    else{
+      token = info.access_token;
+      connected = true;
+      res.redirect('/homepage');
+    }
   });
 });
 
 app.get('/user_info',function (req,res){
 
-  var url = 'https://graph.facebook.com/me?fields=id,name,birthday,hometown,gender&access_token='+token
+  var url = 'https://graph.facebook.com/me?fields=id,name,email&access_token='+token
         var headers = {'Authorization': 'Bearer '+token};
         var request = require('request');
 
@@ -56,10 +62,9 @@ app.get('/user_info',function (req,res){
             }, function(error, response, body){
                 console.log(body);
                 body2 = JSON.parse(body)
+                
                 res.send("Nome:"+body2.name
-                +"<br>Birthday: "+body2.birthday
-                +"<br>Hometown: "+body2.hometown.name
-                +"<br>Gender: "+body2.gender);
+                +"<br>Email: "+body2.email);
             });
 
 });
@@ -68,7 +73,6 @@ app.get('/user_info',function (req,res){
 let lon;
 let lat;
 let city;
-let count;
 let rad;
 let cate;
 
@@ -139,12 +143,14 @@ app.get('/details', function(req,res){
   
   request.get(options,function callback(error, response, body){
     var info = JSON.parse(body);
-
+    
     var via;
     if(info.address.road==undefined) via = info.address.pedestrian
     else via = info.address.road
 
-
+    var civico;
+    if(info.address.house_number==undefined) civico="SNC"
+    else civico= info.address.house_number
     
     var FBbutton1 = '<div id="fb-root"></div><script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>'
     
@@ -159,7 +165,7 @@ app.get('/details', function(req,res){
     if(info.wikipedia_extracts!=undefined){
       background = info.wikipedia_extracts.html
     }
-    page += "<li><h3><b><i>You can find it at: </b></h3>"+via+"<b> number: </b>"+info.address.house_number+"</i></li><br>"+
+    page += "<li><h3><b><i>You can find it at: </b></h3>"+via+"<b> number: </b>"+civico+"</i></li><br>"+
     "<li><h3>Background: </h3><i>"+background+"</i></li><br>"
     
     var link = 'http://127.0.0.1:8000/details?xid='+xid;
