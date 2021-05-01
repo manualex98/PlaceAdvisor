@@ -1,0 +1,19 @@
+<html>
+<head>
+    <title>Search</title>
+</head>
+<body>
+    <script>
+    //qui ci puoi mettere codice es. JSON.parse ecc...
+    </script>
+    <h1>First 100 results for <%= cat %> in <%= citta %> </h1>
+    <ul>
+    <% for(var i=0; i<numero; i++) {%>
+        <% if(data[i].properties.name.length > 0) {%>    
+            <% var uri = "http://localhost:8000/details?xid="+data[i].properties.xid; %>
+            <li><%= data[i].properties.name %></li><a href=<%=uri %> <li>Details</li> </a>
+        <% } %>
+    <% } %>
+    </ul>
+     
+</html>

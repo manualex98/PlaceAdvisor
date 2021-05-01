@@ -1,14 +1,34 @@
 {
-    "name": "my_app",
-    "dependencies": {
-      "body-parser": "^1.19.0",
-      "express": "^4.17.1",
-      "dotenv": "^8.2.0",
-      "fs": "^6.14.11",
-      "path": "^6.14.11",
-      "request": "^2.88.2"
-    },
-    "scripts": {
-      "start": "node server.js"
-    }
-  }
+  "name": "trip-app",
+  "version": "1.0.0",
+  "description": "This is a Trip App",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "data",
+    "html",
+    "ejs",
+    "trip",
+    "js",
+    "node"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manualex98/Progetto-RetiDiCalcolatori.git"
+  },
+  "author": "Alessi Manuel, Fortunato Francesco, Lai Simona",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1"
+  },
+  "bugs": {
+    "url": "https://github.com/manualex98/Progetto-RetiDiCalcolatori/issues"
+  },
+  "homepage": "https://github.com/manualex98/Progetto-RetiDiCalcolatori#readme"
+}

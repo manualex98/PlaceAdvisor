@@ -7,6 +7,10 @@ const path = require('path');
 var request = require('request');
 require('dotenv').config()
 
+//dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+
 var token="";
 var code="";
 let connected=false;
@@ -82,7 +86,7 @@ app.post('/openmap', function(req,res){
   cate = req.body.cat;
   
   var options = {
-    url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey='+process.env.OpenMap_KEY+'&name='+city
+    url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey=5ae2e3f221c38a28845f05b641c58a9a7e4c3ba3498ebca00fa88384&name='+city
   }
   
   request.get(options,function callback(error,response, body){
@@ -102,14 +106,33 @@ app.post('/openmap', function(req,res){
 
 app.get('/app', function(req,res){
   
-  var page="<h1>First 100 results for "+cate+" in "+city+"</h1><ul>";
+  //CON EJS
+  var options ={
+    url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey=5ae2e3f221c38a28845f05b641c58a9a7e4c3ba3498ebca00fa88384'+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
+  }
+  request.get(options, (error, req, body)=>{
+    var info = JSON.parse(body);
+    data = info.features;
+    //console.log(data)
+    n = data.length;
+    res.render('list_places', {numero: n, data: data, cat: cate, citta: city});
+  })
+ 
+  
+  
+  
+  
+  
+  
+  //SENZA EJS
+  /* var page="<h1>First 100 results for "+cate+" in "+city+"</h1><ul>";
 
   var options = {
-    url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey='+process.env.OpenMap_KEY+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
+    url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey=5ae2e3f221c38a28845f05b641c58a9a7e4c3ba3498ebca00fa88384'+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
   }
   
   request.get(options,function callback(error, response, body){
-
+    //console.log(body)
     var info = JSON.parse(body);
     var data = info.features;
     var n = data.length;
@@ -127,7 +150,7 @@ app.get('/app', function(req,res){
     res.send(page);
     page="";
   });
-
+*/
 
 
 });
@@ -143,7 +166,12 @@ app.get('/details', function(req,res){
   
   request.get(options,function callback(error, response, body){
     var info = JSON.parse(body);
+
+    //Con ejs
+    //res.render('details', {info: info});
     
+
+    //Senza ejs
     var via;
     if(info.address.road==undefined) via = info.address.pedestrian
     else via = info.address.road
