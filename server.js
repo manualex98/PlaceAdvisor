@@ -86,7 +86,7 @@ app.post('/openmap', function(req,res){
   cate = req.body.cat;
   
   var options = {
-    url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey=5ae2e3f221c38a28845f05b641c58a9a7e4c3ba3498ebca00fa88384&name='+city
+    url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey='+process.env.OpenMap_KEY+'&name='+city
   }
   
   request.get(options,function callback(error,response, body){
@@ -108,7 +108,7 @@ app.get('/app', function(req,res){
   
   //CON EJS
   var options ={
-    url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey=5ae2e3f221c38a28845f05b641c58a9a7e4c3ba3498ebca00fa88384'+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
+    url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey='+process.env.OpenMap_KEY+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
   }
   request.get(options, (error, req, body)=>{
     var info = JSON.parse(body);
@@ -128,7 +128,7 @@ app.get('/app', function(req,res){
   /* var page="<h1>First 100 results for "+cate+" in "+city+"</h1><ul>";
 
   var options = {
-    url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey=5ae2e3f221c38a28845f05b641c58a9a7e4c3ba3498ebca00fa88384'+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
+    url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey='+process.env.OpenMap_KEY+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
   }
   
   request.get(options,function callback(error, response, body){
