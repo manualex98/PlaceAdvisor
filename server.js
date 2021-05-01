@@ -166,12 +166,14 @@ app.get('/details', function(req,res){
   
   request.get(options,function callback(error, response, body){
     var info = JSON.parse(body);
-
     //Con ejs
-    //res.render('details', {info: info});
+    res.render('details', {info: info, xid: xid});
     
+  });
+});
 
     //Senza ejs
+    /*
     var via;
     if(info.address.road==undefined) via = info.address.pedestrian
     else via = info.address.road
@@ -207,9 +209,7 @@ app.get('/details', function(req,res){
     res.send(page);
     page="";
   });
-
-  
-});
+*/
 
 
 app.get('/',function (req,res){
@@ -226,4 +226,4 @@ var server = app.listen(8000, function () {
   var port = server.address().port;
   
   console.log('Server listening at http://%s:%s', host, port);
-});
+})

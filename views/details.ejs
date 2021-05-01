@@ -2,18 +2,39 @@
 <head>
     <title>Search</title>
 </head>
-<body>
-    <script>
-    //qui ci puoi mettere codice es. JSON.parse ecc...
-    </script>
-    <h1>First 100 results for <%= cat %> in <%= citta %> </h1>
-    <ul>
-    <% for(var i=0; i<numero; i++) {%>
-        <% if(data[i].properties.name.length > 0) {%>    
-            <% var uri = "http://localhost:8000/details?xid="+data[i].properties.xid; %>
-            <li><%= data[i].properties.name %></li><a href=<%=uri %> <li>Details</li> </a>
-        <% } %>
+    
+    <div id="fb-root"></div><script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>
+
+    <h1> <%= info.name %> </h1><br>
+    <h2>Details:</h2>
+    <% if (info.preview!=undefined) {%>
+        <img src=<%= info.preview.source  %> width=<%=info.preview.width%> height=<%=info.preview.height%>>
+    <% } else{ %>
+        No images available
     <% } %>
-    </ul>
-     
+    <br>
+    <ul>
+        <li><h3><b><i>You can find it at: </b></h3>
+        <%if(info.address.road==undefined) {%>
+            <%= info.address.pedestrian %>
+        <% } else{ %>  
+            <%= info.address.road %>
+        <% } %>
+        number: </b> 
+        <% if(info.address.house_number==undefined){ %>
+            SNC</i></li><br>
+        <% } else{ %>  
+            <%= info.address.house_number %></i></li><br>
+        <% } %>
+        <li><h3>Background: </h3><i>
+        <% if(info.wikipedia_extracts!=undefined) {%> 
+            <%- info.wikipedia_extracts.html %> </i></li><br>
+        <% } else{ %>  
+            Nessun background disponibile</i></li><br>
+        <% } %>
+    <p>Share this place with your friends</p><br></ul>
+    <% var link = 'http://127.0.0.1:8000/details?xid='+xid; %>
+    <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid=+xid%3A8000%2F&amp;src=sdkpreparse"; %>
+    <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div>
+    
 </html>
