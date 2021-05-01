@@ -1,6 +1,16 @@
 # Progetto-RetiDiCalcolatori
 Progetto Reti di Calcolatori 2020/21
 
+## Installation
+***
+Istruzioni per l'installazione:
+```
+$ git clone https://example.com
+$ cd ../path/to/the/file
+$ npm install
+$ npm start
+```
+
 -----------------
 
 Utenti test per Facebook:
