@@ -25,7 +25,7 @@ app.get('/log',function (req,res){
 app.get('/homepage', function (req,res){
   code=req.query.code;
   if(!connected) res.redirect('/token');
-  else res.sendFile(path.resolve('homepage.html'));
+  else res.render('homepage', );
 });
 
 app.get('/token',function (req,res){
@@ -44,7 +44,6 @@ app.get('/token',function (req,res){
     }
     console.log('Upload successful!  Server responded with:', body);
     var info = JSON.parse(body);
-
     if(info.error != undefined){res.send('<h2>Error occurred on login<br><a href="http://localhost:8000"><button>Go back to login</button></a></h2>');}
     else{
       token = info.access_token;
@@ -213,7 +212,7 @@ app.get('/details', function(req,res){
 
 
 app.get('/',function (req,res){
-  res.sendFile(path.resolve('index.html'));
+  res.render('index.ejs');
 });
 
 
