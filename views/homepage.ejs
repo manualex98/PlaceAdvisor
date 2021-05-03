@@ -42,8 +42,11 @@
     <input class="mb-3" type="submit" value="Search" name="sub">
   </form>
   
-  <p><b>Share this site with your friends</b></p>
-  <div class="fb-share-button" data-href="http://127.0.0.1:8000" data-layout="button" data-size="large"><a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%3A8000%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Condividi</a></div>
+  <% if (fconnected==true) { %>
+    <p><b>Share this site with your friends</b></p>
+    <div class="fb-share-button" data-href="http://127.0.0.1:8000" data-layout="button" data-size="large"><a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%3A8000%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Condividi</a></div>
+  
+  <%}%>
   
 </body>
 

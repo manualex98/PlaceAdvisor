@@ -1,0 +1,19 @@
+<html>
+<head>
+    <title>Search</title>
+</head>
+<body>
+    <script>
+    </script>
+    <h1>Ciao, e grazie per aver effettuato l'accesso al nostro sito, ecco il tuo token: </h1>
+    <p>Google:</p> <% if (gconnected) { %>
+        <%= gtoken %>
+    <% } %>
+    <p>Facebook:</p> <% if (fconnected) { %>
+        <%= ftoken %>
+    <% } %>
+    Vuoi continuare? 
+    <a href= "http://localhost:8000/homepage">
+        <button type= 'button'>YES!!</button>
+      </a>
+</html>
