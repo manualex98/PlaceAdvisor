@@ -230,8 +230,9 @@ app.get('/details', function(req,res){
   
   request.get(options,function callback(error, response, body){
     var info = JSON.parse(body);
+    //debug: console.log(info)
     //Con ejs
-    res.render('details', {info: info, xid: xid});
+    res.render('details', {info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
     
   });
 });
