@@ -20,7 +20,10 @@ let gconnected=false;
 let gconnecting=false;
 
 
-
+app.post('/',function (req,res){
+  if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
+  else if(req.body.sub == 'Accedi con Google') res.redirect('/googlelogin')
+})
 
 
 
@@ -121,8 +124,8 @@ app.get('/ftoken',function (req,res){
 
 app.get('/user_info',function (req,res){
 
-  var url = 'https://graph.facebook.com/me?fields=id,name,email&access_token='+token
-        var headers = {'Authorization': 'Bearer '+token};
+  var url = 'https://graph.facebook.com/me?fields=id,name,email&access_token='+ftoken
+        var headers = {'Authorization': 'Bearer '+ftoken};
         var request = require('request');
 
         request.get({
