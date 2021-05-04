@@ -20,7 +20,10 @@ let gconnected=false;
 let gconnecting=false;
 
 
-
+app.post('/',function (req,res){
+  if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
+  else if(req.body.sub == 'Accedi con Google') res.redirect('/googlelogin')
+})
 
 
 
@@ -121,8 +124,8 @@ app.get('/ftoken',function (req,res){
 
 app.get('/user_info',function (req,res){
 
-  var url = 'https://graph.facebook.com/me?fields=id,name,email&access_token='+token
-        var headers = {'Authorization': 'Bearer '+token};
+  var url = 'https://graph.facebook.com/me?fields=id,name,email&access_token='+ftoken
+        var headers = {'Authorization': 'Bearer '+ftoken};
         var request = require('request');
 
         request.get({
@@ -220,21 +223,65 @@ app.get('/app', function(req,res){
 });
 
 
+let info
+let xid
 app.get('/details', function(req,res){
 
-  var xid = req.query.xid;
+  xid = req.query.xid;
   
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/xid/'+xid+'?apikey='+process.env.OpenMap_KEY
   }
   
   request.get(options,function callback(error, response, body){
-    var info = JSON.parse(body);
-    //debug: console.log(info)
+    info = JSON.parse(body);
     //Con ejs
-    res.render('details', {info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
-    
+
+    request.get('http://admin:admin@127.0.0.1:5984/my_database/'+xid, function callback(error, response, body){
+      if(error) {
+        console.log(error);
+      } else {
+        console.log(response.statusCode, body);
+        infodb = JSON.parse(body);
+        if(infodb.error != undefined){
+          console.log("File non trovato");
+          res.render('details', {info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: ""});
+        } 
+        else res.render('details', {info: info, xid: xid, reviews: infodb.reviews, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
+      }
+
+    });
+    //res.redirect('/reviewsput');
   });
+});
+
+
+app.get('/reviews', function(req,res){
+
+  body1={
+    "name": "GG",
+    "reviews": 'Bello111'
+  };
+  
+  request({
+    url: 'http://admin:admin@127.0.0.1:5984/my_database/'+xid,
+    //qs: {city: city, val: val}, 
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json'  //'HTML Form URL Encoded': 'application/x-www-form-urlencoded'
+    },
+    body: JSON.stringify(body1)
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+          console.log(response.statusCode, body);
+          res.redirect('/details?xid='+xid);
+      }
+  });
+
+  
 });
 
     //Senza ejs
