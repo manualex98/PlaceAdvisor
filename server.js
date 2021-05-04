@@ -156,20 +156,65 @@ app.get('/app', function(req,res){
 });
 
 
+let info
+let xid
 app.get('/details', function(req,res){
 
-  var xid = req.query.xid;
+  xid = req.query.xid;
   
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/xid/'+xid+'?apikey='+process.env.OpenMap_KEY
   }
   
   request.get(options,function callback(error, response, body){
-    var info = JSON.parse(body);
+    info = JSON.parse(body);
     //Con ejs
-    res.render('details', {info: info, xid: xid});
-    
+
+    request.get('http://admin:admin@127.0.0.1:5984/my_database/'+xid, function callback(error, response, body){
+      if(error) {
+        console.log(error);
+      } else {
+        console.log(response.statusCode, body);
+        infodb = JSON.parse(body);
+        if(infodb.error != undefined){
+          console.log("File non trovato");
+          res.render('details', {info: info, xid: xid});
+        } 
+        else res.render('details', {info: info, xid: xid, reviews: infodb.reviews});
+      }
+
+    });
+    //res.redirect('/reviewsput');
   });
+});
+
+
+app.get('/reviews', function(req,res){
+
+  body1={
+    "name": "GG",
+    "reviews": 'Bello111'
+  };
+  
+  request({
+    url: 'http://admin:admin@127.0.0.1:5984/my_database/'+xid,
+    //qs: {city: city, val: val}, 
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json'  //'HTML Form URL Encoded': 'application/x-www-form-urlencoded'
+    },
+    body: JSON.stringify(body1)
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+          console.log(response.statusCode, body);
+          res.redirect('/details?xid='+xid);
+      }
+  });
+
+  
 });
 
     //Senza ejs

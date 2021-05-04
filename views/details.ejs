@@ -32,6 +32,11 @@
         <% } else{ %>  
             Nessun background disponibile</i></li><br>
         <% } %>
+
+
+        <li><h3>Reviews: </h3><i>
+            <%= reviews %><br>
+    <a href="http://localhost:8000/reviews">Aggiungi Commento</a>
     <p>Share this place with your friends</p><br></ul>
     <% var link = 'http://127.0.0.1:8000/details?xid='+xid; %>
     <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid=+xid%3A8000%2F&amp;src=sdkpreparse"; %>
