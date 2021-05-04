@@ -5,7 +5,7 @@ Progetto Reti di Calcolatori 2020/21
 ***
 Istruzioni per l'installazione:
 ```
-$ git clone https://example.com
+$ git clone https://github.com/manualex98/Progetto-RetiDiCalcolatori.git
 $ cd ../path/to/the/file
 $ npm install
 $ npm start
