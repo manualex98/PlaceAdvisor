@@ -1,0 +1,11 @@
+###
+GET http://admin:admin@127.0.0.1:5984/my_database/_all_docs
+
+###
+PUT http://admin:admin@127.0.0.1:5984/my_database
+
+###
+DELETE http://admin:admin@127.0.0.1:5984/my_database
+
+###
+GET http://admin:admin@127.0.0.1:5984/my_database/N5978649686

@@ -76,9 +76,16 @@
 
         <li><h3>Reviews: </h3><i>
             <% if (reviews!="") { %>
-            <%= reviews %><br>
+            On  <%= date %> From
+            <%= username %> : <%= reviews %><br>
             <% } %>
-    <a href="http://localhost:8000/reviews">Aggiungi Commento</a>
+
+        <br><form action="http://localhost:8000/reviews" method="POST">
+            
+            <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
+            <input class="mb-3" type="submit" value="ADD" size="10">
+        </form>
+    
     <p>Share this place with your friends</p><br></ul>
     <% var link = 'http://127.0.0.1:8000/details?xid='+xid; %>
     <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid=+xid%3A8000%2F&amp;src=sdkpreparse"; %>

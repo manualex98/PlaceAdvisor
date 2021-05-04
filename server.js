@@ -18,7 +18,7 @@ let fconnected=false;
 let fconnecting=false;
 let gconnected=false;
 let gconnecting=false;
-
+let fusername
 
 app.post('/',function (req,res){
   if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
@@ -37,13 +37,15 @@ app.get('/googlelogin', function(req, res){
   res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/drive.metadata.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
 })
 
+
+
 app.get('/homepage', function (req,res){
   code=req.query.code;
   //check sessioni fb e google
   if (!gconnecting){
     if(fconnecting){
       if(fconnected){
-        res.render('homepage', {fconnected:fconnected})
+        res.render('homepage', {fconnected:fconnected, fusername:fusername})
       }
       else{
         res.redirect('/ftoken?code='+code);
@@ -122,6 +124,7 @@ app.get('/ftoken',function (req,res){
   });
 });
 
+
 app.get('/user_info',function (req,res){
 
   var url = 'https://graph.facebook.com/me?fields=id,name,email&access_token='+ftoken
@@ -134,9 +137,9 @@ app.get('/user_info',function (req,res){
             }, function(error, response, body){
                 console.log(body);
                 body2 = JSON.parse(body)
-                
-                res.send("Nome:"+body2.name
-                +"<br>Email: "+body2.email);
+                fusername=body2.name;
+
+                res.redirect('/homepage');
             });
 
 });
@@ -208,31 +211,36 @@ app.get('/details', function(req,res){
         console.log(response.statusCode, body);
         infodb = JSON.parse(body);
         if(infodb.error != undefined){
-          console.log("File non trovato");
           res.render('details', {info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: ""});
         } 
-        else res.render('details', {info: info, xid: xid, reviews: infodb.reviews, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
+        else{
+          data = infodb.day+"/"+ infodb.month+"/"+ infodb.year 
+          res.render('details', {info: info, xid: xid, reviews: infodb.reviews,username: infodb.name,date: data, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
+        }
       }
 
     });
-    //res.redirect('/reviewsput');
+
   });
 });
 
 
-app.get('/reviews', function(req,res){
+app.post('/reviews', function(req,res){
 
+  data = new Date();
   body1={
-    "name": "GG",
-    "reviews": 'Bello111'
+    "name": fusername,
+    "reviews": req.body.rev,
+    "day": data.getDate(),
+    "month": data.getMonth(),
+    "year": data.getFullYear()
   };
   
   request({
     url: 'http://admin:admin@127.0.0.1:5984/my_database/'+xid,
-    //qs: {city: city, val: val}, 
     method: 'PUT',
     headers: {
-      'content-type': 'application/json'  //'HTML Form URL Encoded': 'application/x-www-form-urlencoded'
+      'content-type': 'application/json'
     },
     body: JSON.stringify(body1)
     
