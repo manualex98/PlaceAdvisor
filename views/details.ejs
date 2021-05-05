@@ -76,8 +76,9 @@
 
         <li><h3>Reviews: </h3><i>
             <% if (reviews!="") { %>
-            On  <%= date %> From
-            <%= username %> : <%= reviews %><br>
+                <% for(var i=0; i<n ;i++) {%>
+                 On <%=reviews[i].date%> From <%=reviews[i].name%> : <%=reviews[i].text %><br>
+                <% } %>
             <% } %>
 
         <br><form action="http://localhost:8000/reviews" method="POST">

@@ -5,6 +5,7 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 const path = require('path');
 var request = require('request');
+const { ADDRGETNETWORKPARAMS } = require('dns');
 require('dotenv').config()
 
 //dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
@@ -192,6 +193,7 @@ app.get('/app', function(req,res){
 
 let info
 let xid
+let infodb
 app.get('/details', function(req,res){
 
   xid = req.query.xid;
@@ -211,11 +213,12 @@ app.get('/details', function(req,res){
         console.log(response.statusCode, body);
         infodb = JSON.parse(body);
         if(infodb.error != undefined){
+          reviews_check=false
           res.render('details', {info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: ""});
         } 
         else{
-          data = infodb.day+"/"+ infodb.month+"/"+ infodb.year 
-          res.render('details', {info: info, xid: xid, reviews: infodb.reviews,username: infodb.name,date: data, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
+          reviews_check=true
+          res.render('details', {info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
         }
       }
 
@@ -224,16 +227,27 @@ app.get('/details', function(req,res){
   });
 });
 
-
+let reviews_check
+let reviews_rev
 app.post('/reviews', function(req,res){
 
+  if(!reviews_check) newReview(req,res);
+  else updateReview(req,res);
+  
+});
+
+
+function newReview(req,res){
   data = new Date();
+  strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
   body1={
-    "name": fusername,
-    "reviews": req.body.rev,
-    "day": data.getDate(),
-    "month": data.getMonth(),
-    "year": data.getFullYear()
+    "reviews": [
+      {
+        "name": fusername,
+        "text": req.body.rev,
+        "date": strdate
+      }
+    ]
   };
   
   request({
@@ -252,7 +266,36 @@ app.post('/reviews', function(req,res){
           res.redirect('/details?xid='+xid);
       }
   });
-});
+}
+
+function updateReview(req,res){
+  data = new Date();
+  strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
+
+  newItem = {
+        "name": fusername,
+        "text": req.body.rev,
+        "date": strdate
+      }
+  infodb.reviews.push(newItem);
+
+  request({
+    url: 'http://admin:admin@127.0.0.1:5984/my_database/'+xid,
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify(infodb)
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+          console.log(response.statusCode, body);
+          res.redirect('/details?xid='+xid);
+      }
+  });
+}
 
 app.get('/',function (req,res){
   res.render('index.ejs',);

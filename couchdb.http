@@ -2,10 +2,32 @@
 GET http://admin:admin@127.0.0.1:5984/my_database/_all_docs
 
 ###
-PUT http://admin:admin@127.0.0.1:5984/my_database
+PUT http://admin:admin@127.0.0.1:5984/my_database/1
+content-type: application/json
+
+{
+    "name": ["Manuel"],
+    "reviews": ["Okay"],
+    "day": 4,
+    "month": 5,
+    "year": 2021
+}
 
 ###
 DELETE http://admin:admin@127.0.0.1:5984/my_database
 
 ###
-GET http://admin:admin@127.0.0.1:5984/my_database/N5978649686
+GET http://admin:admin@127.0.0.1:5984/my_database/Q1662313
+
+###
+# UPDATE A DOC
+PUT http://admin:admin@127.0.0.1:5984/my_database/1
+
+{
+    "_rev": "1-327be986a8983f99031926fd3fee555a",
+    "name": ["Test"],
+    "reviews": ["Bello"],
+    "day": 4,
+    "month": 5,
+    "year": 2021
+}
