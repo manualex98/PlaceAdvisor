@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Registrati</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width initial-scale=1.0"/>
+        <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
+    </head>
+    <body class="text-center">
+        <h1 class="mb-3">Registrati</h1>
+        <form name="SignupForm" method="POST" action="http://localhost:8000/userinfo">
+        Username:
+        <input type="text" name="username" size="20" placeholder="Username" required><br><br>
+        Password:
+        <input type="password" name="password" size="20" placeholder="Password" required><br><br>
+        Conferma password:
+        <input type="password" name="password" size="20" placeholder="Conferma password" required><br><br>
+        Foto profilo:
+        <input type="file" name="foto"><br><br>
+        <input type="submit" value="Crea il mio account" name="signup">
+       </form>
+
+
+    </body>
+</html>
