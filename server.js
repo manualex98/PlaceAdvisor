@@ -24,6 +24,9 @@ let fusername
 app.post('/',function (req,res){
   if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
   else if(req.body.sub == 'Accedi con Google') res.redirect('/googlelogin')
+  else{
+    gestisciAccesso(req,res);
+  }
 })
 
 app.post('/userinfo', function(req,res){
@@ -57,6 +60,32 @@ app.post('/userinfo', function(req,res){
 let infousers;
 let check;
 
+function gestisciAccesso(req,res){
+  request({
+    url: 'http://admin:newpassword@127.0.0.1:5984/users/1',
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json'
+    },
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+          console.log(response.statusCode, body);
+          infousers=JSON.parse(body);
+          if (checkUser(req,res)==false){
+            console.log("if")
+            res.render('homepage', {fusername:req.body.username, fconnected:false});
+          }
+          else if(checkUser(req,res)==true){
+            console.log("else if");
+            res.render('index', {check:check});
+          }
+      }      
+    });
+  
+}
 
 function checkUser(req,res){
   for (var i=0; i<infousers.users.length; i++){
@@ -396,13 +425,17 @@ function updateReview(req,res){
 }
 
 app.get('/',function (req,res){
-  res.render('index.ejs',);
+  res.render('index.ejs',{check:"false"});
 });
 
 
 app.get('/bootstrap.min.css',function (req,res){
   res.sendFile(path.resolve('bootstrap.min.css'));
 });
+
+app.get('/404',function(req,res){
+  res.render('404');
+})
 
 var server = app.listen(8000, function () {
   var host = server.address().address;

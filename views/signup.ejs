@@ -14,15 +14,13 @@
         <input type="text" name="username" size="20" placeholder="Username" required><br><br>
         Password:
         <input type="password" name="password" size="20" placeholder="Password" required><br><br>
-        Conferma password:
-        <input type="password" name="password" size="20" placeholder="Conferma password" required><br><br>
         Foto profilo:
         <input type="file" name="foto"><br><br>
         <input type="submit" value="Crea il mio account" name="signup">
        </form>
 
        <%if (check==false){%>
-        <h1>L'username è già preso </h1>
+        <h3>Questo username è già utilizzato </h3>
        <%}%>
 
     </body>
