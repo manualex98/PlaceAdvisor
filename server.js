@@ -5,11 +5,8 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 const path = require('path');
 var request = require('request');
+const { ADDRGETNETWORKPARAMS } = require('dns');
 require('dotenv').config()
-
-
-
-
 
 //dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
 app.set('view engine', 'ejs');
@@ -22,7 +19,7 @@ let fconnected=false;
 let fconnecting=false;
 let gconnected=false;
 let gconnecting=false;
-
+let fusername
 
 app.post('/',function (req,res){
   if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
@@ -30,18 +27,64 @@ app.post('/',function (req,res){
 })
 
 app.post('/userinfo', function(req,res){
-  console.log(req.body.username);
+  request({
+    url: 'http://admin:newpassword@127.0.0.1:5984/users/1',
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json'
+    },
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+          console.log(response.statusCode, body);
+          infousers=JSON.parse(body);
+          if (!infousers.error){
+            if (checkUser(req,res)==true){
+              updateUser(req,res);
+            }
+            else{
+              res.redirect('signup');
+            }
+          }
+          else{
+            newUser(req,res);
+          }
+      }
+    });
+  });
+let infousers;
+let check;
+
+
+function checkUser(req,res){
+  for (var i=0; i<infousers.users.length; i++){
+    if (infousers.users[i].username==req.body.username&&infousers.users[i].password==req.body.password){
+      check=false;
+      return false;
+    } 
+}
+check=true;
+return true;
+}
+
+function newUser(req,res){
+
   body1={
-    "name": req.body.username,
-    "password": req.body.password
+    "users": [
+      {
+        "username": req.body.username,
+        "password": req.body.password
+      }
+    ]
   };
   
   request({
     url: 'http://admin:newpassword@127.0.0.1:5984/users/1',
-    //qs: {city: city, val: val}, 
     method: 'PUT',
     headers: {
-      'content-type': 'application/json'  //'HTML Form URL Encoded': 'application/x-www-form-urlencoded'
+      'content-type': 'application/json'
     },
     body: JSON.stringify(body1)
     
@@ -53,14 +96,33 @@ app.post('/userinfo', function(req,res){
           res.redirect('/');
       }
   });
-});
+}
 
+function updateUser(req,res){
 
+  newItem = {
+        "username": req.body.username,
+        "password": req.body.password
+      }
+  infousers.users.push(newItem);
 
-
-app.get('/signup', function(req, res){
-  res.render('signup.ejs',);
+  request({
+    url: 'http://admin:newpassword@127.0.0.1:5984/users/1',
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify(infousers)
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+          console.log(response.statusCode, body);
+          res.redirect('/');
+      }
   });
+}
 
 app.get('/facebooklogin',function (req,res){
   fconnecting=true;
@@ -72,13 +134,17 @@ app.get('/googlelogin', function(req, res){
   res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/drive.metadata.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
 })
 
+app.get('/signup', function(req, res){
+  res.render('signup.ejs',{check:check});
+});
+
 app.get('/homepage', function (req,res){
   code=req.query.code;
   //check sessioni fb e google
   if (!gconnecting){
     if(fconnecting){
       if(fconnected){
-        res.render('homepage', {fconnected:fconnected})
+        res.render('homepage', {fconnected:fconnected, fusername:fusername})
       }
       else{
         res.redirect('/ftoken?code='+code);
@@ -157,6 +223,7 @@ app.get('/ftoken',function (req,res){
   });
 });
 
+
 app.get('/user_info',function (req,res){
 
   var url = 'https://graph.facebook.com/me?fields=id,name,email&access_token='+ftoken
@@ -169,9 +236,9 @@ app.get('/user_info',function (req,res){
             }, function(error, response, body){
                 console.log(body);
                 body2 = JSON.parse(body)
-                
-                res.send("Nome:"+body2.name
-                +"<br>Email: "+body2.email);
+                fusername=body2.name;
+
+                res.redirect('/homepage');
             });
 
 });
@@ -224,6 +291,7 @@ app.get('/app', function(req,res){
 
 let info
 let xid
+let infodb
 app.get('/details', function(req,res){
 
   xid = req.query.xid;
@@ -243,31 +311,48 @@ app.get('/details', function(req,res){
         console.log(response.statusCode, body);
         infodb = JSON.parse(body);
         if(infodb.error != undefined){
-          console.log("File non trovato");
+          reviews_check=false
           res.render('details', {info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: ""});
         } 
-        else res.render('details', {info: info, xid: xid, reviews: infodb.reviews, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
+        else{
+          reviews_check=true
+          res.render('details', {info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
+        }
       }
 
     });
-    //res.redirect('/reviewsput');
+
   });
 });
 
+let reviews_check
+let reviews_rev
+app.post('/reviews', function(req,res){
 
-app.get('/reviews', function(req,res){
+  if(!reviews_check) newReview(req,res);
+  else updateReview(req,res);
+  
+});
 
+
+function newReview(req,res){
+  data = new Date();
+  strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
   body1={
-    "name": "GG",
-    "reviews": 'Bello111'
+    "reviews": [
+      {
+        "name": fusername,
+        "text": req.body.rev,
+        "date": strdate
+      }
+    ]
   };
   
   request({
     url: 'http://admin:admin@127.0.0.1:5984/my_database/'+xid,
-    //qs: {city: city, val: val}, 
     method: 'PUT',
     headers: {
-      'content-type': 'application/json'  //'HTML Form URL Encoded': 'application/x-www-form-urlencoded'
+      'content-type': 'application/json'
     },
     body: JSON.stringify(body1)
     
@@ -279,7 +364,36 @@ app.get('/reviews', function(req,res){
           res.redirect('/details?xid='+xid);
       }
   });
-});
+}
+
+function updateReview(req,res){
+  data = new Date();
+  strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
+
+  newItem = {
+        "name": fusername,
+        "text": req.body.rev,
+        "date": strdate
+      }
+  infodb.reviews.push(newItem);
+
+  request({
+    url: 'http://admin:admin@127.0.0.1:5984/my_database/'+xid,
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify(infodb)
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+          console.log(response.statusCode, body);
+          res.redirect('/details?xid='+xid);
+      }
+  });
+}
 
 app.get('/',function (req,res){
   res.render('index.ejs',);
