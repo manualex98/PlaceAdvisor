@@ -13,17 +13,14 @@
   <script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>
   
   
-  <h1 class="mb-3">Homepage</h1>    <h3>Hi, <%=fusername%></h3> <br>
-
-  <!--<a href="http://localhost:8000/user_info">
-      <button class="mb-3" type="button">Get User Info</button><br>
-  </a>-->
+  <h1 class="mb-3">Homepage</h1>    <h3>Hi, <%=username%></h3> <br>
 
   <form action="http://localhost:8000/openmap" method="POST">
     
     <input class="mb-3" type="text" placeholder="City" size="20" name="city" ><br>
     <select class="mb-3" size=1 cols=3 name="cat"><br>
-      <option selected value=museums> Museums
+      <option selected value=interesting_places> Interesting Places
+      <option value=museums> Museums
       <option value=religion> Religion
       <option value=accomodations> Accomodations
       <option value=amusements> Amusements
@@ -42,6 +39,7 @@
     <input class="mb-3" type="submit" value="Search" name="sub">
   </form>
   
+  <a href="http://localhost:8000/logout"><button class="mb-3">Logout</button></a><br>
   <% if (fconnected==true) { %>
     <p><b>Share this site with your friends</b></p>
     <div class="fb-share-button" data-href="http://127.0.0.1:8000" data-layout="button" data-size="large"><a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%3A8000%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Condividi</a></div>

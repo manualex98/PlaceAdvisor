@@ -19,19 +19,18 @@ let fconnected=false;
 let fconnecting=false;
 let gconnected=false;
 let gconnecting=false;
-let fusername
+let lconnected=false
+let username
 
 app.post('/',function (req,res){
   if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
   else if(req.body.sub == 'Accedi con Google') res.redirect('/googlelogin')
-  else{
-    gestisciAccesso(req,res);
-  }
+  else gestisciAccesso(req,res);
 })
 
 app.post('/userinfo', function(req,res){
   request({
-    url: 'http://admin:newpassword@127.0.0.1:5984/users/1',
+    url: 'http://admin:admin@127.0.0.1:5984/users/1',
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -62,7 +61,7 @@ let check;
 
 function gestisciAccesso(req,res){
   request({
-    url: 'http://admin:newpassword@127.0.0.1:5984/users/1',
+    url: 'http://admin:admin@127.0.0.1:5984/users/1',
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -75,11 +74,12 @@ function gestisciAccesso(req,res){
           console.log(response.statusCode, body);
           infousers=JSON.parse(body);
           if (checkUser(req,res)==false){
-            console.log("if")
-            res.render('homepage', {fusername:req.body.username, fconnected:false});
+            username=req.body.username
+            lconnected=true
+            res.render('homepage', {username:req.body.username, fconnected:false});
           }
           else if(checkUser(req,res)==true){
-            console.log("else if");
+            
             res.render('index', {check:check});
           }
       }      
@@ -93,9 +93,9 @@ function checkUser(req,res){
       check=false;
       return false;
     } 
-}
-check=true;
-return true;
+  }
+  check=true;
+  return true;
 }
 
 function newUser(req,res){
@@ -110,7 +110,7 @@ function newUser(req,res){
   };
   
   request({
-    url: 'http://admin:newpassword@127.0.0.1:5984/users/1',
+    url: 'http://admin:admin@127.0.0.1:5984/users/1',
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -136,7 +136,7 @@ function updateUser(req,res){
   infousers.users.push(newItem);
 
   request({
-    url: 'http://admin:newpassword@127.0.0.1:5984/users/1',
+    url: 'http://admin:admin@127.0.0.1:5984/users/1',
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -173,7 +173,7 @@ app.get('/homepage', function (req,res){
   if (!gconnecting){
     if(fconnecting){
       if(fconnected){
-        res.render('homepage', {fconnected:fconnected, fusername:fusername})
+        res.render('homepage', {fconnected:fconnected, username:username})
       }
       else{
         res.redirect('/ftoken?code='+code);
@@ -265,8 +265,7 @@ app.get('/user_info',function (req,res){
             }, function(error, response, body){
                 console.log(body);
                 body2 = JSON.parse(body)
-                fusername=body2.name;
-
+                username=body2.name;
                 res.redirect('/homepage');
             });
 
@@ -283,6 +282,7 @@ app.post('/openmap', function(req,res){
   city = req.body.city;
   rad = parseFloat(req.body.rad)*1000;
   cate = req.body.cat;
+  
   
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey='+process.env.OpenMap_KEY+'&name='+city
@@ -313,7 +313,14 @@ app.get('/app', function(req,res){
     var info = JSON.parse(body);
     data = info.features;
     n = data.length;
-    res.render('list_places', {numero: n, data: data, cat: cate, citta: city});
+
+    //tolgo "_" dalla categoria
+    category =""
+    cate = cate.split("_")
+    for(var i=0; i<cate.length; i++) category+=cate[i]+" " 
+    //fatto
+
+    res.render('list_places', {numero: n, data: data, cat: category, citta: city});
   })
 });
 
@@ -333,7 +340,7 @@ app.get('/details', function(req,res){
     info = JSON.parse(body);
     //Con ejs
 
-    request.get('http://admin:admin@127.0.0.1:5984/my_database/'+xid, function callback(error, response, body){
+    request.get('http://admin:admin@127.0.0.1:5984/reviews/'+xid, function callback(error, response, body){
       if(error) {
         console.log(error);
       } else {
@@ -341,11 +348,11 @@ app.get('/details', function(req,res){
         infodb = JSON.parse(body);
         if(infodb.error != undefined){
           reviews_check=false
-          res.render('details', {info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: ""});
+          res.render('details', {fconnected: fconnected,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: ""});
         } 
         else{
           reviews_check=true
-          res.render('details', {info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
+          res.render('details', {fconnected:fconnected,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
         }
       }
 
@@ -353,6 +360,15 @@ app.get('/details', function(req,res){
 
   });
 });
+
+
+app.get('/logout',function(req,res){
+  fconnected=false
+  gconnected=false
+  lconnected=false
+  res.redirect('/')
+})
+
 
 let reviews_check
 let reviews_rev
@@ -370,7 +386,7 @@ function newReview(req,res){
   body1={
     "reviews": [
       {
-        "name": fusername,
+        "name": username,
         "text": req.body.rev,
         "date": strdate
       }
@@ -378,7 +394,7 @@ function newReview(req,res){
   };
   
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/my_database/'+xid,
+    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -400,14 +416,14 @@ function updateReview(req,res){
   strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
 
   newItem = {
-        "name": fusername,
+        "name": username,
         "text": req.body.rev,
         "date": strdate
       }
   infodb.reviews.push(newItem);
 
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/my_database/'+xid,
+    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'

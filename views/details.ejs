@@ -87,9 +87,11 @@
             <input class="mb-3" type="submit" value="ADD" size="10">
         </form>
     
-    <p>Share this place with your friends</p><br></ul>
-    <% var link = 'http://127.0.0.1:8000/details?xid='+xid; %>
-    <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid=+xid%3A8000%2F&amp;src=sdkpreparse"; %>
-    <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div>
+    <% if (fconnected==true) { %>
+        <p>Share this place with your friends</p><br></ul>
+        <% var link = 'http://127.0.0.1:8000/details?xid='+xid; %>
+        <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid=+xid%3A8000%2F&amp;src=sdkpreparse"; %>
+        <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div>
     
+    <%}%>
 </html>
