@@ -164,7 +164,7 @@ app.get('/googlelogin', function(req, res){
 })
 
 app.get('/signup', function(req, res){
-  res.render('signup.ejs',{check:check});
+  res.render('signup.ejs',{check: check});
 });
 
 app.get('/homepage', function (req,res){
@@ -185,7 +185,7 @@ app.get('/homepage', function (req,res){
   }
   else{
     if(gconnected){
-      res.render('homepage', {fconnected:fconnected})
+      res.render('homepage', {fconnected: fconnected, username: "gusername"}) //Ancora da implementare
     }
     else{
       res.redirect('/gtoken?code='+code);
