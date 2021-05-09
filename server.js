@@ -43,7 +43,7 @@ app.post('/userinfo', function(req,res){
           console.log(response.statusCode, body);
           infousers=JSON.parse(body);
           if (!infousers.error){
-            if (checkUser(req,res)==true){
+            if (checkUsername(req,res)==true){
               updateUser(req,res);
             }
             else{
@@ -88,8 +88,19 @@ function gestisciAccesso(req,res){
 }
 
 function checkUser(req,res){
+  for (var i=0;i<infousers.users.length;i++){
+    if (infousers.users[i].username==req.body.username && infousers.users[i].password==req.body.password){
+      check=false;
+      return false;
+    }
+  }
+  check=true;
+  return true;
+}
+
+function checkUsername(req,res){
   for (var i=0; i<infousers.users.length; i++){
-    if (infousers.users[i].username==req.body.username&&infousers.users[i].password==req.body.password){
+    if (infousers.users[i].username==req.body.username){
       check=false;
       return false;
     } 
