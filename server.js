@@ -173,7 +173,7 @@ app.get('/facebooklogin',function (req,res){
 
 app.get('/googlelogin', function(req, res){
   gconnecting=true;
-  res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/drive.metadata.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
+  res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
 })
 
 app.get('/signup', function(req, res){
@@ -183,7 +183,7 @@ app.get('/signup', function(req, res){
 app.get('/homepage', function (req,res){
   code=req.query.code;
   //check sessioni fb e google
-  //if (!gconnecting){
+  if (!gconnecting){
     if(fconnecting){
       if(fconnected){
         res.render('homepage', {fconnected:fconnected, username:username})
@@ -195,8 +195,8 @@ app.get('/homepage', function (req,res){
     else{
       res.redirect('/');
     }
-  })
-  /*else{
+  }
+  else{
     if(gconnected){
       res.render('homepage', {fconnected: fconnected, username: "gusername"}) //Ancora da implementare
     }
@@ -204,8 +204,8 @@ app.get('/homepage', function (req,res){
       res.redirect('/gtoken?code='+code);
     }
  
-  }*/
-
+  }
+})
 
 //acquisisci google token
 app.get('/gtoken', function(req, res){
@@ -231,7 +231,8 @@ app.get('/gtoken', function(req, res){
       gtoken = info.access_token;
       gconnected = true;
       console.log("Got the token "+ info.access_token);
-      res.render('continue.ejs', {gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected})
+      res.render('continue.ejs', {gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
+      
     }
   })
 })
@@ -260,7 +261,7 @@ app.get('/ftoken',function (req,res){
     else{
       ftoken = info.access_token;
       fconnected = true;
-      res.render('continue.ejs', {gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected})
+      res.render('continue.ejs', {gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
     }
   });
 });
@@ -309,16 +310,12 @@ app.post('/openmap', function(req,res){
     lon = parseFloat(info.lon);
     
     res.redirect('/app');
-  });
-  
-  
+  }); 
 });
 
 
 
 app.get('/app', function(req,res){
-  
-  //CON EJS
   var options ={
     url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey='+process.env.OpenMap_KEY+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
   }
@@ -374,12 +371,38 @@ app.get('/details', function(req,res){
   });
 });
 
+app.get('/driveapi', function(req,res){
+  var url = 'https://photoslibrary.googleapis.com/v1/mediaItems'
+	var headers = {'Authorization': 'Bearer '+gtoken};
+	
+  
+    var request = require('request');
+
+
+	request.get({
+		headers: headers,
+		url:     url,
+		}, function(error, response, body){
+			console.log(body);
+			res.send(body);
+		});
+    
+});
+
 
 app.get('/logout',function(req,res){
-  fconnected=false
-  gconnected=false
-  lconnected=false
-  res.redirect('/')
+  request.get("https://www.facebook.com/logout.php?next=localhost:8000&access_token="+ftoken, function callback(error, response, body){
+    if (error){
+      console.log(error);
+    }
+    else{
+      fconnected=false
+      gconnected=false
+      lconnected=false
+      console.log(response.statusCode, body)
+    }
+  })
+
 })
 
 
@@ -477,8 +500,6 @@ app.post('/feedback', function(req, res){
       console.error(error);
     }
   }
-
-
 })
 
 app.get('/',function (req,res){
