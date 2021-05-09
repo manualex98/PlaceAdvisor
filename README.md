@@ -1,5 +1,5 @@
-# Progetto-RetiDiCalcolatori
-Progetto Reti di Calcolatori 2020/21
+# Progetto Reti Di Calcolatori
+Progetto per il corso di Reti di Calcolatori 2020/21 tenuto dal prof. Andrea Vitaletti.
 
 ## Configuration
 L'applicazione richiede i seguenti servizi:
@@ -29,8 +29,8 @@ $ cd ../path/to/the/file
 $ node feedback_consumer.js
 ```
 
-
 -----------------
+
 
 Utenti test per Facebook:
 email: 	test_zreyrfg_user@tfbnw.net
