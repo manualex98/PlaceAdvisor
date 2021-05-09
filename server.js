@@ -384,7 +384,8 @@ app.get('/driveapi', function(req,res){
 		url:     url,
 		}, function(error, response, body){
 			console.log(body);
-			res.send(body);
+      info = JSON.parse(body);
+			res.render('gphotos.ejs', {info:info})
 		});
     
 });

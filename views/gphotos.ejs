@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>Search</title>
+</head>
+<body>
+    <script>
+    </script>
+    <h1>First 100 results <h1>
+    <ul>
+        <% for (var i=0; i<info.mediaItems.length; i++){ %>
+        <a href= <%=info.mediaItems[i].productUrl %> <li><%= info.mediaItems[i].filename %></li></a>
+        <% var uri = info.mediaItems[i].baseUrl; %>
+        <img src= <%=uri %> width=<%=info.mediaItems[i].mediaMetadata.width%>/2 height=<%=info.mediaItems[i].mediaMetadata.height%>/2> 
+    <% } %>
+    
+    </ul>
+     
+</html>
