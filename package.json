@@ -22,6 +22,7 @@
   "author": "Alessi Manuel, Fortunato Francesco, Lai Simona",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^0.7.1",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.6",

@@ -6,6 +6,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const path = require('path');
 var request = require('request');
 const { ADDRGETNETWORKPARAMS } = require('dns');
+var amqp = require('amqplib'); //Protocollo amqp per rabbitmq
 require('dotenv').config()
 
 //dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
@@ -24,7 +25,6 @@ let username
 
 app.post('/',function (req,res){
   if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
-  else if(req.body.sub == 'Accedi con Google') res.redirect('/googlelogin')
   else gestisciAccesso(req,res);
 })
 
@@ -87,6 +87,8 @@ function gestisciAccesso(req,res){
   
 }
 
+
+//funzione check User
 function checkUser(req,res){
   for (var i=0;i<infousers.users.length;i++){
     if (infousers.users[i].username==req.body.username && infousers.users[i].password==req.body.password){
@@ -181,7 +183,7 @@ app.get('/signup', function(req, res){
 app.get('/homepage', function (req,res){
   code=req.query.code;
   //check sessioni fb e google
-  if (!gconnecting){
+  //if (!gconnecting){
     if(fconnecting){
       if(fconnected){
         res.render('homepage', {fconnected:fconnected, username:username})
@@ -193,16 +195,16 @@ app.get('/homepage', function (req,res){
     else{
       res.redirect('/');
     }
-  }
-  else{
+  })
+  /*else{
     if(gconnected){
       res.render('homepage', {fconnected: fconnected, username: "gusername"}) //Ancora da implementare
     }
     else{
       res.redirect('/gtoken?code='+code);
     }
-  }
-})
+ 
+  }*/
 
 
 //acquisisci google token
@@ -450,6 +452,34 @@ function updateReview(req,res){
       }
   });
 }
+
+//feedback
+app.get('/feedback', function(req, res){
+  res.render('feedback', {inviato : false})
+})
+
+app.post('/feedback', function(req, res){
+  var data = {
+    text : req.body.feed
+  }
+  connect();
+  async function connect() {
+
+    try {
+      const connection = await amqp.connect("amqp://localost:5672")
+      const channel = await connection.createChannel();
+      const result = channel.assertQueue("feedback")
+      channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
+      console.log('Feedback sent succefully')
+      res.render('feedback', {inviato : true})
+    }
+    catch(error){
+      console.error(error);
+    }
+  }
+
+
+})
 
 app.get('/',function (req,res){
   res.render('index.ejs',{check:"false"});

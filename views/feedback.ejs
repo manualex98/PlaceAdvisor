@@ -1,0 +1,12 @@
+<% if (!inviato){ %>
+    SEGNALACELO:
+
+    <br><form action="http://localhost:8000/feedback" method="POST">
+            
+        <textarea name="feed" cols="60" rows="30" placeholder="Inviaci il tuo feed"></textarea><br>
+        <input class="mb-3" type="submit" value="Invia" size="30">
+    </form>
+<% } else { %>
+    Fantastico!! Il feedback è stato ricevuto correttamente. Grazie per averci segnalato questa brutta cosa, ce ne faremo una ragione. :*
+    <a href="http://localhost:8000/homepage"><button class="mb-3">Torna alla home</button></a><br>
+<% } %>
