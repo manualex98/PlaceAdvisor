@@ -5,12 +5,12 @@
 <body>
     <script>
     </script>
-    <h1>First 100 results for <%= cat %> in <%= citta %> </h1>
+    <h1>Primi 100 risultati per <%= cat %> in <%= citta %> </h1>
     <ul>
     <% for(var i=0; i<numero; i++) {%>
         <% if(data[i].properties.name.length > 0) {%>    
             <% var uri = "http://localhost:8000/details?xid="+data[i].properties.xid; %>
-            <li><%= data[i].properties.name %></li><a href=<%=uri %> <li>Details</li> </a>
+            <li><%= data[i].properties.name %></li><a href=<%=uri %> <li>Dettagli</li> </a>
         <% } %>
     <% } %>
     </ul>

@@ -4,7 +4,7 @@ Progetto per il corso di Reti di Calcolatori 2020/21 tenuto dal prof. Andrea Vit
 ## Configuration
 L'applicazione richiede i seguenti servizi:
 * CouchDB all'indirizzo localhost:5984;
-* RabbitMQ all'indirizzo localhost:5672;
+* RabbitMQ all'indirizzo localhost:5672;  //docker run --name rabbitmq -p 5672:5672 rabbitmq
 
 In particolare in CouchDB devono essere presenti i seguenti database:
 * users, per memorizzare gli utenti;

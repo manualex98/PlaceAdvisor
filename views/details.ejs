@@ -11,31 +11,31 @@
     <div id="fb-root"></div><script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>
 
     <h1> <%= info.name %> </h1><br>
-    <h2>Details:</h2>
+    <h2>Dettagli:</h2>
     <% if (info.preview!=undefined) {%>
         <img src=<%= info.preview.source  %> width=<%=info.preview.width%> height=<%=info.preview.height%>>
     <% } else{ %>
-        No images available
+        Immagine non disponibile
     <% } %>
     <br>
     <ul>
-        <li><h3><b><i>You can find it at: </b></h3>
+        <li><h3><b><i>Puoi trovarlo a: </b></h3>
         <%if(info.address.road==undefined) {%>
             <%= info.address.pedestrian %>
         <% } else{ %>  
             <%= info.address.road %>
         <% } %>
-        number: </b> 
+        civico: </b> 
         <% if(info.address.house_number==undefined){ %>
             SNC</i></li><br>
         <% } else{ %>  
             <%= info.address.house_number %></i></li><br>
         <% } %>
-        <li><h3>Background: </h3><i>
+        <li><h3>Informazioni: </h3><i>
         <% if(info.wikipedia_extracts!=undefined) {%> 
             <%- info.wikipedia_extracts.html %> </i></li><br>
         <% } else{ %>  
-            Nessun background disponibile</i></li><br>
+            Nessuna informazione disponibile</i></li><br>
         <% } %>
         <div style="width: 640px; height: 480px" id="mapContainer"></div>
         <script>
@@ -74,21 +74,21 @@
         
 
 
-        <li><h3>Reviews: </h3><i>
+        <li><h3>Recensioni: </h3><i>
             <% if (reviews!="") { %>
                 <% for(var i=0; i<n ;i++) {%>
-                 On <%=reviews[i].date%> From <%=reviews[i].name%> : <%=reviews[i].text %><br>
+                    <%=reviews[i].date%> Da <%=reviews[i].name%> : <%=reviews[i].text %><br>
                 <% } %>
             <% } %>
 
         <br><form action="http://localhost:8000/reviews" method="POST">
             
             <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
-            <input class="mb-3" type="submit" value="ADD" size="10">
+            <input class="mb-3" type="submit" value="AGGIUNGI" size="10">
         </form>
     
     <% if (fconnected==true) { %>
-        <p>Share this place with your friends</p><br></ul>
+        <p>Condividi questo posto con i tuoi amici</p><br></ul>
         <% var link = 'http://127.0.0.1:8000/details?xid='+xid; %>
         <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid=+xid%3A8000%2F&amp;src=sdkpreparse"; %>
         <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div>

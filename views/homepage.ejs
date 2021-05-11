@@ -13,11 +13,11 @@
   <script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>
   
   
-  <h1 class="mb-3">Homepage</h1>    <h3>Hi, <%=username%></h3> <br>
+  <h1 class="mb-3">Homepage</h1>    <h3>Ciao, <%=username%></h3> <br>
 
   <form action="http://localhost:8000/openmap" method="POST">
     
-    <input class="mb-3" type="text" placeholder="City" size="20" name="city" ><br>
+    <input class="mb-3" type="text" placeholder="Città" size="20" name="city" ><br>
     <select class="mb-3" size=1 cols=3 name="cat"><br>
       <option selected value=interesting_places> Interesting Places
       <option value=museums> Museums
@@ -35,19 +35,19 @@
 
     </select>
     
-    <input class="mb-3" type="text" placeholder="Radius (KM)" size="10" name="rad" >
-    <input class="mb-3" type="submit" value="Search" name="sub">
+    <input class="mb-3" type="text" placeholder="Raggio (KM)" size="10" name="rad" >
+    <input class="mb-3" type="submit" value="Cerca" name="sub">
   </form>
   <% if (fconnected==true) { %>
   <a href="http://localhost:8000/logout"><button class="mb-3">Logout</button></a><br>
   
-    <p><b>Share this site with your friends</b></p>
+    <p><b>Condividi questo sito con i tuoi amici</b></p>
     <div class="fb-share-button" data-href="http://127.0.0.1:8000" data-layout="button" data-size="large"><a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%3A8000%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Condividi</a></div>
     
   <%}%>
 
 
-  <b><a href="http://localhost:8000/feedback"><button class="mb-3">Non funonzia?? Mandaci un feedback</button></a><br></b>
+  <b><a href="http://localhost:8000/feedback"><button class="mb-3">Non funziona?? Mandaci un feedback</button></a><br></b>
   <fb:login-button autologoutlink="true"></fb:login-button></body>
 
 </html>
