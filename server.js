@@ -168,7 +168,7 @@ function updateUser(req,res){
 
 app.get('/facebooklogin',function (req,res){
   fconnecting=true;
-  res.redirect("https://www.facebook.com/v10.0/dialog/oauth?client_id="+process.env.CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
+  res.redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
 });
 
 app.get('/googlelogin', function(req, res){
@@ -269,7 +269,7 @@ app.get('/ftoken',function (req,res){
 
 app.get('/user_info',function (req,res){
 
-  var url = 'https://graph.facebook.com/me?fields=id,name,email&access_token='+ftoken
+  var url = 'https://graph.facebook.com/me?fields=id,first_name,last_name,picture,email&access_token='+ftoken
         var headers = {'Authorization': 'Bearer '+ftoken};
         var request = require('request');
 
@@ -278,8 +278,12 @@ app.get('/user_info',function (req,res){
             url:     url,
             }, function(error, response, body){
                 console.log(body);
-                body2 = JSON.parse(body)
-                username=body2.name;
+                body1 = JSON.parse(body);
+                var stringified = JSON.stringify(body1);
+                stringified = stringified.replace('\u0040', '@');
+                var parsed =JSON.parse(stringified);
+                username=parsed.name;
+                console.log('Ce sta la @? ' + JSON.stringify(parsed))
                 res.redirect('/homepage');
             });
 
