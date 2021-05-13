@@ -20,8 +20,10 @@ let fconnected=false;
 let fconnecting=false;
 let gconnected=false;
 let gconnecting=false;
-let lconnected=false
-let username
+let lconnected=false;
+let username;
+var fbinfo;
+
 
 app.post('/',function (req,res){
   if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
@@ -266,7 +268,7 @@ app.get('/ftoken',function (req,res){
   });
 });
 
-
+var fbinfo;
 app.get('/user_info',function (req,res){
 
   var url = 'https://graph.facebook.com/me?fields=id,first_name,last_name,picture,email&access_token='+ftoken
@@ -283,11 +285,21 @@ app.get('/user_info',function (req,res){
                 stringified = stringified.replace('\u0040', '@');
                 var parsed =JSON.parse(stringified);
                 username=parsed.name;
-                console.log('Ce sta la @? ' + JSON.stringify(parsed))
+                fbinfo=parsed;
                 res.redirect('/homepage');
             });
 
 });
+
+app.get('/info', function(req, res){
+  if (fconnected && fbinfo!=undefined){
+    res.render('user_info', {data:fbinfo});
+  }
+  else{
+    res.render('user_info', {data: ""});
+  }
+  
+})
     
 //API Open Trip Map Places
 let lon;

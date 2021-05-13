@@ -1,0 +1,24 @@
+<html>
+    <% if (data!=""){ %>
+<head>
+    <title>Info <%=data.first_name%> <%=data.last_name%></title>
+</head>
+<body>
+    <script>
+    </script>
+    <h1>Ecco le tue informazioni</h1>
+    <%var photourl= data.picture.data.url ; %>
+    <ul>
+        <li>Nome: <%= data.first_name%></li>
+        <li>Cognome: <%= data.last_name%></li>
+        <li>E-mail : <%= data.email%></li>
+        <li>Picture: <img src=<%= photourl  %> width=<%=data.picture.data.width%> height=<%=data.picture.data.height%>>
+    
+    </ul>
+    <% } else {%>
+        Sembra che tu non sia collegato! :( Torna alla homepage! 
+        <a href= "http://localhost:8000/">
+            <button type= 'button'>OK :(</button>
+          </a>
+    <% } %>
+</html>
