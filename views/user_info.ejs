@@ -15,7 +15,7 @@
         <li>Picture: <img src=<%= photourl  %> width=<%=data.picture.width%> height=<%=data.picture.height%>>
     
     </ul>
-        <% if(data.reviews){ %>
+        <% if(data.reviews.length>0){ %>
             <h2>Le tue recensioni:</h2><br>
             <ul>
             <% for(var i=0;i < data.reviews.length; i++) {%>
@@ -28,6 +28,18 @@
             </ul>
         <%} else {%>
             <h2>Non hai effettuato nessuna recensione ancora</h2>
+        <%}%>
+
+        <% if(data.feedbacks.length>0){ %>
+            <h2>I tuoi feedback:</h2><br>
+            <ul>
+            <% for(var i=0;i < data.feedbacks.length; i++) {%>
+                <li>Testo: <%= data.feedbacks[i].text%></li>
+                <h2>--------------------------------------</h2>
+            <%}%>
+            </ul>
+        <%} else {%>
+            <h2>Non hai inviato nessun feedback ancora</h2>
         <%}%>
 
     <% } else {%>

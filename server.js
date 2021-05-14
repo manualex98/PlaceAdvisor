@@ -318,7 +318,7 @@ app.post('/fbsignup',function (req,res){
       "width": fbinfo.picture.data.width
     },
     "reviews": [],
-    "feedback":[]
+    "feedbacks":[]
   
 };
 
@@ -602,6 +602,7 @@ app.get('/feedback', function(req, res){
 
 app.post('/feedback', function(req, res){
   var data = {
+    email: email,
     name: username,
     text : req.body.feed
   }

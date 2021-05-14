@@ -23,7 +23,7 @@ async function connect() {
             //ACK
             channel.ack(message);
             request({
-                url: 'http://admin:admin@127.0.0.1:5984/my_database/feedback',
+                url: 'http://admin:admin@127.0.0.1:5984/users/'+mex.email,
                 method: 'GET'
             }, function(error, response, body){
                 if(error) {
@@ -31,8 +31,7 @@ async function connect() {
                 } else {
                     var body = JSON.parse(body);
                     db = body
-                    if(!body.error) updateFeedback(mex.name,mex.text)
-                    else newFeedback(mex.name,mex.text)
+                    updateFeedback(mex.name,mex.text,mex.email)
                 }
             })
             
@@ -50,47 +49,19 @@ async function connect() {
 }
 
 
-function updateFeedback(name,text){
+function updateFeedback(name,text,email){
     newItem = {
-        "name": name,
         "text": text
       }
     db.feedbacks.push(newItem);
 
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/my_database/feedback',
+    url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
     },
     body: JSON.stringify(db)
-    
-  }, function(error, response, body){
-      if(error) {
-          console.log(error);
-      } else {
-          console.log(response.statusCode, body);
-      }
-  });
-}
-
-function newFeedback(name,text){
-    newItem = {
-        "feedbacks": [
-            {
-                "name": name,
-                "text": text
-            }
-        ]
-    }
-
-  request({
-    url: 'http://admin:admin@127.0.0.1:5984/my_database/feedback',
-    method: 'PUT',
-    headers: {
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify(newItem)
     
   }, function(error, response, body){
       if(error) {
