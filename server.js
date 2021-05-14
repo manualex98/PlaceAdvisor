@@ -658,44 +658,17 @@ app.post('/newfeedback', function(req,res){
 let id
 app.post('/feedback', function(req, res){
   date = new Date();
-  mese=data.getMonth() +1;
+  mese=date.getMonth() +1;
   strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
   id = Math.round(Math.random()*10000);
-  var data = {
-    id: id,
-    date: date,
-    email: email,
-    name: username,
-    text : req.body.feed
-  }
-  connect();
-  async function connect() {
-
-    try {
-      const connection = await amqp.connect("amqp://localhost:5672")
-      const channel = await connection.createChannel();
-      const result = channel.assertQueue("feedback")
-      channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
-      console.log('Feedback sent succefully')
-      updateFeedback(data)
-      res.render('feedback', {inviato : true})
-    }
-    catch(error){
-      console.error(error);
-    }
-  }
-})
-
-
-
-function updateFeedback(data){
+  text = req.body.feed
   request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
 
     var db = JSON.parse(body)
     newItem = {
       "feedback_id": id,
-      "date": data.date,
-      "text": data.text,
+      "date": strdate,
+      "text": text,
       "read": false
     }
     db.feedbacks.push(newItem);
@@ -713,10 +686,39 @@ function updateFeedback(data){
         console.log(error);
       } else {
         console.log(response.statusCode, body);
+        sendFeedback(id,username,text,res)
       }
     });
 
   })
+  
+})
+
+
+
+function sendFeedback(id,username,text,res){
+  var data = {
+    id: id,
+    name: username,
+    text : text,
+    email: email
+  }
+  connect();
+    async function connect() {
+  
+      try {
+        const connection = await amqp.connect("amqp://localhost:5672")
+        const channel = await connection.createChannel();
+        const result = channel.assertQueue("feedback")
+        channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
+        console.log('Feedback sent succefully')
+        
+        res.render('feedback', {inviato : true})
+      }
+      catch(error){
+        console.error(error);
+      }
+  }
 }
 
 
