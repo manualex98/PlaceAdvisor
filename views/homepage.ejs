@@ -13,7 +13,8 @@
   <script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>
   
   
-  <h1 class="mb-3">Homepage</h1>    <h3>Ciao, <%=username%></h3> <br>
+  <h1 class="mb-3">Homepage</h1>    <h3>Ciao, <%=username%></h3> <a href="http://localhost:8000/info"><button class="mb-3">User info</button></a>
+  <br> 
 
   <form action="http://localhost:8000/openmap" method="POST">
     
@@ -38,6 +39,7 @@
     <input class="mb-3" type="text" placeholder="Raggio (KM)" size="10" name="rad" >
     <input class="mb-3" type="submit" value="Cerca" name="sub">
   </form>
+
   <% if (fconnected==true) { %>
   <a href="http://localhost:8000/logout"><button class="mb-3">Logout</button></a><br>
   
@@ -47,7 +49,6 @@
   <%}%>
 
 
-  <b><a href="http://localhost:8000/feedback"><button class="mb-3">Non funziona?? Mandaci un feedback</button></a><br></b>
-  <fb:login-button autologoutlink="true"></fb:login-button></body>
+  <br><b></b><a href="http://localhost:8000/feedback"><button class="mb-3">Non funziona?? Mandaci un feedback</button></a><br></b>
 
 </html>

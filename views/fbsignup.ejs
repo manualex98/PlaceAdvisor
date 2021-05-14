@@ -1,0 +1,28 @@
+<html>
+<head>
+    <title>Token</title>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
+</head>
+<body>
+   
+    <h1>Ciao, e grazie per aver effettuato l'accesso al nostro sito usando Facebook, ecco il tuo token: </h1>
+
+    <p>Token:</p> <% if (fconnected) { %>
+        <%= ftoken %>
+    <% } %><br><br>
+
+    <h1 class="mb-3">Per completare la registrazione scegli un username </h1>
+        <form method="POST" action="http://localhost:8000/fbsignup">
+
+        <input class="mb-3" type="text" name="username" size="20" placeholder="Username" required><br><br>
+        
+        <input class="mb-3" type="submit" value="Conferma" name="conferma">
+
+       </form>
+
+       <br>
+       <%if (check==true){%>
+        <h3 class="mb-3">L'username <%=username%> non è disponibile, scegline un altro :(</h3>
+       <%}%>
+       
+</html>
