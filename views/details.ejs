@@ -78,7 +78,10 @@
         <li><h3>Recensioni: </h3><i>
             <% if (reviews!="") { %>
                 <% for(var i=0; i<n ;i++) {%>
-                    <%=reviews[i].date%> Da <%=reviews[i].name%> : <%=reviews[i].text %><br>
+                    <%=reviews[i].date%> Da <%=reviews[i].name%> : <%=reviews[i].text %><% if (reviews[i].photo!="") { %>
+                    
+                        Foto: <img src= <%= reviews[i].photo %> width="200" height="200"><br>
+                    <% } %> <br>
                 <% } %>
             <% } %>
 
@@ -89,15 +92,17 @@
                 Immagine aggiunta:<br>
                 <img src= <%= photo %> width="200" height="200"><br>
                 <input type="hidden" id="baseUrl" name="baseUrl" value=<%=photo %>>
-            <% } %><br>
-                    
+            <% } else{ %>
+                <input type="hidden" id="baseUrl" name="baseUrl" value=''>
+            <% } %>
                 <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
                 <input class="mb-3" type="submit" value="AGGIUNGI" size="10">
             </form>
                 <p>Vuoi aggiungere anche una fotina da gdrive??:D
                     <% if (!gconnected){ %>
                         <br>Prima devi collegarti però!!</p>
-                        <a href="http://localhost:8000/googlelogin"><button class="mb-3">Collegati con google</button></a><br>
+                        <% var urii = "http://localhost:8000/googlelogin?xid="+xid %>
+                        <a href=<%=urii %>><button class="mb-3">Collegati con google</button></a><br>
                     <% } else { %></p>
                          <% var linkgoogle = "http://localhost:8000/driveapi?xid="+ xid; %>
                         <a href= <%= linkgoogle %>><button class="mb-3" value="Aggiungi fotina">Aggiungi</button></a><br>

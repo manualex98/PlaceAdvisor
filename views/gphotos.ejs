@@ -14,17 +14,17 @@
         <li><img src= <%=uri %> width=<%=width%> height=<%=height%>></li>
 
 
-        <% if (xid!=''){ %>
+        <% if (xid!=undefined && xid!=''){ %>
             <form method="GET" action="http://localhost:8000/details">
 
                 <input type="hidden" id="xid" name="xid" value=<%=xid %>>
                 <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
                 <input class="mb-3" type="submit" value="Scegli" size="30">
             </form>
-        <% } else if (feedbackposting==true) { %>
+        <% } else { %>
             <form method="POST" action="http://localhost:8000/newfeedback">
                 <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
-                <input class="mb-3" type="submit" value="Scegli" size="30">
+                <input class="mb-3" type="submit" value="Sceglo" size="30">
             </form>
         <% } %>
 

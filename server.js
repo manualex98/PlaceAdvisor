@@ -25,6 +25,7 @@ let username;
 var fbinfo;
 var reviewposting=false;
 var feedbackposting=false;
+var xid='';
 
 
 app.post('/',function (req,res){
@@ -77,7 +78,7 @@ function gestisciAccesso(req,res){
           if (checkUser(req,res)==false){
             username=req.body.username
             lconnected=true
-            res.render('homepage', {username:req.body.username, fconnected:false});
+            res.render('homepage', {gconnected: false ,username:req.body.username, fconnected:false});
           }
           else if(checkUser(req,res)==true){
             
@@ -153,7 +154,13 @@ app.get('/facebooklogin',function (req,res){
 
 app.get('/googlelogin', function(req, res){
   gconnecting=true;
-  res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
+  if (req.query.length>0){
+    xid = req.query.xid;
+    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
+  }
+  else{
+    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
+  }
 })
 
 app.get('/signup', function(req, res){
@@ -213,7 +220,7 @@ app.get('/gtoken', function(req, res){
       gtoken = info.access_token;
       gconnected = true;
       console.log("Got the token "+ info.access_token);
-      res.render('continue.ejs', {gtoken : gtoken, gconnected:gconnected, reviewposting: reviewposting, feedbackposting: feedbackposting})
+      res.render('continue.ejs', {gtoken : gtoken, gconnected:gconnected, feedbackposting: feedbackposting, xid:xid})
       //if(feedbackposting=true){
        // res.render('feedback.ejs', {inviato: false, gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
       //}
@@ -345,7 +352,7 @@ app.post('/fbsignup',function (req,res){
         console.log(error);
       } else {
         console.log(response.statusCode, body);
-        res.render('homepage', {fconnected: fconnected,username: username});
+        res.render('homepage', {fconnected: fconnected,username: username,gconnected:gconnected});
       }
   });
 
@@ -417,7 +424,6 @@ app.get('/app', function(req,res){
 
 
 let info
-let xid
 let place_name
 let infodb
 app.get('/details', function(req,res){
@@ -464,6 +470,9 @@ app.get('/details', function(req,res){
 });
 
 app.get('/driveapi', function(req,res){
+  if (req.query.stato == 'feed'){
+    feedbackposting=true;
+  }
   queryxid = req.query.xid;
   var url = 'https://photoslibrary.googleapis.com/v1/mediaItems'
 	var headers = {'Authorization': 'Bearer '+gtoken};
@@ -477,10 +486,10 @@ app.get('/driveapi', function(req,res){
 			console.log(body);
       info = JSON.parse(body);
       if (queryxid!=''){
-        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, reviewposting: reviewposting, xid : queryxid})
+        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting,  xid : queryxid})
       }
       else{
-        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, reviewposting: reviewposting, xid :''})
+        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :''})
       }
 		});
     
@@ -506,20 +515,9 @@ app.get('/logout',function(req,res){
 let reviews_check
 let reviews_rev
 
-app.get('/newreview', function(req, res){
-  reviewposting=true;
-  var query = JSON.parse(body)
-  if (query.baseUrl != ''){
-    res.render('new_review.ejs', {gconnected: gconnected, photo : '', xid: query.xid})
-  }
-  else{
-    res.render('new_review.ejs', {gconnected: gconnected, photo: req.body.baseUrl})
-  }
-})
-
 app.post('/reviews', function(req,res){
   console.log("body: %j", req.body)
-
+  
 
   if(!reviews_check) newReview(req,res);
   else updateReview(req,res);
@@ -545,11 +543,30 @@ function updateUserReviews(req,res){
         data = new Date();
         mese=data.getMonth() +1;
         strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
-        item={
-          "xid": xid,
-          "place": place_name,
-          "text": req.body.rev,
-          "date": strdate
+
+  console.log("body funzioneupdateuserreview: %j", req.body)
+        if (req.body.baseUrl!=''){
+          item={
+                "xid": xid,
+                "name": username,
+                "text": req.body.rev,
+                "date": strdate,
+                "photo": req.body.baseUrl,
+              }
+            
+          
+        } 
+        else{
+          item={
+              
+                "xid": xid,
+                "name": username,
+                "text": req.body.rev,
+                "date": strdate,
+                "photo": '',
+              
+            
+          }
         }
         info.reviews.push(item)
         request({
@@ -578,16 +595,32 @@ function newReview(req,res){
   mese=data.getMonth() +1;
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
 
-  item={
-    "reviews": [
-      {
-        "name": username,
-        "text": req.body.rev,
-        "date": strdate,
-        "photo": req.body.baseUrl,
-      }
-    ]
-  };
+  console.log("body funzionenewreview: %j", req.body)
+  if (req.body.baseUrl!=''){
+    item={
+      "reviews": [
+        {
+          "name": username,
+          "text": req.body.rev,
+          "date": strdate,
+          "photo": req.body.baseUrl
+        }
+      ]
+    }
+  } 
+  else{
+    item={
+      "reviews": [
+        {
+          "name": username,
+          "text": req.body.rev,
+          "date": strdate,
+          "photo": ''
+        }
+      ]
+    }
+  }
+
 
   request({
     url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
@@ -611,12 +644,28 @@ function updateReview(req,res){
   data = new Date();
   mese=data.getMonth() +1;
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
-
-  newItem = {
-        "name": username,
-        "text": req.body.rev,
-        "date": strdate
-      }
+  console.log("body funzioneupdatereview: %j", req.body)
+  if (req.body.baseUrl!=''){
+    newItem={
+        
+          "name": username,
+          "text": req.body.rev,
+          "date": strdate,
+          "photo": req.body.baseUrl
+        
+      
+    }
+  } 
+  else{
+    newItem={
+          "name": username,
+          "text": req.body.rev,
+          "date": strdate,
+          "photo": ''
+        }
+      
+    
+  }
   infodb.reviews.push(newItem);
 
   request({
@@ -644,10 +693,9 @@ app.get('/newfeedback', function(req, res){
 })
 
 app.post('/newfeedback', function(req,res){
-  const obj = JSON.parse(JSON.stringify(req.body));
-  console.log(obj);
-  if (obj.baseUrl){
-    res.render('feedback', {inviato: false, gconnected: gconnected, photo: obj.baseUrl})
+  console.log("bodyfeed: %j", req.body);
+  if (req.body.baseUrl.length>=1){
+    res.render('feedback', {inviato: false, gconnected: gconnected, photo: req.body.baseUrl})
   }
   else{
     res.responde('error')
@@ -658,7 +706,7 @@ app.post('/newfeedback', function(req,res){
 let id
 app.post('/feedback', function(req, res){
   date = new Date();
-  mese=data.getMonth() +1;
+  mese=date.getMonth() +1;
   strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
   id = Math.round(Math.random()*10000);
   var data = {
@@ -666,8 +714,10 @@ app.post('/feedback', function(req, res){
     date: date,
     email: email,
     name: username,
-    text : req.body.feed
+    text : req.body.feed,
+    photo: req.body.baseUrl
   }
+
   connect();
   async function connect() {
 
@@ -679,6 +729,7 @@ app.post('/feedback', function(req, res){
       console.log('Feedback sent succefully')
       updateFeedback(data)
       res.render('feedback', {inviato : true})
+      feedbackposting=false;
     }
     catch(error){
       console.error(error);
@@ -696,7 +747,8 @@ function updateFeedback(data){
       "feedback_id": id,
       "date": data.date,
       "text": data.text,
-      "read": false
+      "read": false,
+      "photo": data.baseUrl
     }
     db.feedbacks.push(newItem);
 
