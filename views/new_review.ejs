@@ -1,0 +1,18 @@
+Scrivi la tua recensione:
+    
+    <br><form action="http://localhost:8000/reviews" method="POST">
+            
+        <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
+        <input class="mb-3" type="submit" value="AGGIUNGI" size="10">
+    </form>
+        <p>Vuoi aggiungere anche una fotina da gdrive??:D
+            <% if (!gconnected){ %>
+                <br>Prima devi collegarti però!!</p>
+                <a href="http://localhost:8000/googlelogin"><button class="mb-3">Collegati con google</button></a><br>
+            <% } else { %></p>
+                 
+                <a href="http://localhost:8000/driveapi"><button class="mb-3">Aggiungi fotina</button></a><br>
+                
+            <% } %>
+            
+    

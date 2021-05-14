@@ -8,11 +8,18 @@
     <h1>First 100 results <h1>
     
     <ul><% for (var i=0; i<info.mediaItems.length; i++){ %>
-        <a href= <%=info.mediaItems[i].productUrl %> <li><%= info.mediaItems[i].filename %></a></li>
-        <% var uri = info.mediaItems[i].baseUrl; var width = info.mediaItems[i].mediaMetadata.width/3; var height = info.mediaItems[i].mediaMetadata.height/3%>
         
-            <li><img src= <%=uri %> width=<%=width%> height=<%=height%>></li>
-        
+         <li><%= info.mediaItems[i].filename %></a></li>
+        <% var uri = info.mediaItems[i].baseUrl; var width = 500; var height = 500%>
+        <li><img src= <%=uri %> width=<%=width%> height=<%=height%>></li>
+
+
+
+        <form method="POST" action="http://localhost:8000/newreview">
+            <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
+            <input class="mb-3" type="submit" value="Scegli" size="30">
+        </form>
+
     <% } %>
     </ul> 
 </html>

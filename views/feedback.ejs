@@ -1,11 +1,26 @@
 <% if (!inviato){ %>
     SEGNALACELO:
-
+    
     <br><form action="http://localhost:8000/feedback" method="POST">
-            
+        <% if (photo!=""){ %>
+            Immagine aggiunta:<br>
+            <img src= <%= photo %> width="200" height="200"><br>
+            <input type="hidden" id="baseUrl" name="baseUrl" value=<%=photo %>>
+        <% } %>
+        
         <textarea name="feed" cols="60" rows="30" placeholder="Inviaci il tuo feed"></textarea><br>
         <input class="mb-3" type="submit" value="Invia" size="30">
     </form>
+    
+    <p>Vuoi aggiungere anche una fotina da gdrive??:D 
+        <% if (!gconnected){ %>
+            <br>Prima devi collegarti però!!</p>
+            <a href="http://localhost:8000/googlelogin"><button class="mb-3">Collegati con google</button></a><br>
+        <% } else { %>
+             
+            
+            <a href="http://localhost:8000/driveapi"><button class="mb-3">Aggiungi fotina</button></a><br>
+    <% } %>
 <% } else { %>
     Fantastico!! Il feedback è stato ricevuto correttamente. Grazie per averci segnalato questa brutta cosa, ce ne faremo una ragione. :*
     <a href="http://localhost:8000/homepage"><button class="mb-3">Torna alla home</button></a><br>
