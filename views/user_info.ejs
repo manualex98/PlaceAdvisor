@@ -7,14 +7,41 @@
     <script>
     </script>
     <h1>Ecco le tue informazioni</h1>
-    <%var photourl= data.picture.data.url ; %>
+    <%var photourl= data.picture.url ; %>
     <ul>
         <li>Nome: <%= data.first_name%></li>
         <li>Cognome: <%= data.last_name%></li>
         <li>E-mail : <%= data.email%></li>
-        <li>Picture: <img src=<%= photourl  %> width=<%=data.picture.data.width%> height=<%=data.picture.data.height%>>
+        <li>Picture: <img src=<%= photourl  %> width=<%=data.picture.width%> height=<%=data.picture.height%>>
     
     </ul>
+        <% if(data.reviews.length>0){ %>
+            <h2>Le tue recensioni:</h2><br>
+            <ul>
+            <% for(var i=0;i < data.reviews.length; i++) {%>
+                <li>Posto: <%= data.reviews[i].place%></li>
+                <li>Xid: <%= data.reviews[i].xid%></li>
+                <li>Testo: <%= data.reviews[i].text%></li>
+                <li>Data: <%= data.reviews[i].date%></li>
+                <h2>--------------------------------------</h2>
+            <%}%>
+            </ul>
+        <%} else {%>
+            <h2>Non hai effettuato nessuna recensione ancora</h2>
+        <%}%>
+
+        <% if(data.feedbacks.length>0){ %>
+            <h2>I tuoi feedback:</h2><br>
+            <ul>
+            <% for(var i=0;i < data.feedbacks.length; i++) {%>
+                <li>Testo: <%= data.feedbacks[i].text%></li>
+                <h2>--------------------------------------</h2>
+            <%}%>
+            </ul>
+        <%} else {%>
+            <h2>Non hai inviato nessun feedback ancora</h2>
+        <%}%>
+
     <% } else {%>
         Sembra che tu non sia collegato! :( Torna alla homepage! 
         <a href= "http://localhost:8000/">
