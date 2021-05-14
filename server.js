@@ -543,7 +543,8 @@ function updateUserReviews(req,res){
         var info = JSON.parse(body)
         console.log('\r\n'+place_name+'\r\n')
         data = new Date();
-        strdate = data.getDate()+"/"+((data.getMonth())+1)+"/"+data.getFullYear()
+        mese=data.getMonth() +1;
+        strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
         item={
           "xid": xid,
           "place": place_name,
@@ -574,7 +575,8 @@ function updateUserReviews(req,res){
 
 function newReview(req,res){
   data = new Date();
-  strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
+  mese=data.getMonth() +1;
+  strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
 
   item={
     "reviews": [
@@ -607,7 +609,8 @@ function newReview(req,res){
 
 function updateReview(req,res){
   data = new Date();
-  strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
+  mese=data.getMonth() +1;
+  strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
 
   newItem = {
         "name": username,
@@ -655,7 +658,8 @@ app.post('/newfeedback', function(req,res){
 let id
 app.post('/feedback', function(req, res){
   date = new Date();
-  strdate = date.getDate()+"/"+date.getMonth()+"/"+date.getFullYear()
+  mese=data.getMonth() +1;
+  strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
   id = Math.round(Math.random()*10000);
   var data = {
     id: id,
