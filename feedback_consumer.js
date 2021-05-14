@@ -3,7 +3,7 @@ const amqp = require('amqplib');
 var app = require('express');
 var request = require('request')
 let db
-
+let id
 connect();
 async function connect() {
     var ndocs;
@@ -15,7 +15,7 @@ async function connect() {
             //messaggio:
             const mexdb = message.content.toString();
             const mex = JSON.parse(message.content.toString());
-
+            id = mex.id
             console.log('\r\n---------------------------------------------------')
             console.log('\r\nRicevuto feedback da '+mex.name+'\r\ntesto: '+mex.text);
             console.log('\r\n--------------------------------------------------')
@@ -29,9 +29,9 @@ async function connect() {
                 if(error) {
                     console.log(error);
                 } else {
-                    var body = JSON.parse(body);
-                    db = body
-                    updateFeedback(mex.name,mex.text,mex.email)
+                    db = JSON.parse(body);
+
+                    updateRead(db)
                 }
             })
             
@@ -48,26 +48,31 @@ async function connect() {
 
 }
 
-
-function updateFeedback(name,text,email){
-    newItem = {
-        "text": text
-      }
-    db.feedbacks.push(newItem);
-
-  request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
-    method: 'PUT',
-    headers: {
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify(db)
+function updateRead(data){
     
-  }, function(error, response, body){
-      if(error) {
-          console.log(error);
-      } else {
-          console.log(response.statusCode, body);
-      }
-  });
-}
+    for(var i=0; i< data.feedbacks.length;i++){
+        if(data.feedbacks[i].feedback_id == id){
+
+            data.feedbacks[i].read=true
+            request({
+                url: 'http://admin:admin@127.0.0.1:5984/users/'+data.email,
+                method: 'PUT',
+                headers: {
+                  'content-type': 'application/json'
+                },
+                body: JSON.stringify(data)
+              
+              }, function(error, response, body){
+                if(error) {
+                    console.log(error);
+                } else {
+                    console.log(response.statusCode, body);
+                }
+              });
+
+
+        }
+    }
+  
+    
+  }

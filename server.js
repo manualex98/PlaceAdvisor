@@ -652,8 +652,14 @@ app.post('/newfeedback', function(req,res){
   
 })
 
+let id
 app.post('/feedback', function(req, res){
+  date = new Date();
+  strdate = date.getDate()+"/"+date.getMonth()+"/"+date.getFullYear()
+  id = Math.round(Math.random()*10000);
   var data = {
+    id: id,
+    date: date,
     email: email,
     name: username,
     text : req.body.feed
@@ -667,13 +673,49 @@ app.post('/feedback', function(req, res){
       const result = channel.assertQueue("feedback")
       channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
       console.log('Feedback sent succefully')
-      res.render('feedback', {inviato : true, gconnected: gconnected})
+      updateFeedback(data)
+      res.render('feedback', {inviato : true})
     }
     catch(error){
       console.error(error);
     }
   }
 })
+
+
+
+function updateFeedback(data){
+  request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
+
+    var db = JSON.parse(body)
+    newItem = {
+      "feedback_id": id,
+      "date": data.date,
+      "text": data.text,
+      "read": false
+    }
+    db.feedbacks.push(newItem);
+
+    request({
+      url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(db)
+  
+    }, function(error, response, body){
+      if(error) {
+        console.log(error);
+      } else {
+        console.log(response.statusCode, body);
+      }
+    });
+
+  })
+}
+
+
 
 app.get('/',function (req,res){
   res.render('index.ejs',{check:"false"});

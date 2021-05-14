@@ -35,6 +35,11 @@
             <ul>
             <% for(var i=0;i < data.feedbacks.length; i++) {%>
                 <li>Testo: <%= data.feedbacks[i].text%></li>
+                <% if(data.feedbacks[i].read==true){%>
+                    <h4>Questo feedback è stato letto dall'assistenza clienti</h4> 
+                <%}else {%>
+                    <h4>Questo feedback ancora non è stato letto</h4> 
+                <%}%>
                 <h2>--------------------------------------</h2>
             <%}%>
             </ul>
