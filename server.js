@@ -161,7 +161,9 @@ app.get('/signup', function(req, res){
 });
 
 app.get('/homepage', function (req,res){
-  code=req.query.code;
+  if (req.body!=''){
+    code=req.query.code;
+  }
   //check sessioni fb e google
   if (!gconnecting){
     if(fconnecting){
@@ -174,11 +176,11 @@ app.get('/homepage', function (req,res){
     }
   }
   else if(gconnecting){
-    if(gconnected){
-      res.render('homepage', {fconnected: fconnected, gconnected:gconnected, username: "gusername"}) //Ancora da implementare
-    }
-    else{
+    if ( !gconnected){
       res.redirect('/gtoken?code='+code);
+    }
+    else if(gconnected){
+      res.render('homepage', {fconnected: fconnected, gconnected:gconnected, username: username}) //Ancora da implementare
     }
  
   }
@@ -188,7 +190,7 @@ app.get('/homepage', function (req,res){
 })
 
 app.get('/gtoken', function(req, res){
-  
+
 //acquisisci google token
   console.log(req.query.code)
   var formData = {
@@ -211,7 +213,7 @@ app.get('/gtoken', function(req, res){
       gtoken = info.access_token;
       gconnected = true;
       console.log("Got the token "+ info.access_token);
-      res.render('continue.ejs', {gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
+      res.render('continue.ejs', {gtoken : gtoken, gconnected:gconnected, reviewposting: reviewposting, feedbackposting: feedbackposting})
       //if(feedbackposting=true){
        // res.render('feedback.ejs', {inviato: false, gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
       //}
@@ -419,8 +421,17 @@ let xid
 let place_name
 let infodb
 app.get('/details', function(req,res){
+  console.log(req.query)
+  if (Object.keys(req.query).length > 1){
+
+    var photo =req.query.baseUrl;
+  }
+  else{
+    var photo = '';
+  }
 
   xid = req.query.xid;
+
   
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/xid/'+xid+'?apikey='+process.env.OpenMap_KEY
@@ -438,12 +449,12 @@ app.get('/details', function(req,res){
         infodb = JSON.parse(body);
         if(infodb.error){
           reviews_check=false
-          res.render('details', {fconnected: fconnected,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: ""});
+          res.render('details', {gconnected : gconnected, fconnected: fconnected,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: "", photo:photo});
         } 
         else{
           
           reviews_check=true
-          res.render('details', {fconnected:fconnected,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API});
+          res.render('details', {gconnected : gconnected, fconnected:fconnected,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, photo: photo});
         }
       }
 
@@ -453,6 +464,7 @@ app.get('/details', function(req,res){
 });
 
 app.get('/driveapi', function(req,res){
+  queryxid = req.query.xid;
   var url = 'https://photoslibrary.googleapis.com/v1/mediaItems'
 	var headers = {'Authorization': 'Bearer '+gtoken};
 
@@ -464,7 +476,12 @@ app.get('/driveapi', function(req,res){
 		}, function(error, response, body){
 			console.log(body);
       info = JSON.parse(body);
-			res.render('gphotos.ejs', {info:info})
+      if (queryxid!=''){
+        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, reviewposting: reviewposting, xid : queryxid})
+      }
+      else{
+        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, reviewposting: reviewposting, xid :''})
+      }
 		});
     
 });
@@ -491,10 +508,19 @@ let reviews_rev
 
 app.get('/newreview', function(req, res){
   reviewposting=true;
-  res.render('new_review.ejs', {gconnected: gconnected})
+  var query = JSON.parse(body)
+  if (query.baseUrl != ''){
+    res.render('new_review.ejs', {gconnected: gconnected, photo : '', xid: query.xid})
+  }
+  else{
+    res.render('new_review.ejs', {gconnected: gconnected, photo: req.body.baseUrl})
+  }
 })
+
 app.post('/reviews', function(req,res){
-  reviewposting=false;
+  console.log("body: %j", req.body)
+
+
   if(!reviews_check) newReview(req,res);
   else updateReview(req,res);
 
@@ -517,7 +543,7 @@ function updateUserReviews(req,res){
         var info = JSON.parse(body)
         console.log('\r\n'+place_name+'\r\n')
         data = new Date();
-        strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
+        strdate = data.getDate()+"/"+((data.getMonth())+1)+"/"+data.getFullYear()
         item={
           "xid": xid,
           "place": place_name,
@@ -549,12 +575,14 @@ function updateUserReviews(req,res){
 function newReview(req,res){
   data = new Date();
   strdate = data.getDate()+"/"+data.getMonth()+"/"+data.getFullYear()
+
   item={
     "reviews": [
       {
         "name": username,
         "text": req.body.rev,
-        "date": strdate
+        "date": strdate,
+        "photo": req.body.baseUrl,
       }
     ]
   };
@@ -583,7 +611,7 @@ function updateReview(req,res){
 
   newItem = {
         "name": username,
-        "text": req.body.rev,
+        "text": req.rev,
         "date": strdate
       }
   infodb.reviews.push(newItem);
@@ -608,6 +636,7 @@ function updateReview(req,res){
 
 //feedback
 app.get('/newfeedback', function(req, res){
+  feedbackposting=true;
   res.render('feedback', {inviato : false, gconnected: gconnected, photo: ""})
 })
 

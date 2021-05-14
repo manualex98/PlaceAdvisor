@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Search</title>
+    <title>Photos</title>
 </head>
 <body>
     <script>
@@ -14,11 +14,19 @@
         <li><img src= <%=uri %> width=<%=width%> height=<%=height%>></li>
 
 
+        <% if (xid!=''){ %>
+            <form method="GET" action="http://localhost:8000/details">
 
-        <form method="POST" action="http://localhost:8000/newreview">
-            <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
-            <input class="mb-3" type="submit" value="Scegli" size="30">
-        </form>
+                <input type="hidden" id="xid" name="xid" value=<%=xid %>>
+                <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
+                <input class="mb-3" type="submit" value="Scegli" size="30">
+            </form>
+        <% } else if (feedbackposting==true) { %>
+            <form method="POST" action="http://localhost:8000/newfeedback">
+                <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
+                <input class="mb-3" type="submit" value="Scegli" size="30">
+            </form>
+        <% } %>
 
     <% } %>
     </ul> 

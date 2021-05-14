@@ -1,7 +1,7 @@
 <html>
     <% if (data!=""){ %>
 <head>
-    <title>Info <%=data.first_name%> <%=data.last_name%></title>
+    <title>Info <%=data.name%> <%=data.surname%></title>
 </head>
 <body>
     <script>
@@ -9,8 +9,8 @@
     <h1>Ecco le tue informazioni</h1>
     <%var photourl= data.picture.url ; %>
     <ul>
-        <li>Nome: <%= data.first_name%></li>
-        <li>Cognome: <%= data.last_name%></li>
+        <li>Nome: <%= data.name%></li>
+        <li>Cognome: <%= data.surname%></li>
         <li>E-mail : <%= data.email%></li>
         <li>Picture: <img src=<%= photourl  %> width=<%=data.picture.width%> height=<%=data.picture.height%>>
     
@@ -41,6 +41,11 @@
         <%} else {%>
             <h2>Non hai inviato nessun feedback ancora</h2>
         <%}%>
+
+        <a href= "http://localhost:8000/homepage">
+            <button type= 'button'>Torna alla homepage</button>
+          </a>
+        
 
     <% } else {%>
         Sembra che tu non sia collegato! :( Torna alla homepage! 

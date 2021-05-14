@@ -1,5 +1,9 @@
 Scrivi la tua recensione:
-    
+    <% if (photo!=""){ %>
+        Immagine aggiunta:<br>
+        <img src= <%= photo %> width="200" height="200"><br>
+        <input type="hidden" id="baseUrl" name="baseUrl" value=<%=photo %>>
+    <% } %>
     <br><form action="http://localhost:8000/reviews" method="POST">
             
         <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
