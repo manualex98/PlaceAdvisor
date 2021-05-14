@@ -710,37 +710,8 @@ app.post('/feedback', function(req, res){
   strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
   id = Math.round(Math.random()*10000);
   text = req.body.feed
-  var data = {
-    id: id,
-    date: date,
-    email: email,
-    name: username,
-    text : req.body.feed,
-    photo: req.body.baseUrl
-  }
+  photo=req.body.baseUrl
 
-  connect();
-  async function connect() {
-
-    try {
-      const connection = await amqp.connect("amqp://localhost:5672")
-      const channel = await connection.createChannel();
-      const result = channel.assertQueue("feedback")
-      channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
-      console.log('Feedback sent succefully')
-      updateFeedback(data)
-      res.render('feedback', {inviato : true})
-      feedbackposting=false;
-    }
-    catch(error){
-      console.error(error);
-    }
-  }
-})
-
-
-
-function updateFeedback(data){
   request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
 
     var db = JSON.parse(body)
@@ -748,11 +719,8 @@ function updateFeedback(data){
       "feedback_id": id,
       "date": strdate,
       "text": text,
-      "read": false
-      "date": data.date,
-      "text": data.text,
       "read": false,
-      "photo": data.baseUrl
+      "photo": photo
     }
     db.feedbacks.push(newItem);
 
@@ -769,23 +737,24 @@ function updateFeedback(data){
         console.log(error);
       } else {
         console.log(response.statusCode, body);
-        sendFeedback(id,username,text,res)
+        sendFeedback(id,username,text,photo,res)
       }
     });
 
   })
-  
 })
 
 
 
-function sendFeedback(id,username,text,res){
+function sendFeedback(id,username,text,photo,res){
+
   var data = {
     id: id,
+    email: email,
     name: username,
-    text : text,
-    email: email
+    text : text
   }
+
   connect();
     async function connect() {
   
