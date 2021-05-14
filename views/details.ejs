@@ -81,11 +81,9 @@
                 <% } %>
             <% } %>
 
-        <br><form action="http://localhost:8000/reviews" method="POST">
-            
-            <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
-            <input class="mb-3" type="submit" value="AGGIUNGI" size="10">
-        </form>
+
+        <a href="http://localhost:8000/newreview"><button class="mb-3">Aggiungi una review</button></a><br>
+        <br>
     
     <% if (fconnected==true) { %>
         <p>Condividi questo posto con i tuoi amici</p><br></ul>

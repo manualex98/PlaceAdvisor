@@ -23,6 +23,8 @@ let gconnecting=false;
 let lconnected=false;
 let username;
 var fbinfo;
+var reviewposting=false;
+var feedbackposting=false;
 
 
 app.post('/',function (req,res){
@@ -188,7 +190,7 @@ app.get('/homepage', function (req,res){
   if (!gconnecting){
     if(fconnecting){
       if(fconnected){
-        res.render('homepage', {fconnected:fconnected, username:username})
+        res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
       }
       else{
         res.redirect('/ftoken?code='+code);
@@ -197,7 +199,7 @@ app.get('/homepage', function (req,res){
   }
   else if(gconnecting){
     if(gconnected){
-      res.render('homepage', {fconnected: fconnected, username: "gusername"}) //Ancora da implementare
+      res.render('homepage', {fconnected: fconnected, gconnected:gconnected, username: "gusername"}) //Ancora da implementare
     }
     else{
       res.redirect('/gtoken?code='+code);
@@ -205,13 +207,13 @@ app.get('/homepage', function (req,res){
  
   }
 
-  else if(lconnected) res.render('homepage', {fconnected:fconnected, username:username})
+  else if(lconnected) res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
   else res.redirect('/');
 })
 
-//acquisisci google token
 app.get('/gtoken', function(req, res){
   
+//acquisisci google token
   console.log(req.query.code)
   var formData = {
     code: req.query.code,
@@ -234,6 +236,12 @@ app.get('/gtoken', function(req, res){
       gconnected = true;
       console.log("Got the token "+ info.access_token);
       res.render('continue.ejs', {gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
+      //if(feedbackposting=true){
+       // res.render('feedback.ejs', {inviato: false, gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
+      //}
+      //else if (reviewposting=true){
+      //res.render('new_review.ejs', {inviato: false, gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
+      //}
       
     }
   })
@@ -390,10 +398,8 @@ app.get('/details', function(req,res){
 app.get('/driveapi', function(req,res){
   var url = 'https://photoslibrary.googleapis.com/v1/mediaItems'
 	var headers = {'Authorization': 'Bearer '+gtoken};
-	
-  
-    var request = require('request');
 
+  var request = require('request');
 
 	request.get({
 		headers: headers,
@@ -425,8 +431,13 @@ app.get('/logout',function(req,res){
 
 let reviews_check
 let reviews_rev
-app.post('/reviews', function(req,res){
 
+app.get('/newreview', function(req, res){
+  reviewposting=true;
+  res.render('new_review.ejs', {gconnected: gconnected})
+})
+app.post('/reviews', function(req,res){
+  reviewposting=false;
   if(!reviews_check) newReview(req,res);
   else updateReview(req,res);
   
@@ -494,8 +505,20 @@ function updateReview(req,res){
 }
 
 //feedback
-app.get('/feedback', function(req, res){
-  res.render('feedback', {inviato : false})
+app.get('/newfeedback', function(req, res){
+  res.render('feedback', {inviato : false, gconnected: gconnected, photo: ""})
+})
+
+app.post('/newfeedback', function(req,res){
+  const obj = JSON.parse(JSON.stringify(req.body));
+  console.log(obj);
+  if (obj.baseUrl){
+    res.render('feedback', {inviato: false, gconnected: gconnected, photo: obj.baseUrl})
+  }
+  else{
+    res.responde('error')
+  }
+  
 })
 
 app.post('/feedback', function(req, res){
@@ -512,7 +535,7 @@ app.post('/feedback', function(req, res){
       const result = channel.assertQueue("feedback")
       channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
       console.log('Feedback sent succefully')
-      res.render('feedback', {inviato : true})
+      res.render('feedback', {inviato : true, gconnected: gconnected})
     }
     catch(error){
       console.error(error);
