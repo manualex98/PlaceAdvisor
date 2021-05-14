@@ -614,7 +614,7 @@ function updateReview(req,res){
 
   newItem = {
         "name": username,
-        "text": req.rev,
+        "text": req.body.rev,
         "date": strdate
       }
   infodb.reviews.push(newItem);
