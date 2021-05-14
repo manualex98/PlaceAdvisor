@@ -11,8 +11,9 @@
     <% } %>
     
     Vuoi continuare? 
-    <% if (reviewposting==true ){ %>
-        <a href= "http://localhost:8000/newreview">
+    <% if (xid!= ''){ %>
+        <% var urll= "http://localhost:8000/details?xid="+xid; %>
+        <a href= <%=urll %>>
             <button type= 'button'>YES!!</button>
         </a> 
     <% } else if (feedbackposting==true) { %>

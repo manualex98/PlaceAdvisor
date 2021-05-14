@@ -50,8 +50,12 @@
 
   <br><br>
   <b><a href="http://localhost:8000/newfeedback"><button class="mb-3">Non funziona?? Mandaci un feedback</button></a></b>
-    <br> <b><a href="http://localhost:8000/googlelogin"><button class="mb-3">Accedi con Google Photos!</button></a></b><br>
 
+  <% if (!gconnected){ %>
+      <br> <b><a href="http://localhost:8000/googlelogin"><button class="mb-3">Accedi con Google Photos!</button></a></b><br>
+
+  <%}%>
+   
 
   <fb:login-button autologoutlink="true"></fb:login-button></body>
 
