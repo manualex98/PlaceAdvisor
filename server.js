@@ -7,6 +7,7 @@ const path = require('path');
 var request = require('request');
 const { ADDRGETNETWORKPARAMS } = require('dns');
 var amqp = require('amqplib'); //Protocollo amqp per rabbitmq
+const { query } = require('express');
 require('dotenv').config()
 
 //dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
@@ -427,7 +428,11 @@ let info
 let place_name
 let infodb
 app.get('/details', function(req,res){
-  console.log(req.query)
+  if(!fconnected){
+    res.redirect(404, '/error')
+  }
+  else{
+    console.log(req.query)
   if (Object.keys(req.query).length > 1){
 
     var photo =req.query.baseUrl;
@@ -467,31 +472,75 @@ app.get('/details', function(req,res){
     });
 
   });
+  }
+  
 });
 
-app.get('/driveapi', function(req,res){
+var numpag;
+app.get('/googlephotosapi', function(req,res){
   if (req.query.stato == 'feed'){
     feedbackposting=true;
   }
   queryxid = req.query.xid;
-  var url = 'https://photoslibrary.googleapis.com/v1/mediaItems'
+  querynextpg = req.query.nextpg;
+  var url = 'https://photoslibrary.googleapis.com/v1/mediaItems:search'
 	var headers = {'Authorization': 'Bearer '+gtoken};
 
   var request = require('request');
-
-	request.get({
-		headers: headers,
-		url:     url,
-		}, function(error, response, body){
-			console.log(body);
-      info = JSON.parse(body);
+  if (querynextpg!=undefined && querynextpg!=''){
+    numpag= numpag+1;
+    request.post({
+      headers: headers,
+		  url:     url,
+      body:    {
+        "pageToken": querynextpg,
+        "filters": {
+          "mediaTypeFilter": {
+            "mediaTypes": [
+              "PHOTO"
+            ]
+          }
+        }
+      },
+      json:true
+		  }, function(error, response, body){
+        console.log(JSON.stringify(body));
+        info = JSON.parse(JSON.stringify(body));
       if (queryxid!=''){
-        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting,  xid : queryxid})
+        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting,  xid : queryxid, numpag:numpag})
       }
       else{
-        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :''})
+        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :'', numpag:numpag})
       }
 		});
+  }
+  else{
+    numpag=1;
+    request.post({
+		headers: headers,
+		url:     url,
+    body:    {
+      "filters": {
+        "mediaTypeFilter": {
+          "mediaTypes": [
+            "PHOTO"
+          ]
+        }
+      }
+    },
+    json:true
+		}, function(error, response, body){
+			console.log(JSON.stringify(body));
+      info = JSON.parse(JSON.stringify(body));
+      if (queryxid!=''){
+        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting,  xid : queryxid, numpag: numpag})
+      }
+      else{
+        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :'', numpag: numpag})
+      }
+		});
+  }
+	
     
 });
 
@@ -689,6 +738,7 @@ function updateReview(req,res){
 //feedback
 app.get('/newfeedback', function(req, res){
   feedbackposting=true;
+  xid='';
   res.render('feedback', {inviato : false, gconnected: gconnected, photo: ""})
 })
 
@@ -709,18 +759,46 @@ app.post('/feedback', function(req, res){
   mese=date.getMonth() +1;
   strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
   id = Math.round(Math.random()*10000);
-  text = req.body.feed
-  photo=req.body.baseUrl
+  var data = {
+    id: id,
+    date: date,
+    email: email,
+    name: username,
+    text : req.body.feed,
+    photo: req.body.baseUrl
+  }
 
+  connect();
+  async function connect() {
+
+    try {
+      const connection = await amqp.connect("amqp://localhost:5672")
+      const channel = await connection.createChannel();
+      const result = channel.assertQueue("feedback")
+      channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
+      console.log('Feedback sent succefully')
+      updateFeedback(data)
+      res.render('feedback', {inviato : true})
+      feedbackposting=false;
+    }
+    catch(error){
+      console.error(error);
+    }
+  }
+})
+
+
+
+function updateFeedback(data){
   request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
 
     var db = JSON.parse(body)
     newItem = {
       "feedback_id": id,
-      "date": strdate,
-      "text": text,
+      "date": data.date,
+      "text": data.text,
       "read": false,
-      "photo": photo
+      "photo": data.baseUrl
     }
     db.feedbacks.push(newItem);
 
@@ -737,45 +815,18 @@ app.post('/feedback', function(req, res){
         console.log(error);
       } else {
         console.log(response.statusCode, body);
-        sendFeedback(id,username,text,photo,res)
       }
     });
 
   })
-})
-
-
-
-function sendFeedback(id,username,text,photo,res){
-
-  var data = {
-    id: id,
-    email: email,
-    name: username,
-    text : text
-  }
-
-  connect();
-    async function connect() {
-  
-      try {
-        const connection = await amqp.connect("amqp://localhost:5672")
-        const channel = await connection.createChannel();
-        const result = channel.assertQueue("feedback")
-        channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
-        console.log('Feedback sent succefully')
-        
-        res.render('feedback', {inviato : true})
-      }
-      catch(error){
-        console.error(error);
-      }
-  }
 }
 
 
 
 app.get('/',function (req,res){
+  if (fconnected){
+    res.redirect('/homepage');
+  }
   res.render('index.ejs',{check:"false"});
 });
 
@@ -784,7 +835,7 @@ app.get('/bootstrap.min.css',function (req,res){
   res.sendFile(path.resolve('bootstrap.min.css'));
 });
 
-app.get('/404',function(req,res){
+app.get('/error',function(req,res){
   res.render('404');
 })
 

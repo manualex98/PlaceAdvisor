@@ -104,16 +104,16 @@
                         <% var urii = "http://localhost:8000/googlelogin?xid="+xid %>
                         <a href=<%=urii %>><button class="mb-3">Collegati con google</button></a><br>
                     <% } else { %></p>
-                         <% var linkgoogle = "http://localhost:8000/driveapi?xid="+ xid; %>
+                         <% var linkgoogle = "http://localhost:8000/googlephotosapi?xid="+ xid; %>
                         <a href= <%= linkgoogle %>><button class="mb-3" value="Aggiungi fotina">Aggiungi</button></a><br>
                         
                     <% } %>
     
     <% if (fconnected==true) { %>
-        <p>Condividi questo posto con i tuoi amici</p><br></ul>
+        <p>Condividi questo posto con i tuoi amici</p>
         <% var link = 'http://127.0.0.1:8000/details?xid='+xid; %>
-        <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid=+xid%3A8000%2F&amp;src=sdkpreparse"; %>
+        <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid="+xid+"%3A8000%2F&amp;src=sdkpreparse"; %>
         <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div>
     
-    <%}%>
+    <%}%></ul>
 </html>
