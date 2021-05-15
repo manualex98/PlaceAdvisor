@@ -432,6 +432,8 @@ let place_name
 let infodb
 let info_weather
 let meteo
+let icon_id
+let icon_url
 
 app.get('/details', function(req,res){
   if(!fconnected){
@@ -457,7 +459,10 @@ app.get('/details', function(req,res){
     info_weather=JSON.parse(body);
     console.log(info_weather);
     meteo=info_weather.weather[0].description;
+    icon_id=info_weather.weather[0].icon;
     console.log(meteo);
+    console.log(icon_id);
+    icon_url="http://openweathermap.org/img/wn/"+icon_id+"@2x.png"
   })
   
   var options = {
@@ -476,12 +481,12 @@ app.get('/details', function(req,res){
         infodb = JSON.parse(body);
         if(infodb.error){
           reviews_check=false
-          res.render('details', {gconnected : gconnected, fconnected: fconnected,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: "", photo:photo, info_weather:meteo});
+          res.render('details', {gconnected : gconnected, fconnected: fconnected,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: "", photo:photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
         } 
         else{
           
           reviews_check=true
-          res.render('details', {gconnected : gconnected, fconnected:fconnected,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, photo: photo, info_weather:meteo});
+          res.render('details', {gconnected : gconnected, fconnected:fconnected,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, photo: photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
         }
       }
 
