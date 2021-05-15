@@ -40,9 +40,9 @@
             <ul>
             <% for(var i=0;i < data.feedbacks.length; i++) {%>
                 <li>Testo: <%= data.feedbacks[i].text%></li>
-                <% if (data.feedbacks[i].photo!="") { %>
+                <% if (data.feedbacks[i].photo.length>1) { %>
                     
-                <li>Immagine: <img src= <%= data.feedbacks[i].photo %> width="200" height="200"></li> 
+                    <li>Immagine: <img src= <%= data.feedbacks[i].photo %> width="200" height="200"></li> 
                 <% } %>
                 <% if(data.feedbacks[i].read==true){%>
                     <h4>Questo feedback è stato letto dall'assistenza clienti</h4> 

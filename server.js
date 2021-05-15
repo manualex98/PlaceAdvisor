@@ -182,6 +182,9 @@ app.get('/homepage', function (req,res){
         res.redirect('/ftoken?code='+code);
       }
     }
+    else{
+      res.redirect(404, '/error')
+    }
   }
   else if(gconnecting){
     if ( !gconnected){
@@ -374,7 +377,7 @@ app.get('/info', function(req, res){
     
   }
   else{
-    res.render('user_info', {data: ""});
+    res.redirect('/error', 404)
   }
   
 })
@@ -760,12 +763,12 @@ app.post('/feedback', function(req, res){
   strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
   id = Math.round(Math.random()*10000);
   var data = {
-    id: id,
-    date: date,
-    email: email,
-    name: username,
-    text : req.body.feed,
-    photo: req.body.baseUrl
+    "id": id,
+    "date": date,
+    "email": email,
+    "name": username,
+    "text" : req.body.feed,
+    "photo": req.body.baseUrl
   }
 
   connect();
@@ -777,6 +780,7 @@ app.post('/feedback', function(req, res){
       const result = channel.assertQueue("feedback")
       channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
       console.log('Feedback sent succefully')
+      console.log(data)
       updateFeedback(data)
       res.render('feedback', {inviato : true})
       feedbackposting=false;
@@ -798,7 +802,7 @@ function updateFeedback(data){
       "date": data.date,
       "text": data.text,
       "read": false,
-      "photo": data.baseUrl
+      "photo": data.photo
     }
     db.feedbacks.push(newItem);
 
@@ -808,8 +812,8 @@ function updateFeedback(data){
       headers: {
         'content-type': 'application/json'
       },
-      body: JSON.stringify(db)
-  
+      body: JSON.parse(JSON.stringify(db)),
+      json:true
     }, function(error, response, body){
       if(error) {
         console.log(error);
