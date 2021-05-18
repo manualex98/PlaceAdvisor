@@ -445,16 +445,6 @@ app.get('/details', function(req,res){
   var weather = {
     url: 'https://api.openweathermap.org/data/2.5/weather?lat='+lat+'&lon='+lon+'&appid='+process.env.OpenWeatherMap_KEY+'&lang=it'
   }
-
-  request.get(weather, function callback(error,response, body){
-    info_weather=JSON.parse(body);
-    console.log(info_weather);
-    meteo=info_weather.weather[0].description;
-    icon_id=info_weather.weather[0].icon;
-    console.log(meteo);
-    console.log(icon_id);
-    icon_url="http://openweathermap.org/img/wn/"+icon_id+"@2x.png"
-  })
   
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/xid/'+xid+'?apikey='+process.env.OpenMap_KEY
@@ -470,15 +460,25 @@ app.get('/details', function(req,res){
       } else {
         console.log(response.statusCode, body);
         infodb = JSON.parse(body);
-        if(infodb.error){
-          reviews_check=false     //Non ci sono recensioni
-          res.render('details', {gconnected : gconnected, fconnected: fconnected,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: "", photo:photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
-        } 
-        else{
-          
-          reviews_check=true     //Ci sono recensioni
-          res.render('details', {gconnected : gconnected, fconnected:fconnected,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, photo: photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
-        }
+        request.get(weather, function callback(error,response, body){
+          info_weather=JSON.parse(body);
+          console.log(info_weather);
+          meteo=info_weather.weather[0].description;
+          icon_id=info_weather.weather[0].icon;
+          console.log(meteo);
+          console.log(icon_id);
+          icon_url="http://openweathermap.org/img/wn/"+icon_id+"@2x.png"
+          if(infodb.error){
+            reviews_check=false     //Non ci sono recensioni
+            res.render('details', {gconnected : gconnected, fconnected: fconnected,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: "", photo:photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
+          } 
+          else{
+            
+            reviews_check=true     //Ci sono recensioni
+            res.render('details', {gconnected : gconnected, fconnected:fconnected,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, photo: photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
+          }
+        })
+        
       }
 
     });
