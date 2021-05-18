@@ -17,6 +17,8 @@
         <input type="text" name="surname" size="20" placeholder="Surname" required><br><br>
         Username:
         <input type="text" name="username" size="20" placeholder="Username" required><br><br>
+        Email:
+        <input type="email" name="email" size="20" placeholder="Email" required><br><br>
         Password:
         <input type="password" name="password" size="20" placeholder="Password" required><br><br>
         Foto profilo:
@@ -25,6 +27,9 @@
 
        </form>
 
+       <%if (check==false){%>
+        <h3>L'username inserito non è disponibile, sceglierne un altro</h3>
+       <%}%>
 
     </body>
 </html>

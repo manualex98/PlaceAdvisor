@@ -36,3 +36,8 @@ email: 	test_zreyrfg_user@tfbnw.net
 password: Passtest1
 
 -----------------
+
+
+Link API da documentare:
+- OpenTripMap:  https://opentripmap.io/docs#/ + organizzazione categorie: https://opentripmap.io/catalog
+- Facebook Oauth: https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow?locale=it_IT
