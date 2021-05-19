@@ -82,8 +82,8 @@
             <% if (reviews!="") { %>
                 <% for(var i=0; i<n ;i++) {%>
                     <%=reviews[i].date%> Da <%=reviews[i].name%> : <%=reviews[i].text %><% if (reviews[i].photo!="") { %>
-                    
-                        Foto: <img src= <%= reviews[i].photo %> width="200" height="200"><br>
+                        <% src="data:image/png;base64,"+reviews[i].photo; %>
+                        Foto: <img src= <%= src %> width="200" height="200"><br>
                     <% } %> <br>
                 <% } %>
             <% } %>
@@ -116,7 +116,8 @@
         <p>Condividi questo posto con i tuoi amici</p>
         <% var link = 'http://127.0.0.1:8000/details?xid='+xid; %>
         <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid="+xid+"%3A8000%2F&amp;src=sdkpreparse"; %>
-        <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div>
+        <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div><br>
     
-    <%}%></ul>
+    <%}%>
+    <br><a href= "http://localhost:8000/homepage"><button class="mb-3" value="submit">Torna alla home</button></a><br></ul>
 </html>

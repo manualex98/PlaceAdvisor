@@ -22,13 +22,12 @@
             <h2>Le tue recensioni:</h2><br>
             <ul>
             <% for(var i=0;i < data.reviews.length; i++) {%>
-                <li>Posto: <%= data.reviews[i].place%></li>
                 <li>Xid: <%= data.reviews[i].xid%></li>
                 <li>Testo: <%= data.reviews[i].text%></li>
                 <li>Data: <%= data.reviews[i].date%></li>
                 <% if (data.reviews[i].photo!="") { %>
-                    
-                <li><img src= <%= data.reviews[i].photo %> width="200" height="200"></li> 
+                    <% src="data:image/png;base64,"+data.reviews[i].photo; %>
+                    <li><img src= <%= src %> width="200" height="200"></li> 
                 <% } %> 
                 <h2>--------------------------------------</h2>
             <%}%>
@@ -43,8 +42,8 @@
             <% for(var i=0;i < data.feedbacks.length; i++) {%>
                 <li>Testo: <%= data.feedbacks[i].text%></li>
                 <% if (data.feedbacks[i].photo.length>1) { %>
-                    
-                    <li>Immagine: <img src= <%= data.feedbacks[i].photo %> width="200" height="200"></li> 
+                    <% src1="data:image/png;base64,"+data.feedbacks[i].photo; %>
+                    <li><img src= <%= src1 %> width="200" height="200"></li> 
                 <% } %>
                 <% if(data.feedbacks[i].read==true){%>
                     <h4>Questo feedback è stato letto dall'assistenza clienti</h4> 

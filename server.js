@@ -7,6 +7,7 @@ const path = require('path');
 var request = require('request');
 const { ADDRGETNETWORKPARAMS } = require('dns');
 var amqp = require('amqplib'); //Protocollo amqp per rabbitmq
+const imageToBase64 = require('image-to-base64');
 const { query } = require('express');
 require('dotenv').config()
 
@@ -368,7 +369,7 @@ app.get('/info', function(req, res){
     })
   }
   else{
-    res.redirect('/404')
+    res.redirect(404, 'error')
   }
   
 })
@@ -557,20 +558,24 @@ app.get('/googlephotosapi', function(req,res){
 });
 
 
-app.get('/logout',function(req,res){
-  //request.get("https://www.facebook.com/logout.php?next=localhost:8000&access_token="+ftoken, function callback(error, response, body){
-    if (error){
-      console.log(error);
-    }
-    else{
-      fconnected=false
-      gconnected=false
-      lconnected=false
-      console.log(response.statusCode, body)
-      res.render('index', {check:false, registrazione: false});
-    }
-  })
 
+app.get('/logout',function(req,res){
+  if (fconnected){
+    res.render('logout.ejs', {user:username})
+  }
+  else{
+    res.redirect(404, '/error')
+  }
+})
+
+app.post('/logout', function(req,res){
+  fconnected=false;
+  gconnected=false;
+  lconnected=false;
+  ftoken='';
+  gtoken='';
+  res.redirect('/');
+})
 
 
 let reviews_check
@@ -603,13 +608,43 @@ function updateUserReviews(req,res){
 
   console.log("body funzioneupdateuserreview: %j", req.body)
         if (req.body.baseUrl!=''){
-          item={
+          imageToBase64(req.body.baseUrl) // Image URL
+    .then(
+        (response) => {
+            console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
+            encoded=response;
+            item={
                 "xid": xid,
                 "name": username,
                 "text": req.body.rev,
                 "date": strdate,
-                "photo": req.body.baseUrl,
+                "photo": encoded
               }
+              info.reviews.push(item)
+        request({
+          url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+          method: 'PUT',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(info)
+          
+        }, function(error, response, body){
+            if(error) {
+                console.log(error);
+            } else {
+                console.log(response.statusCode, body);
+      
+            }
+        });
+        }
+    )
+    .catch(
+        (error) => {
+            console.log(error); // Logs an error if there was one
+        }
+    )
+          
             
           
         } 
@@ -624,7 +659,7 @@ function updateUserReviews(req,res){
               
             
           }
-        }
+        
         info.reviews.push(item)
         request({
           url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
@@ -642,7 +677,7 @@ function updateUserReviews(req,res){
       
             }
         });
-
+      }
       }
   });
 }
@@ -651,19 +686,46 @@ function newReview(req,res){
   data = new Date();
   mese=data.getMonth() +1;
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
-
   console.log("body funzionenewreview: %j", req.body)
   if (req.body.baseUrl!=''){
-    item={
-      "reviews": [
-        {
-          "name": username,
-          "text": req.body.rev,
-          "date": strdate,
-          "photo": req.body.baseUrl
+    imageToBase64(req.body.baseUrl) // Image URL
+    .then(
+        (response) => {
+            console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
+            encoded=response;
+            item={
+              "reviews": [
+                {
+                  "name": username,
+                  "text": req.body.rev,
+                  "date": strdate,
+                  "photo": encoded
+                }
+              ]
+            }
+            request({
+              url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+              method: 'PUT',
+              headers: {
+                'content-type': 'application/json'
+              },
+              body: JSON.stringify(item)
+              
+            }, function(error, response, body){
+                if(error) {
+                    console.log(error);
+                } else {
+                    console.log(response.statusCode, body);
+                    res.redirect('/details?xid='+xid);
+                }
+            });
         }
-      ]
-    }
+    )
+    .catch(
+        (error) => {
+            console.log(error); // Logs an error if there was one
+        }
+    )
   } 
   else{
     item={
@@ -676,7 +738,7 @@ function newReview(req,res){
         }
       ]
     }
-  }
+  
 
 
   request({
@@ -696,6 +758,7 @@ function newReview(req,res){
       }
   });
 }
+}
 
 function updateReview(req,res){
   data = new Date();
@@ -703,15 +766,44 @@ function updateReview(req,res){
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
   console.log("body funzioneupdatereview: %j", req.body)
   if (req.body.baseUrl!=''){
-    newItem={
+    imageToBase64(req.body.baseUrl) // Image URL
+    .then(
+        (response) => {
+            console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
+            encoded=response;
+            newItem={
         
-          "name": username,
-          "text": req.body.rev,
-          "date": strdate,
-          "photo": req.body.baseUrl
-        
-      
-    }
+              "name": username,
+              "text": req.body.rev,
+              "date": strdate,
+              "photo": encoded
+            }
+            infodb.reviews.push(newItem);
+
+  request({
+    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+    method: 'PUT',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify(infodb)
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+          console.log(response.statusCode, body);
+          res.redirect('/details?xid='+xid);
+      }
+  });
+
+        }
+    )
+    .catch(
+        (error) => {
+            console.log(error); // Logs an error if there was one
+        }
+    )
   } 
   else{
     newItem={
@@ -722,7 +814,7 @@ function updateReview(req,res){
         }
       
     
-  }
+  
   infodb.reviews.push(newItem);
 
   request({
@@ -741,6 +833,7 @@ function updateReview(req,res){
           res.redirect('/details?xid='+xid);
       }
   });
+}
 }
 
 //feedback
@@ -767,14 +860,51 @@ app.post('/feedback', function(req, res){
   mese=date.getMonth() +1;
   strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
   id = Math.round(Math.random()*10000);
-  var data = {
-    "id": id,
-    "date": date,
-    "email": email,
-    "name": username,
-    "text" : req.body.feed,
-    "photo": req.body.baseUrl
-  }
+  if (req.body.baseUrl.length>2){
+    imageToBase64(req.body.baseUrl) // Image URL
+    .then(
+      (response) => {
+        console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
+        var data={
+          "id": id,
+          "date": date,
+          "email": email,
+          "name": username,
+          "text" : req.body.feed,
+          "photo": response
+        }
+
+        connect();
+        async function connect() {
+
+          try {
+            const connection = await amqp.connect("amqp://localhost:5672")
+            const channel = await connection.createChannel();
+            const result = channel.assertQueue("feedback")
+            channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
+            console.log('Feedback sent succefully')
+            console.log(data)
+            updateFeedback(data)
+            res.render('feedback', {inviato : true})
+            feedbackposting=false;
+          }
+          catch(error){
+            console.error(error);
+          }
+        }
+      })
+    }
+    else{
+      var data = {
+        "id": id,
+        "date": date,
+        "email": email,
+        "name": username,
+        "text" : req.body.feed,
+        "photo": req.body.baseUrl
+      }
+    
+        
 
   connect();
   async function connect() {
@@ -794,6 +924,7 @@ app.post('/feedback', function(req, res){
       console.error(error);
     }
   }
+}
 })
 
 
