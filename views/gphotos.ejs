@@ -9,8 +9,8 @@
     
     <ul><% for (var i=0; i<info.mediaItems.length; i++){ %>
         
-         <li><%= info.mediaItems[i].filename %></a></li>
-        <% var uri = info.mediaItems[i].baseUrl; var width = 500; var height = 500%>
+         <li><%= info.mediaItems[i].filename %></li>
+        <% var uri = info.mediaItems[i].baseUrl+'=w200-h200'; var width = 200; var height = 200%>
         <li><img src= <%=uri %> width=<%=width%> height=<%=height%>></li>
 
 

@@ -491,6 +491,9 @@ app.get('/details', function(req,res){
 
 var numpag;
 app.get('/googlephotosapi', function(req,res){
+  if(!gconnected){
+    res.redirect(404, '/error')
+  }
   if (req.query.stato == 'feed'){
     feedbackposting=true;
   }
