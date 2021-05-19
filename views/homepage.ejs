@@ -6,7 +6,33 @@
   <meta name="viewport" content="width=device-width initial-scale=1.0"/>
   <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
 </head>
+<script>
+  // Create WebSocket connection.
+  const socket = new WebSocket('ws://localhost:8080');
 
+  // Connection opened
+  socket.addEventListener('open', function (event) {
+      console.log('Connected to WS Server')
+  });
+
+  // Listen for messages
+  socket.addEventListener('message', function (event) {
+      console.log('Message from server ', event.data);
+  });
+
+  const sendMessage = () => {
+      var city = document.getElementsByName('city');
+      var cat = document.getElementsByName('cat');
+      var rad = document.getElementsByName('rad');
+      if( city[0].value ==='' || rad[0].value === ''){
+        alert("Per favore riempi tutti i campi...!!!!!!");
+        return false;
+      }else{
+        socket.send('è stata cercata la città: '+city[0].value+', categoria: '+cat[0].value+', raggio: '+rad[0].value);
+        return true;
+      }
+  }
+</script>
 <body class="text-center">
   <div id="fb-root"></div>
   <div id="fb-root"></div>
@@ -16,9 +42,9 @@
   <h1 class="mb-3">Homepage</h1>    <h3>Ciao, <%=username%></h3> <a href="http://localhost:8000/info"><button class="mb-3">User info</button></a>
   <br> 
 
-  <form action="http://localhost:8000/openmap" method="POST">
+  <form id='search' action="http://localhost:8000/openmap" method="POST">
     
-    <input class="mb-3" type="text" placeholder="Città" size="20" name="city" ><br>
+    <input required class="mb-3" type="text" placeholder="Città" size="20" name="city" ><br>
     <select class="mb-3" size=1 cols=3 name="cat"><br>
       <option selected value=interesting_places> Interesting Places
       <option value=museums> Museums
@@ -36,8 +62,8 @@
 
     </select>
     
-    <input class="mb-3" type="text" placeholder="Raggio (KM)" size="10" name="rad" >
-    <input class="mb-3" type="submit" value="Cerca" name="sub">
+    <input required class="mb-3" type="text" placeholder="Raggio (KM)" size="10" name="rad" >
+    <input class="mb-3" type="submit" value="Cerca" name="sub" onclick="sendMessage()">
   </form>
 
   <% if (!gconnected){ %>

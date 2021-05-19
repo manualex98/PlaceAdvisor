@@ -7,13 +7,34 @@ const path = require('path');
 var request = require('request');
 const { ADDRGETNETWORKPARAMS } = require('dns');
 var amqp = require('amqplib'); //Protocollo amqp per rabbitmq
-const imageToBase64 = require('image-to-base64');
-const { query } = require('express');
+const imageToBase64 = require('image-to-base64'); //Usato per codificare le immagini in base-64
+const WebSocket = require('ws');  
 require('dotenv').config()
 
 //dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
+
+
+const wss = new WebSocket.Server({ port:8080 });
+
+wss.on('connection', function connection(ws) {
+  console.log('A new client Connected!');
+  ws.send('Welcome New Client!');
+
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+
+    wss.clients.forEach(function each(client) {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+    
+  });
+});
+
+
 
 var ftoken="";
 var gtoken="";
@@ -140,10 +161,10 @@ app.get('/facebooklogin',function (req,res){
 app.get('/googlelogin', function(req, res){
   gconnecting=true;
   if (req.query.length>0){
-    xid = req.query.xid;
+    xid = req.query.xid;  //se si entra dalla pagina delle review, si ritornerà poi a quella pagina, quindi salvo xid
     res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
   }
-  else{
+  else{ 
     res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
   }
 })
@@ -153,8 +174,8 @@ app.get('/signup', function(req, res){
 });
 
 app.get('/homepage', function (req,res){
-  if (req.body!=''){
-    code=req.query.code;
+  if (req.body!=''){  
+    code=req.query.code;  
   }
   //check sessioni fb e google
   if (!gconnecting){
@@ -184,9 +205,8 @@ app.get('/homepage', function (req,res){
   else res.render('index', {check:false, registrazione: false});
 })
 
-app.get('/gtoken', function(req, res){
-
 //acquisisci google token
+app.get('/gtoken', function(req, res){
   console.log(req.query.code)
   var formData = {
     code: req.query.code,
@@ -205,17 +225,11 @@ app.get('/gtoken', function(req, res){
       res.redirect('404', );
     }
     else{
-      gtoken = info.access_token;
+      gtoken = info.access_token; //prendo l'access token
       gconnected = true;
       console.log("Got the token "+ info.access_token);
-      res.render('continue.ejs', {gtoken : gtoken, gconnected:gconnected, feedbackposting: feedbackposting, xid:xid})
-      //if(feedbackposting=true){
-       // res.render('feedback.ejs', {inviato: false, gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
-      //}
-      //else if (reviewposting=true){
-      //res.render('new_review.ejs', {inviato: false, gtoken : gtoken, ftoken:ftoken, gconnected:gconnected, fconnected:fconnected, lconnected: lconnected})
-      //}
-      
+      res.render('continue.ejs', {gtoken : gtoken, gconnected:gconnected, feedbackposting: feedbackposting, xid:xid}) 
+           
     }
   })
 })
@@ -253,47 +267,46 @@ var fbinfo;
 
 app.get('/fb_pre_access',function (req,res){
   var url = 'https://graph.facebook.com/me?fields=id,first_name,last_name,picture,email&access_token='+ftoken
-        var headers = {'Authorization': 'Bearer '+ftoken};
-        var request = require('request');
+  var headers = {'Authorization': 'Bearer '+ftoken};
+  var request = require('request');
 
-        request.get({
-            headers: headers,
-            url:     url,
-            }, function(error, response, body){
-                console.log(body);
-                body1 = JSON.parse(body);
-                var stringified = JSON.stringify(body1);
-                stringified = stringified.replace('\u0040', '@');
-                var parsed =JSON.parse(stringified);
-                email = parsed.email
-                fbinfo=parsed
-
-                //CONTROLLO SE ESISTE L'UTENTE NEL DB
-                request({
-                    url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
-                    method: 'GET',
-                    headers: {
-                        'content-type': 'application/json'
-                    },
-                    body: JSON.stringify(body1)
+  request.get({
+    headers: headers,
+    url:     url,
+    }, function(error, response, body){
+      console.log(body);
+      body1 = JSON.parse(body);
+      var stringified = JSON.stringify(body1);
+      stringified = stringified.replace('\u0040', '@');
+      var parsed =JSON.parse(stringified);
+      email = parsed.email
+      fbinfo=parsed
+      //CONTROLLO SE ESISTE L'UTENTE NEL DB
+      request({
+        url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(body1)
   
-                  }, function(error, response, body){
-                        if(error) {
-                          console.log(error);
-                        } else {
-                          console.log(response.statusCode, body);
-                          var info = JSON.parse(body)
-                          
-                          if(info.error){
-                            res.redirect('fbsignup') //Utente non esiste quindi lo faccio registrare
-                          }
-                          else{
-                            username=info.username
-                            res.redirect('homepage')  //Utente esiste, può accedere
-                          }
-                        }
-                    });
-          });
+        }, function(error, response, body){
+          if(error) {
+            console.log(error);
+          } else {
+            console.log(response.statusCode, body);
+            var info = JSON.parse(body)
+                        
+            if(info.error){
+              res.redirect('fbsignup') //Utente non esiste quindi lo faccio registrare
+            }
+            else{
+              username=info.username
+              res.redirect('homepage')  //Utente esiste, può accedere
+            }
+          }
+      });
+    });
 })
 
 
@@ -381,7 +394,7 @@ let city;
 let rad;
 let cate;
 
-app.post('/openmap', function(req,res){
+app.post('/openmap', function(req,res){   
   city = req.body.city;
   rad = parseFloat(req.body.rad)*1000;
   cate = req.body.cat;
@@ -392,7 +405,7 @@ app.post('/openmap', function(req,res){
   }
   
   request.get(options,function callback(error,response, body){
-
+    
     var info = JSON.parse(body);
     
     lat = parseFloat(info.lat);
@@ -405,17 +418,30 @@ app.post('/openmap', function(req,res){
 
 
 app.get('/app', function(req,res){
+  if(!fconnected){
+    res.redirect(404, '/error')
+    return
+  }
+  else{
   var options ={
     url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey='+process.env.OpenMap_KEY+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
   }
   request.get(options, (error, req, body)=>{
     var info = JSON.parse(body);
+    console.log(body)
     data = info.features;
-    n = data.length;
-    cate = cate.replace('_', ' ');
-
-    res.render('list_places', {numero: n, data: data, cat: cate, citta: city});
+    
+    if (data==undefined){
+      console.log('Non è stato cercato bene')
+      res.redirect('/homepage')
+    }
+    else{
+      n = data.length;
+      cate = cate.replace('_', ' ');
+      res.render('list_places', {numero: n, data: data, cat: cate, citta: city});
+    }
   })
+}
 });
 
 
@@ -489,21 +515,22 @@ app.get('/details', function(req,res){
   
 });
 
+//Google Photos API
+
 var numpag;
 app.get('/googlephotosapi', function(req,res){
   if(!gconnected){
     res.redirect(404, '/error')
   }
   if (req.query.stato == 'feed'){
-    feedbackposting=true;
+    feedbackposting=true;   //ritornerà la foto nel feedback
   }
   queryxid = req.query.xid;
   querynextpg = req.query.nextpg;
   var url = 'https://photoslibrary.googleapis.com/v1/mediaItems:search'
-	var headers = {'Authorization': 'Bearer '+gtoken};
-
+	var headers = {'Authorization': 'Bearer '+gtoken};    //setto gli headers passando al sito il token
   var request = require('request');
-  if (querynextpg!=undefined && querynextpg!=''){
+  if (querynextpg!=undefined && querynextpg!=''){   //se ci troviamo alla pagina 2+
     numpag= numpag+1;
     request.post({
       headers: headers,
@@ -522,15 +549,15 @@ app.get('/googlephotosapi', function(req,res){
 		  }, function(error, response, body){
         console.log(JSON.stringify(body));
         info = JSON.parse(JSON.stringify(body));
-      if (queryxid!=''){
+      if (queryxid!=''){  //la foto si sta aggiungendo alla pagina di un monumento
         res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting,  xid : queryxid, numpag:numpag})
       }
-      else{
+      else{ //la foto si sta aggiungendo ad un feedback
         res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :'', numpag:numpag})
       }
 		});
   }
-  else{
+  else{       //se la chiamata non è stata effettuata non ci sarà nell'url la req.query.nextpg
     numpag=1;
     request.post({
 		headers: headers,
@@ -548,10 +575,10 @@ app.get('/googlephotosapi', function(req,res){
 		}, function(error, response, body){
 			console.log(JSON.stringify(body));
       info = JSON.parse(JSON.stringify(body));
-      if (queryxid!=''){
+      if (queryxid!=''){     //la foto si sta aggiungendo alla pagina di un monumento
         res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting,  xid : queryxid, numpag: numpag})
       }
-      else{
+      else{                  //la foto si sta aggiungendo ad un feedback
         res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :'', numpag: numpag})
       }
 		});
@@ -759,8 +786,8 @@ function newReview(req,res){
           console.log(response.statusCode, body);
           res.redirect('/details?xid='+xid);
       }
-  });
-}
+    });
+  }
 }
 
 function updateReview(req,res){
@@ -768,39 +795,39 @@ function updateReview(req,res){
   mese=data.getMonth() +1;
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
   console.log("body funzioneupdatereview: %j", req.body)
-  if (req.body.baseUrl!=''){
+  if (req.body.baseUrl!=''){ 
     imageToBase64(req.body.baseUrl) // Image URL
     .then(
-        (response) => {
-            console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
-            encoded=response;
-            newItem={
+      (response) => {
+        //console.log(response); "iVBORw0KGgoAAAANSwCAIA..."
+        encoded=response;      //salviamo la striga
+        newItem={
         
-              "name": username,
-              "text": req.body.rev,
-              "date": strdate,
-              "photo": encoded
-            }
-            infodb.reviews.push(newItem);
-
-  request({
-    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
-    method: 'PUT',
-    headers: {
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify(infodb)
-    
-  }, function(error, response, body){
-      if(error) {
-          console.log(error);
-      } else {
-          console.log(response.statusCode, body);
-          res.redirect('/details?xid='+xid);
-      }
-  });
-
+          "name": username,
+          "text": req.body.rev,
+          "date": strdate,
+          "photo": encoded    //setto la photo con il valore di response
         }
+        infodb.reviews.push(newItem);
+
+        request({
+          url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+          method: 'PUT',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(infodb)
+    
+        }, function(error, response, body){
+          if(error) {
+            console.log(error);
+          } else {
+            console.log(response.statusCode, body);
+            res.redirect('/details?xid='+xid);
+          }
+        });
+
+      }
     )
     .catch(
         (error) => {
