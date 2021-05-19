@@ -9,6 +9,7 @@ L'applicazione richiede i seguenti servizi:
 In particolare in CouchDB devono essere presenti i seguenti database:
 * users, per memorizzare gli utenti;
 * reviews, per memorizzare le recensioni
+* cities, per memorizzare le città
 
 
 -----------------

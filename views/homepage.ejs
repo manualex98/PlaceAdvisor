@@ -39,7 +39,9 @@
   <script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>
   
   
-  <h1 class="mb-3">Homepage</h1>    <h3>Ciao, <%=username%></h3> <a href="http://localhost:8000/info"><button class="mb-3">User info</button></a>
+  <h1 class="mb-3">Homepage</h1>    <h3>Ciao, <%=username%></h3> 
+  <a href="http://localhost:8000/info"><button class="mb-3">Il tuo profilo</button></a>
+  <a href="http://localhost:8000/city_info"><button class="mb-3">Statistiche interessanti</button></a>
   <br> 
 
   <form id='search' action="http://localhost:8000/openmap" method="POST">

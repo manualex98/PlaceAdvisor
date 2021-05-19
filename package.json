@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/manualex98/Progetto-RetiDiCalcolatori.git"
+    "url": "git+https://github.com/manualex98/PlaceAdvisor.git"
   },
   "author": "Alessi Manuel, Fortunato Francesco, Lai Simona",
   "license": "ISC",
@@ -33,7 +33,7 @@
     "ws": "^7.4.5"
   },
   "bugs": {
-    "url": "https://github.com/manualex98/Progetto-RetiDiCalcolatori/issues"
+    "url": "https://github.com/manualex98/PlaceAdvisor/issues"
   },
-  "homepage": "https://github.com/manualex98/Progetto-RetiDiCalcolatori#readme"
+  "homepage": "https://github.com/manualex98/PlaceAdvisor#readme"
 }

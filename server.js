@@ -155,7 +155,7 @@ function newUser(req,res){
 
 app.get('/facebooklogin',function (req,res){
   fconnecting=true;
-  res.redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
+  res.redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.FB_CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
 });
 
 app.get('/googlelogin', function(req, res){
@@ -240,8 +240,8 @@ app.get('/ftoken',function (req,res){
   
   var formData = {
     code: code,
-    client_id: process.env.CLIENT_ID,
-    client_secret: process.env.SECRET,
+    client_id: process.env.FB_CLIENT_ID,
+    client_secret: process.env.FB_SECRET_KEY,
     redirect_uri: "http://localhost:8000/homepage",
     grant_type: 'authorization_code'
   }
@@ -398,7 +398,7 @@ app.post('/openmap', function(req,res){
   city = req.body.city;
   rad = parseFloat(req.body.rad)*1000;
   cate = req.body.cat;
-  
+  checkCity(city) //Registro che la città è stata registrata
   
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey='+process.env.OpenMap_KEY+'&name='+city
@@ -416,6 +416,64 @@ app.post('/openmap', function(req,res){
 });
 
 
+function checkCity(city){
+  request.get('http://admin:admin@127.0.0.1:5984/cities/'+city, function callback(error, response, body){
+    var data = JSON.parse(body)
+      if(data.error){
+        newRegisterCity(city)
+      }
+      else{ updateRegisterCity(city,data) }
+  })
+}
+
+function newRegisterCity(city){
+    body1 = {
+          "name": city,
+          "search": 1
+        }
+    request({
+          url: 'http://admin:admin@127.0.0.1:5984/cities/'+city,
+          method: 'PUT',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(body1)
+          }, function(error, response, body){
+            if(error) {
+              console.log(error);
+            } else {
+              var info = JSON.parse(body)
+              console.log("Città creata")
+            }
+    })
+
+
+}
+
+function updateRegisterCity(city,data){
+  data.search+=1
+  request({
+          url: 'http://admin:admin@127.0.0.1:5984/cities/'+city,
+          method: 'PUT',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(data)
+          }, function(error, response, body){
+            if(error) {
+              console.log(error);
+            } else {
+              var info = JSON.parse(body)
+              console.log("Città aggiornata")
+            }
+  })
+}
+
+
+app.get('/city_info', function(req,res){
+
+  request.get('http://admin:admin@127.0.0.1:5984/cities/'+city)
+})
 
 app.get('/app', function(req,res){
   if(!fconnected){
@@ -428,7 +486,7 @@ app.get('/app', function(req,res){
   }
   request.get(options, (error, req, body)=>{
     var info = JSON.parse(body);
-    console.log(body)
+    //console.log(body)
     data = info.features;
     
     if (data==undefined){
