@@ -9,7 +9,17 @@
 </head>
 
 <body class="text-center">
-   
+  <h2 >Le prime 10 città più ricercate nel nostro sito:</h2>
+  <ol>
+    <% for(var i=0; i < data.length; i++) {%>
+      <%var times="volte"%>
+      <%if(data[i].search==1){ times="volta"}%>
+      
+      <li>
+        <h4><%=data[i].city %> cercata <%=data[i].search%> <%=times%></h4>
+      </li>
+    <%}%>
+  </ol>
   
 </body>
 

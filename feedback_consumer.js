@@ -3,7 +3,7 @@ const amqp = require('amqplib');
 var app = require('express');
 var request = require('request')
 
-let info = []
+
 connect();
 async function connect() {
     
@@ -11,27 +11,28 @@ async function connect() {
         const connection = await amqp.connect("amqp://localhost:5672")
         const channel = await connection.createChannel();
         const result = channel.assertQueue("feedback")
+
+        channel.prefetch(1);
+
         channel.consume("feedback", message => {
             //messaggio:
             const mexdb = message.content.toString();
             const mex = JSON.parse(message.content.toString());
 
-            item = {
-                "email": mex.email,
-                "id": mex.id
-            }
+           
             //info.push(item)
             console.log('\r\n---------------------------------------------------')
             console.log('\r\nRicevuto feedback da '+mex.name+'\r\ntesto: '+mex.text +'  con id: '+mex.id);
             console.log('\r\n--------------------------------------------------')
 
-            //ACK
-            channel.ack(message);
+            update(mex.email,mex.id,channel,message) 
             
-            sleep(1000).then(() => {
-                console.log("\r\nHo dormito\r\n")
-                update(item)
-            });
+            
+            //ACK
+            
+            
+            
+            
             
             
     })
@@ -46,16 +47,7 @@ async function connect() {
 
 }
 
-
-function sleep (time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
-  }
-
-
-function update(item){
-    id = item.id
-    email = item.email
-        
+function update(email,id,channel,message){
     request.get('http://admin:admin@127.0.0.1:5984/users/'+email,function callback(error, response, body){
         var data = JSON.parse(body)
             
@@ -78,6 +70,7 @@ function update(item){
                             console.log(error);
                         } else {
                             console.log(response.statusCode, body);
+                            channel.ack(message)
                         }
                     });
                     

@@ -471,8 +471,38 @@ function updateRegisterCity(city,data){
 
 
 app.get('/city_info', function(req,res){
+  request({
+    url: 'http://admin:admin@127.0.0.1:5984/cities/_all_docs?include_docs=true&limit=10',
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json'
+    },
+    
+  }, function(error, response, body){
+    if(error){console.log(error)}
+    else{
+      console.log(body)
+      var data = JSON.parse(body)
+      
+      var list_city = new Array()                      //Popolo un array con i documenti del db
+      for(var i=0; i<data.total_rows;i++){
+        list_city.push(
+          {
+            "city": data.rows[i].doc.name,
+            "search": data.rows[i].doc.search
+          }
+        )
+      }
+      
+      list_city.sort(                         //Lo ordino in base a quante volte sono stati cercati gli elementi
+        function(a, b){
+          return b.search - a.search
+        }
+      )
 
-  request.get('http://admin:admin@127.0.0.1:5984/cities/'+city)
+      res.render('city_stat',{data:list_city})
+    }
+  })
 })
 
 app.get('/app', function(req,res){
@@ -961,25 +991,7 @@ app.post('/feedback', function(req, res){
           "text" : req.body.feed,
           "photo": response
         }
-
-        connect();
-        async function connect() {
-
-          try {
-            const connection = await amqp.connect("amqp://localhost:5672")
-            const channel = await connection.createChannel();
-            const result = channel.assertQueue("feedback")
-            channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
-            console.log('Feedback sent succefully')
-            console.log(data)
-            updateFeedback(data)
-            res.render('feedback', {inviato : true})
-            feedbackposting=false;
-          }
-          catch(error){
-            console.error(error);
-          }
-        }
+        updateFeedback(data,res)
       })
     }
     else{
@@ -991,33 +1003,13 @@ app.post('/feedback', function(req, res){
         "text" : req.body.feed,
         "photo": req.body.baseUrl
       }
-    
-        
-
-  connect();
-  async function connect() {
-
-    try {
-      const connection = await amqp.connect("amqp://localhost:5672")
-      const channel = await connection.createChannel();
-      const result = channel.assertQueue("feedback")
-      channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
-      console.log('Feedback sent succefully')
-      console.log(data)
-      updateFeedback(data)
-      res.render('feedback', {inviato : true})
-      feedbackposting=false;
+      updateFeedback(data,res)
     }
-    catch(error){
-      console.error(error);
-    }
-  }
-}
 })
 
 
 
-function updateFeedback(data){
+function updateFeedback(data,res){
   request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
 
     var db = JSON.parse(body)
@@ -1043,6 +1035,25 @@ function updateFeedback(data){
         console.log(error);
       } else {
         console.log(response.statusCode, body);
+        connect();
+        async function connect() {
+
+          try {
+            
+            const connection = await amqp.connect("amqp://localhost:5672")
+            const channel = await connection.createChannel();
+            const result = channel.assertQueue("feedback")
+            channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
+            console.log('Feedback sent succefully')
+            console.log(data)
+            
+            res.render('feedback', {inviato : true})
+            feedbackposting=false;
+          }
+          catch(error){
+            console.error(error);
+          }
+        }
       }
     });
 
