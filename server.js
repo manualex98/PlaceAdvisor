@@ -208,8 +208,10 @@ app.get('/homepage', function (req,res){
 //acquisisci google token
 app.get('/gtoken', function(req, res){
   console.log(req.query.code)
+  code = decodeURIComponent(req.query.code)
+
   var formData = {
-    code: req.query.code,
+    code: code,
     client_id: process.env.G_CLIENT_ID,
     client_secret: process.env.G_CLIENT_SECRET,
     redirect_uri: "http://localhost:8000/homepage",
@@ -222,7 +224,7 @@ app.get('/gtoken', function(req, res){
     console.log('Upload successful!  Server responded with:', body);
     var info = JSON.parse(body);
     if(info.error != undefined){
-      res.redirect('404', );
+      res.redirect(404, '/error' );
     }
     else{
       gtoken = info.access_token; //prendo l'access token
@@ -254,7 +256,7 @@ app.get('/ftoken',function (req,res){
     console.log('Upload successful!  Server responded with:', body);
     var info = JSON.parse(body);
     if(info.error != undefined){
-      res.redirect('404', );
+      res.redirect(404, 'error');
     }
     else{
       ftoken = info.access_token;
@@ -399,7 +401,7 @@ app.post('/openmap', function(req,res){
   city = req.body.city;
   rad = parseFloat(req.body.rad)*1000;
   cate = req.body.cat;
-  checkCity(city) //Registro che la città è stata registrata
+  checkCity(city)                       //aggiungo (aggiorno) la città cercata nel db 'cities'
   
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey='+process.env.OpenMap_KEY+'&name='+city
@@ -417,7 +419,7 @@ app.post('/openmap', function(req,res){
 });
 
 
-function checkCity(city){
+function checkCity(city){               //funzione che esegue un check all'interno del db cities per vedere se esiste un doc col nome della città 'city'
   request.get('http://admin:admin@127.0.0.1:5984/cities/'+city, function callback(error, response, body){
     var data = JSON.parse(body)
       if(data.error){
@@ -427,7 +429,7 @@ function checkCity(city){
   })
 }
 
-function newRegisterCity(city){
+function newRegisterCity(city){         //funzione che salva una nuova città
     body1 = {
           "name": city,
           "search": 1
@@ -451,7 +453,7 @@ function newRegisterCity(city){
 
 }
 
-function updateRegisterCity(city,data){
+function updateRegisterCity(city,data){             //funzione che aggiorna il numero di ricerche di una città
   data.search+=1
   request({
           url: 'http://admin:admin@127.0.0.1:5984/cities/'+city,
