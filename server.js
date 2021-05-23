@@ -237,6 +237,7 @@ app.get('/gtoken', function(req, res){
 
 //acquisici fbtoken
 app.get('/ftoken',function (req,res){
+  code = decodeURIComponent(code)
   
   var formData = {
     code: code,
