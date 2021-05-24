@@ -42,3 +42,6 @@ password: Passtest1
 Link API da documentare:
 - OpenTripMap:  https://opentripmap.io/docs#/ + organizzazione categorie: https://opentripmap.io/catalog
 - Facebook Oauth: https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow?locale=it_IT
+- Google Oauth & Google Photos: https://developers.google.com/photos/library/guides/get-started
+- HERE API: https://developer.here.com/documentation/maps/3.1.25.0/dev_guide/topics/get-started.html
+- OpenWeatherMap API: https://openweathermap.org/current
