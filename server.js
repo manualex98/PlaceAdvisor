@@ -9,11 +9,36 @@ const { ADDRGETNETWORKPARAMS } = require('dns');
 var amqp = require('amqplib'); //Protocollo amqp per rabbitmq
 const imageToBase64 = require('image-to-base64'); //Usato per codificare le immagini in base-64
 const WebSocket = require('ws');  
+const swaggerJsDoc= require('swagger-jsdoc');
+const swaggerUi= require('swagger-ui-express');
 require('dotenv').config()
 
 //dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
+
+
+//Extended https://swagger.io/specification/
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.1',
+    info: {
+      title: "PlaceAdvisor",
+      description: "Web App che permette di trovare e recensire luoghi di ogni tipo",
+      contact: {
+        name: "Alessi Manuel, Fortunato Francesco, Lai Simona",
+      },
+    },
+    servers: [{
+      url: "http://localhost:8000"
+    }],
+  },
+
+  apis: ["server.js"]
+}
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
 const wss = new WebSocket.Server({ port:8080 });
@@ -52,9 +77,77 @@ var feedbackposting=false;
 var xid='';
 
 
+// Routes
+/**
+ * @swagger
+ *components:
+ *  schemas:
+ *    User:
+ *      type: object
+ *      properties:
+ *        name: 
+ *          type: string
+ *        email:
+ *          type: string
+ *      required:
+ *        - name
+ *        - email
+ *      example:
+ *        name: TestUser
+ *        email: testuser@email.com 
+ *  
+ */
+
+/**
+ * @swagger
+ * paths:
+ *  /:
+ *    get:
+ *      tags: [Root]
+ *      responses:
+ *        200: 
+ *          description: restituisce la pagina index.ejs
+ *    post:
+ *      tags: [Facebook Access]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/x-www-form-urlencoded:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                sub:       
+ *                  type: string
+ *              example: Accedi con Facebook
+ *      responses:
+ *        200:
+ *          description: ok
+ * 
+ *  /facebooklogin:
+ *    get:
+ *      tags: [Facebook Access]
+ *      responses:
+ *        200:
+ *          description: ok
+ */
+
+app.get('/',function (req,res){
+  if (fconnected){
+    res.redirect('/homepage');
+  }
+  else{
+    res.render('index', {check: false, registrazione: false});
+  }
+});
+
+
 app.post('/',function (req,res){
-  if(req.body.sub == 'Accedi con Facebook') res.redirect('/facebooklogin')
-  else gestisciAccessoLocale(req,res);
+  if(req.body.sub == 'Accedi con Facebook'){
+    res.redirect('/facebooklogin')
+  }
+  else {
+    res.redirect(404, '/error')
+  }
 })
 
 app.post('/userinfo', function(req,res){
@@ -1069,7 +1162,10 @@ app.get('/',function (req,res){
   if (fconnected){
     res.redirect('/homepage');
   }
-  res.render('index', {check: false, registrazione: false});
+  else{
+    res.render('index', {check: false, registrazione: false});
+  }
+  
 });
 
 
