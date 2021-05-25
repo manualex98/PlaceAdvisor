@@ -219,6 +219,12 @@ var xid='';
  *        202:
  *          description: OK
  * 
+ *  /googlelogin:
+ *    get:
+ *      tags: [Google OAuth]
+ *      responses:
+ *        200: OK
+ * 
  * 
  *  /homepage:
  *    get:
@@ -251,6 +257,30 @@ var xid='';
  *          description: HTML token page
  *        404:
  *          description: Invalid Grant, malformed auth code.
+ * 
+ *  /ftoken:
+ *    get:
+ *      tags: [Facebook OAuth]
+ *      parameters:
+ *        - in: query
+ *          name: code
+ *          required: true
+ *          schema:
+ *            type: string
+ *            description: Authentication Code ricevuto da Facebook
+ *      responses:
+ *        200:
+ *          description: reindirizza a /fb_pre_access
+ *        404:
+ *          description: Error.
+ *  
+ *  /fb_pre_access:
+ *    get:
+ *      tags: [Facebook OAuth]
+ *      responses:
+ *        200:
+ *          description: reindirizza alla homepage
+ * 
  *  /info:
  *    get:
  *      tags: [User]
@@ -259,7 +289,175 @@ var xid='';
  *          description: HTML user_info
  *        403:
  *          description: HTML error page. user not authenticated
+ *  
+ *  /signup:
+ *    get:
+ *      tags: [Signup]
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina signup.ejs
+ * 
+ *  /fsignup:
+ *    get:
+ *      tags: [Facebook OAuth]
+ *      responses:
+ *        200:
+ *          description: reindirizza alla homepage
+ * 
+ *  /city_info:
+ *    get:
+ *      tags: [City info]
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina city_stat.ejs
+ *  /app:
+ *    get:
+ *      tags: [App]
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina list_places.ejs
+ *        404:
+ *          description: Error
+ *  /openmap:
+ *    post:
+ *      tags: [Open Trip Map]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/x-www-form-urlencoded:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                sub:       
+ *                  type: string
+ *              example: 
+ *      responses:
+ *        200:
+ *          description:
  *    
+ *  /details:
+ *    get:
+ *      tags: [Details]
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina details
+ *        404:
+ *          description: Error
+ * 
+ *  /googlephotoapi:
+ *    get:
+ *      tags: [Google photo]
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina gphotos.ejs
+ *        404:
+ *          description: Error
+ * 
+ *  /logout:
+ *    get:
+ *      tags: [Logout]
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina logout.ejs
+ *        404: 
+ *          description: Error
+ *    post:
+ *      tags: [Logout]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/x-www-form-urlencoded:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                sub:       
+ *                  type: boolean
+ *              example: 
+ *      responses:
+ *        200:
+ *          description: reindirizza alla pagina index.ejs
+ * 
+ *  /reviews:
+ *    post:
+ *      tags: [Reviews]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/x-www-form-urlencoded:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                sub:       
+ *                  type: 
+ *              example: 
+ *      responses:
+ *        200:
+ *          description: permette di creare o aggiornare una recensione
+ * 
+ *  /elimina:
+ *    get:
+ *      tags: [Reviews]
+ *      responses:
+ *        200:
+ *          description: permette di eliminare una recensione
+ *        404: 
+ *          description: Error
+ * 
+ *  /newfeedback:
+ *    get:
+ *      tags: [Feedback]
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina feedback.ejs
+ *    post:
+ *      tags: [Feedback]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/x-www-form-urlencoded:
+ *            schema:
+ *              type: 
+ *              properties:
+ *                sub:       
+ *                  type: 
+ *              example: 
+ *      responses:
+ *        200:
+ *          description:
+ * 
+ *  /feedback:
+ *    post:
+ *      tags: [Feedback]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/x-www-form-urlencoded:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                sub:       
+ *                  type: 
+ *              example: 
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina feedback.ejs
+ * 
+ *  /bootstrap.min.css:
+ *    get:
+ *      tags: [Bootstrap]
+ *      responses:
+ *        200:
+ *          description:
+ * 
+ *  /error:
+ *    get:
+ *      tags: [Error]
+ *      responses:
+ *        200:
+ *          description: restituisce la pagina error.ejs
+ * 
+ *  
+ *     
  * 
  *  
  */
@@ -311,6 +509,7 @@ app.post('/userinfo', function(req,res){
     });
   });
 let user;
+let check;
 
 
 function gestisciAccessoLocale(req,res){
