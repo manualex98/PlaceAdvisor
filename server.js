@@ -223,7 +223,8 @@ var xid='';
  *    get:
  *      tags: [Google OAuth]
  *      responses:
- *        200: OK
+ *        200: 
+ *          description: OK
  * 
  * 
  *  /homepage:
