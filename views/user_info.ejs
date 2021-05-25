@@ -22,6 +22,7 @@
             <h2>Le tue recensioni:</h2><br>
             <ul>
             <% for(var i=0;i < data.reviews.length; i++) {%>
+                <li>Posto: <%= data.reviews[i].Posto%> </li>
                 <li>Xid: <%= data.reviews[i].xid%></li>
                 <li>Testo: <%= data.reviews[i].text%></li>
                 <li>Data: <%= data.reviews[i].date%></li>
@@ -29,6 +30,14 @@
                     <% src="data:image/png;base64,"+data.reviews[i].photo; %>
                     <li><img src= <%= src %> width="200" height="200"></li> 
                 <% } %> 
+                <li>Codice recensione: <%= data.reviews[i].codice%></li>
+                <form name="myForm" method="POST" action="http://localhost:8000/elimina">
+
+                    <input type="hidden" id="codice" name="codice" value=<%=data.reviews[i].codice %>>
+                    <input type="hidden" id="xid" name="xid" value=<%=data.reviews[i].xid %>>
+                    <input type="submit" value="Elimina">
+                
+                  </form>
                 <h2>--------------------------------------</h2>
             <%}%>
             </ul>

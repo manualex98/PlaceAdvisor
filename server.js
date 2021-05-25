@@ -72,7 +72,7 @@ let lconnected=false;
 let username;
 let email
 var fbinfo;
-var reviewposting=false;
+var codice;
 var feedbackposting=false;
 var xid='';
 
@@ -513,7 +513,7 @@ app.get('/info', function(req, res){
     })
   }
   else{
-    res.redirect(404, 'error')
+    res.redirect(404, '/error?statusCode=404')
   }
   
 })
@@ -808,6 +808,7 @@ app.get('/googlephotosapi', function(req,res){
 
 
 
+
 app.get('/logout',function(req,res){
   if (fconnected){
     res.render('logout.ejs', {user:username})
@@ -827,15 +828,34 @@ app.post('/logout', function(req,res){
 })
 
 
+//post recensione:
 let reviews_check
 
 app.post('/reviews', function(req,res){
-
+  codice = Date.now();
   if(!reviews_check) newReview(req,res);  //Se non esiste il documento nel db lo creo
   else updateReview(req,res);             //Altrimenti aggiorno quello esistente
   updateUserReviews(req,res);             //Inserisco la recensione anche nel doc utente
   
 });
+
+//elimina recensione:
+
+app.post('/elimina', function(req,res){
+  const obj = JSON.parse(JSON.stringify(req.body));
+  console.log(obj)
+  try {
+    deletereviewfromUser(obj.codice)
+    deletereviewfromCity(obj.codice, obj.xid)
+  } catch (error) {
+    console.log(error)
+    res.redirect(404, '/error?statusCode=404')
+    return
+  }
+  res.render('eliminated', {cod: obj.codice})
+
+})
+
 
 function updateUserReviews(req,res){
   request({
@@ -863,13 +883,15 @@ function updateUserReviews(req,res){
             console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
             encoded=response;
             item={
-                "xid": xid,
-                "name": username,
-                "text": req.body.rev,
-                "date": strdate,
-                "photo": encoded
-              }
-              info.reviews.push(item)
+              "codice": codice,
+              "Posto": place_name,
+              "xid": xid,
+              "name": username,
+              "text": req.body.rev,
+              "date": strdate,
+              "photo": encoded
+            }
+            info.reviews.push(item)
         request({
           url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
           method: 'PUT',
@@ -886,7 +908,7 @@ function updateUserReviews(req,res){
       
             }
         });
-        }
+      }
     )
     .catch(
         (error) => {
@@ -899,14 +921,14 @@ function updateUserReviews(req,res){
         } 
         else{
           item={
+            "codice": codice,
+            "Posto": place_name,
+            "xid": xid,
+            "name": username,
+            "text": req.body.rev,
+            "date": strdate,
+            "photo": '',
               
-                "xid": xid,
-                "name": username,
-                "text": req.body.rev,
-                "date": strdate,
-                "photo": '',
-              
-            
           }
         
         info.reviews.push(item)
@@ -927,7 +949,7 @@ function updateUserReviews(req,res){
             }
         });
       }
-      }
+    }
   });
 }
 
@@ -945,6 +967,7 @@ function newReview(req,res){
             item={
               "reviews": [
                 {
+                  "codice": codice,
                   "name": username,
                   "text": req.body.rev,
                   "date": strdate,
@@ -980,6 +1003,7 @@ function newReview(req,res){
     item={
       "reviews": [
         {
+          "codice": codice,
           "name": username,
           "text": req.body.rev,
           "date": strdate,
@@ -1021,7 +1045,7 @@ function updateReview(req,res){
         //console.log(response); "iVBORw0KGgoAAAANSwCAIA..."
         encoded=response;      //salviamo la striga
         newItem={
-        
+          "codice": codice,
           "name": username,
           "text": req.body.rev,
           "date": strdate,
@@ -1056,11 +1080,12 @@ function updateReview(req,res){
   } 
   else{
     newItem={
-          "name": username,
-          "text": req.body.rev,
-          "date": strdate,
-          "photo": ''
-        }
+      "codice": codice,
+      "name": username,
+      "text": req.body.rev,
+      "date": strdate,
+      "photo": ''
+    }
       
     
   
@@ -1085,6 +1110,85 @@ function updateReview(req,res){
 }
 }
 
+function deletereviewfromUser(num){
+  request({
+    url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json'
+    },
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+        var info = JSON.parse(body)
+        for(h = 0; h<info.reviews.length; h++){
+          if (info.reviews[h].codice==num){
+            console.log(info.reviews)
+            info.reviews.splice(h, 1)
+            console.log(info.reviews)
+          } 
+        }
+        request({
+          url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+          method: 'PUT',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(info)
+          
+        }, function(error, response, body){
+            if(error) {
+                console.log(error);
+            } else {
+                console.log(response.statusCode, body);
+            }
+        })
+      }
+    })
+}
+
+
+function deletereviewfromCity(num, cod){
+  request({
+    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+cod,
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json'
+    },
+    
+  }, function(error, response, body){
+      if(error) {
+          console.log(error);
+      } else {
+        var info = JSON.parse(body)
+        console.log(body)
+        for(h = 0; h<info.reviews.length; h++){
+          if (info.reviews[h].codice==num){
+            info.reviews.splice(h, 1)
+            break;
+          } 
+        }
+        request({
+          url: 'http://admin:admin@127.0.0.1:5984/reviews/'+cod,
+          method: 'PUT',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(info)
+          
+        }, function(error, response, body){
+            if(error) {
+                console.log(error);
+            } else {
+                console.log(response.statusCode, body);
+            }
+        })
+      }
+    })
+}
+
 //feedback
 app.get('/newfeedback', function(req, res){
   feedbackposting=true;
@@ -1098,7 +1202,7 @@ app.post('/newfeedback', function(req,res){
     res.render('feedback', {inviato: false, gconnected: gconnected, photo: req.body.baseUrl})
   }
   else{
-    res.responde('error')
+    res.redirect(404, '/error?statusCode=404')
   }
   
 })

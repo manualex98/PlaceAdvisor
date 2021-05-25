@@ -81,10 +81,12 @@
         <li><h3>Recensioni: </h3><i>
             <% if (reviews!="") { %>
                 <% for(var i=0; i<n ;i++) {%>
-                    <%=reviews[i].date%> Da <%=reviews[i].name%> : <%=reviews[i].text %><% if (reviews[i].photo!="") { %>
-                        <% src="data:image/png;base64,"+reviews[i].photo; %>
-                        Foto: <img src= <%= src %> width="200" height="200"><br>
-                    <% } %> <br>
+                    Recensione numero <%= i+1%>:<br>
+                    Data:<%=reviews[i].date%><br> Da <%=reviews[i].name%>: <%=reviews[i].text %><% if (reviews[i].photo!="") { %>
+                        <br><% src="data:image/png;base64,"+reviews[i].photo; %>
+                        Foto: <img src= <%= src %> width="200" height="200">
+                    <% } %><br> Codice: <%= reviews[i].codice%><br><br>
+                    
                 <% } %>
             <% } %>
 
