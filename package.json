@@ -1,7 +1,7 @@
 {
   "name": "placeadvisor",
-  "version": "1.0.0",
-  "description": "This is a Trip App",
+  "version": "1.0.1",
+  "description": "Progetto Reti di Calcolatori 2021",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

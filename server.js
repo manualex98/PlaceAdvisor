@@ -125,11 +125,46 @@ var xid='';
  * 
  *  /facebooklogin:
  *    get:
- *      tags: [Facebook Access]
+ *      tags: [Facebook OAuth]
+ *      responses:
+ *        202:
+ *          description: OK
+ * 
+ * 
+ *  /homepage:
+ *    get:
+ *      tags: [Home]
+ *      parameters:
+ *        - in: query
+ *          name: code
+ *          schema:
+ *            type: string
+ *            description: Authentication Code ricevuto da Google/Fb
+ *      responses:
+ *        200: 
+ *          description: HTML HOMEPAGE
+ *        403:
+ *          description: Error 403. User not authenticated
+ * 
+ * 
+ *  /gtoken:
+ *    get:
+ *      tags: [Google OAuth]
+ *      parameters:
+ *        - in: query
+ *          name: code
+ *          required: true
+ *          schema:
+ *            type: string
+ *            description: Authentication Code ricevuto da Google
  *      responses:
  *        200:
- *          description: ok
+ *          description: HTML token page
+ *        404:
+ *          description: Invalid Grant, malformed auth code.
  */
+
+
 
 app.get('/',function (req,res){
   if (fconnected){
@@ -146,7 +181,7 @@ app.post('/',function (req,res){
     res.redirect('/facebooklogin')
   }
   else {
-    res.redirect(404, '/error')
+    res.redirect(404, '/error?statusCode=404')
   }
 })
 
@@ -248,7 +283,7 @@ function newUser(req,res){
 
 app.get('/facebooklogin',function (req,res){
   fconnecting=true;
-  res.redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.FB_CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
+  res.status(201).redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.FB_CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
 });
 
 app.get('/googlelogin', function(req, res){
@@ -277,11 +312,11 @@ app.get('/homepage', function (req,res){
         res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
       }
       else{
-        res.redirect('/ftoken?code='+code);
+        res.status(201).redirect('/ftoken?code='+code);
       }
     }
     else{
-      res.redirect(404, '/error')
+      res.redirect(403, '/error?statusCode=403')
     }
   }
   else if(gconnecting){
@@ -317,7 +352,7 @@ app.get('/gtoken', function(req, res){
     console.log('Upload successful!  Server responded with:', body);
     var info = JSON.parse(body);
     if(info.error != undefined){
-      res.redirect(404, '/error' );
+      res.redirect(404, '/error?statusCode=404' );
     }
     else{
       gtoken = info.access_token; //prendo l'access token
@@ -603,7 +638,7 @@ app.get('/city_info', function(req,res){
 
 app.get('/app', function(req,res){
   if(!fconnected){
-    res.redirect(404, '/error')
+    res.redirect(404, '/error?statusCode=404')
     return
   }
   else{
@@ -639,7 +674,7 @@ let icon_url
 
 app.get('/details', function(req,res){
   if(!fconnected){
-    res.redirect(404, '/error')
+    res.redirect(404, '/error?statusCode=404')
   }
   else{
     console.log(req.query)
@@ -704,7 +739,7 @@ app.get('/details', function(req,res){
 var numpag;
 app.get('/googlephotosapi', function(req,res){
   if(!gconnected){
-    res.redirect(404, '/error')
+    res.redirect(404, '/error?statusCode=404')
   }
   if (req.query.stato == 'feed'){
     feedbackposting=true;   //ritornerà la foto nel feedback
@@ -778,7 +813,7 @@ app.get('/logout',function(req,res){
     res.render('logout.ejs', {user:username})
   }
   else{
-    res.redirect(404, '/error')
+    res.redirect(404, '/error?statusCode=404')
   }
 })
 
@@ -1156,25 +1191,12 @@ function updateFeedback(data,res){
   })
 }
 
-
-
-app.get('/',function (req,res){
-  if (fconnected){
-    res.redirect('/homepage');
-  }
-  else{
-    res.render('index', {check: false, registrazione: false});
-  }
-  
-});
-
-
 app.get('/bootstrap.min.css',function (req,res){
   res.sendFile(path.resolve('bootstrap.min.css'));
 });
 
 app.get('/error',function(req,res){
-  res.render('404');
+  res.render('error', {statusCode: req.query.statusCode});
 })
 
 var server = app.listen(8000, function () {
