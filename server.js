@@ -82,19 +82,108 @@ var xid='';
  * @swagger
  *components:
  *  schemas:
+ *    Review:
+ *      type: object
+ *      properties:
+ *        codice:
+ *          type: integer
+ *        posto:
+ *          type: string
+ *        xid:
+ *          type: string
+ *        name:
+ *          type: string
+ *        text:
+ *          type: string
+ *        date:
+ *          type: string
+ *        photo:
+ *          type: string
+ *          format: byte
+ * 
+ *    Feedback:
+ *      type: object
+ *      properties:
+ *        feedback_id:
+ *          type: integer
+ *        date:
+ *          type: integer
+ *          format: date-time
+ *        text:
+ *          type: string
+ *        read: 
+ *          type: boolean
+ *        photo:
+ *          type: string
+ *          format: byte
+ * 
  *    User:
  *      type: object
  *      properties:
+ *        id:
+ *          type: string
+ *          format: email
  *        name: 
+ *          type: string
+ *        surname: 
  *          type: string
  *        email:
  *          type: string
+ *          format: email
+ *        username:
+ *          type: string
+ *        picture:
+ *          type: object
+ *          properties:
+ *            url:
+ *              type: string
+ *            height:
+ *              type: integer
+ *            width:
+ *              type: integer        
+ *        reviews:
+ *          type: array
+ *          items:
+ *            $ref: "#/components/schemas/Review"
+ *        feedbacks:
+ *          type: array
+ *          items:
+ *            $ref: "#/components/schemas/Feedback"
  *      required:
+ *        - id
  *        - name
+ *        - surname
  *        - email
+ *        - username
+ *        - picture
+ *        - reviews
+ *        - feedbacks
  *      example:
- *        name: TestUser
- *        email: testuser@email.com 
+ *        id: test_zreyrfg_user@tfbnw.net
+ *        name: Test
+ *        surname: User
+ *        email: test_zreyrfg_user@tfbnw.net
+ *        username: admin
+ *        picture: 
+ *          url: https://scontent.fbri2-1.fna.fbcdn.net/v/t1.30497-1/cp0/c15.0.50.50a/p50x50/84628273_176159830277856_972693363922829312_n.jpg?_nc_cat=1&ccb=1-3&_nc_sid=12b3be&_nc_ohc=a1FpfWt5x6AAX91xNSJ&_nc_ht=scontent.fbri2-1.fna&tp=27&oh=4fcc1133fc4c4add1bb1acbab9a03686&oe=60D166B8
+ *          height: 50
+ *          width: 50
+ *        reviews:
+ *          - codice: 1621946497140
+ *          - Posto: Hypogeum of the Aurelii
+ *          - xid: N3594410888
+ *          - name: admin
+ *          - text: dbbs
+ *          - date: 25/5/2021
+ *          - photo:  
+ *        feedbacks: 
+ *          - feedback_id: 2740
+ *          - date: 2021-05-25T12:44:14.418Z
+ *          - text: bfsbdsbs
+ *          - read: false
+ *          - photo: 
+ *        
+ *   
  *  
  */
 
@@ -108,7 +197,7 @@ var xid='';
  *        200: 
  *          description: restituisce la pagina index.ejs
  *    post:
- *      tags: [Facebook Access]
+ *      tags: [Facebook OAuth]
  *      requestBody:
  *        required: true
  *        content:
@@ -162,6 +251,17 @@ var xid='';
  *          description: HTML token page
  *        404:
  *          description: Invalid Grant, malformed auth code.
+ *  /info:
+ *    get:
+ *      tags: [User]
+ *      responses:
+ *        200:
+ *          description: HTML user_info
+ *        403:
+ *          description: HTML error page. user not authenticated
+ *    
+ * 
+ *  
  */
 
 
@@ -513,7 +613,7 @@ app.get('/info', function(req, res){
     })
   }
   else{
-    res.redirect(404, '/error?statusCode=404')
+    res.redirect(403, '/error?statusCode=403')
   }
   
 })
@@ -711,8 +811,8 @@ app.get('/details', function(req,res){
           console.log(info_weather);
           meteo=info_weather.weather[0].description;
           icon_id=info_weather.weather[0].icon;
-          console.log(meteo);
-          console.log(icon_id);
+          //console.log(meteo);
+          //console.log(icon_id);
           icon_url="http://openweathermap.org/img/wn/"+icon_id+"@2x.png"
           if(infodb.error){
             reviews_check=false     //Non ci sono recensioni
@@ -847,12 +947,13 @@ app.post('/elimina', function(req,res){
   try {
     deletereviewfromUser(obj.codice)
     deletereviewfromCity(obj.codice, obj.xid)
+    res.render('eliminated', {cod: obj.codice})
   } catch (error) {
     console.log(error)
     res.redirect(404, '/error?statusCode=404')
     return
   }
-  res.render('eliminated', {cod: obj.codice})
+  
 
 })
 
@@ -1120,14 +1221,12 @@ function deletereviewfromUser(num){
     
   }, function(error, response, body){
       if(error) {
-          console.log(error);
+        console.log(error);
       } else {
         var info = JSON.parse(body)
         for(h = 0; h<info.reviews.length; h++){
           if (info.reviews[h].codice==num){
-            console.log(info.reviews)
             info.reviews.splice(h, 1)
-            console.log(info.reviews)
           } 
         }
         request({
@@ -1163,11 +1262,9 @@ function deletereviewfromCity(num, cod){
           console.log(error);
       } else {
         var info = JSON.parse(body)
-        console.log(body)
         for(h = 0; h<info.reviews.length; h++){
           if (info.reviews[h].codice==num){
             info.reviews.splice(h, 1)
-            break;
           } 
         }
         request({
@@ -1300,7 +1397,7 @@ app.get('/bootstrap.min.css',function (req,res){
 });
 
 app.get('/error',function(req,res){
-  res.render('error', {statusCode: req.query.statusCode});
+  res.render('error', {statusCode: req.query.statusCode, fconnected: fconnected});
 })
 
 var server = app.listen(8000, function () {
