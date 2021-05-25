@@ -1,5 +1,5 @@
 {
-  "name": "PlaceAdvisor",
+  "name": "placeadvisor",
   "version": "1.0.0",
   "description": "This is a Trip App",
   "main": "server.js",
