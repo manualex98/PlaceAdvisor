@@ -66,17 +66,7 @@ wss.on('connection', function connection(ws) {
 
 
 
-var gtoken="";
-let fconnected=false;
-let fconnecting=false;
-let gconnected=false;
-let gconnecting=false;
-let lconnected=false;
-let username;
-let email
 var codice;
-var feedbackposting=false;
-var xid='';
 
 
 
@@ -104,7 +94,23 @@ var xid='';
  *    fbcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
  *      type: apiKey
  *      in: cookie
- *      name: fbaccess_token
+ *      name: fbaccess_token 
+ *    gcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
+ *      type: apiKey
+ *      in: cookie
+ *      name: googleaccess_token
+ *    gidcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
+ *      type: apiKey
+ *      in: cookie
+ *      name: gid_token
+ *    emailAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
+ *      type: apiKey
+ *      in: cookie
+ *      name: email
+ *    username:
+ *      type: apiKey
+ *      in: cookie
+ *      name: username
  *  schemas:
  *    Review:
  *      type: object
@@ -364,6 +370,8 @@ var xid='';
  *  /googlephotoapi:
  *    get:
  *      tags: [Google photo]
+ *      security:
+ *        - gcookieAuth: []
  *      responses:
  *        200:
  *          description: restituisce la pagina gphotos.ejs
@@ -482,7 +490,7 @@ var xid='';
 
 
 app.get('/',function (req,res){
-  if (fconnected){
+  if (req.cookies.fbaccess_token!=undefined){
     res.redirect('/homepage');
   }
   else{
@@ -519,7 +527,7 @@ app.post('/userinfo', function(req,res){
             res.render('signup', {check: false})  //Se c'è si deve scegliere un altro username
           }
           else{
-            newUser(req,res)                    //Altrimenti si effettua la registrazione
+            newUser(req,res)                      //Altrimenti si effettua la registrazione
           }
           
       }
@@ -605,6 +613,7 @@ app.get('/facebooklogin',function (req,res){
 app.get('/googlelogin', function(req, res){
   gconnecting=true;
   if (req.query.length>0){
+    res.cookie('xid', req.query.xid, {maxAge:315360000000, httpOnly: true})
     xid = req.query.xid;  //se si entra dalla pagina delle review, si ritornerà poi a quella pagina, quindi salvo xid
     res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
   }
@@ -632,28 +641,28 @@ app.get('/homepage', function (req,res){
   else{
   if(req.cookies.fbaccess_token!=undefined){
     token = req.cookies.fbaccess_token
+    username = req.cookies.username
+    if (req.cookies.googleaccess_token!=undefined){
+      gconnected=true;
+    }
     //chiamate sincrone che gestiscono se il token è valido o no
     request.get({
       url: "https://graph.facebook.com/oauth/access_token?client_id="+process.env.FB_CLIENT_ID+"&client_secret="+process.env.FB_SECRET_KEY+"&grant_type=client_credentials"
     }, function( error, response, body){
-      console.log(body)
+      //console.log(body)       //restituisce FACEBOOK APP TOKEN 
       resp=JSON.parse(body)
       tok=encodeURI(resp.access_token)
       request.get({
       url: "https://graph.facebook.com/v10.0/debug_token?input_token="+token+"&access_token="+tok
     }, function(error, response, body){
       ret=JSON.parse(body)
-      console.log(ret)
+      //console.log(ret)        //restituisce jsonobj = {data: {app_id, type, application, data_access_expires_at, expires_at... ecc}}
       if (ret.data.is_valid==true){
         fconnected=true;
-        if (req.cookies.gaccess_token!=undefined){
-          gconnected=true;
-        }
-      
       res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
       }
       else {
-        res.status(403).render('expired_token')
+        res.status(403).render('expired_token', {google: false})
       }
     })
     })
@@ -693,9 +702,19 @@ app.get('/homepage', function (req,res){
 
 //acquisisci google token
 app.get('/gtoken', function(req, res){
-  console.log(req.query.code)
   code = decodeURIComponent(req.query.code)
-
+  if (req.cookies.feedback != undefined){
+    feedbackposting=true;
+  }
+  else{
+    feedbackposting=false
+  }
+  if ( req.query.xid!=undefined){
+    xid = req.query.xid
+  }
+  else{
+    xid='';
+  }
   var formData = {
     code: code,
     client_id: process.env.G_CLIENT_ID,
@@ -713,12 +732,14 @@ app.get('/gtoken', function(req, res){
       res.redirect(404, '/error?statusCode=404' );
     }
     else{
-      gtoken = info.access_token; //prendo l'access token
+      googletoken = info.access_token; //prendo l'access token
+      gtoken = info.id_token; 
       gconnected = true;
       console.log("Got the token "+ info.access_token);
-      res.cookie('gaccess_token', gtoken, {maxAge:90000, httpOnly: true})
-      res.json(info)
-      //res.render('continue.ejs', {gtoken : gtoken, gconnected:gconnected, feedbackposting: feedbackposting, xid:xid}) 
+      res.cookie('gid_token', gtoken, {maxAge:315360000000, httpOnly: true})
+      res.cookie('googleaccess_token', googletoken, {maxAge:315360000000, httpOnly: true})
+      
+      res.render('continue.ejs', {gtoken : googletoken, gconnected:true, feedbackposting: feedbackposting, xid: xid}) 
            
     }
   })
@@ -748,7 +769,7 @@ app.get('/ftoken',function (req,res){
     }
     else{
       ftoken = info.access_token;
-      res.cookie('fbaccess_token', ftoken, {maxAge:90000, httpOnly: true})
+      res.cookie('fbaccess_token', ftoken, {maxAge:315360000000, httpOnly: true})
       res.status(200).redirect('/mytoken')
       //res.redirect('fb_pre_access')
     }
@@ -758,7 +779,7 @@ app.get('/ftoken',function (req,res){
 app.get('/mytoken', function(req,res){
   if(req.cookies.fbaccess_token!=undefined){
     fconnected=true;
-    if (req.cookies.gaccess_token!=undefined){
+    if (req.cookies.googleaccess_token!=undefined){
       gconnected=true;
     }
     res.render('mytoken', {fconnected:fconnected, gconnected: gconnected, ftoken: req.cookies.fbaccess_token})
@@ -805,7 +826,8 @@ app.get('/fb_pre_access',function (req,res){
               res.redirect('fbsignup') //Utente non esiste quindi lo faccio registrare
             }
             else{
-              username=info.username
+              res.cookie('username', info.username, {maxAge:315360000000, httpOnly: true})
+              res.cookie('email', info.email, {maxAge:315360000000, httpOnly: true})
               res.redirect('homepage')  //Utente esiste, può accedere
             }
           }
@@ -827,6 +849,8 @@ app.get('/fbsignup', function(req,res){
 
 
 app.post('/fbsignup',function (req,res){
+  email=req.cookies.email
+  email=email.replace('\u0040', '@');
   username = req.body.username
   
   body1={
@@ -871,6 +895,8 @@ app.post('/fbsignup',function (req,res){
 
 
 app.get('/info', function(req, res){
+  email=req.cookies.email
+  email=email.replace('\u0040', '@');
   if (req.cookies.fbaccess_token!=undefined){
     const ftoken = String(req.cookies.fbaccess_token) 
     fconnected=true;
@@ -1004,7 +1030,7 @@ app.get('/city_info', function(req,res){
 })
 
 app.get('/app', function(req,res){
-  if(!fconnected){
+  if(req.cookies.fbaccess_token==undefined){
     res.redirect(404, '/error?statusCode=404')
     return
   }
@@ -1040,7 +1066,7 @@ let icon_id
 let icon_url
 
 app.get('/details', function(req,res){
-  if(!fconnected){
+  if(req.cookies.fbaccess_token==undefined){
     res.redirect(404, '/error?statusCode=404')
   }
   else{
@@ -1070,12 +1096,18 @@ app.get('/details', function(req,res){
     request.get('http://admin:admin@127.0.0.1:5984/reviews/'+xid, function callback(error, response, body){
       if(error) {
         console.log(error);
+        res.status(404).render('/error?statusCode=404')
+        return
       } else {
+        if (info_weather==undefined){
+          res.redirect(404, '/error?statusCode=404')
+          return
+        }
         console.log(response.statusCode, body);
         infodb = JSON.parse(body);
         request.get(weather, function callback(error,response, body){
           info_weather=JSON.parse(body);
-          console.log(info_weather);
+          //console.log(info_weather);
           meteo=info_weather.weather[0].description;
           icon_id=info_weather.weather[0].icon;
           //console.log(meteo);
@@ -1103,26 +1135,68 @@ app.get('/details', function(req,res){
 
 //Google Photos API
 
-var numpag;
 app.get('/googlephotosapi', function(req,res){
-  if(!gconnected){
+  feed= req.query.stato;
+  gtoken = req.cookies.googleaccess_token;
+  console.log('gtoken : '+ gtoken)
+  if(req.cookies.googleaccess_token==undefined){
     res.redirect(404, '/error?statusCode=404')
   }
-  if (req.query.stato == 'feed'){
-    feedbackposting=true;   //ritornerà la foto nel feedback
-  }
-  queryxid = req.query.xid;
-  querynextpg = req.query.nextpg;
-  var url = 'https://photoslibrary.googleapis.com/v1/mediaItems:search'
-	var headers = {'Authorization': 'Bearer '+gtoken};    //setto gli headers passando al sito il token
-  var request = require('request');
-  if (querynextpg!=undefined && querynextpg!=''){   //se ci troviamo alla pagina 2+
-    numpag= numpag+1;
-    request.post({
+  else{
+    request.get({
+      url: 'https://oauth2.googleapis.com/tokeninfo?id_token=' + req.cookies.gid_token
+    }, function(error, response, body){
+      if(error){
+        console.log(error)
+      }
+      else{
+        console.log(body)
+        ref=JSON.parse(body)
+        if (ref.azp!=process.env.G_CLIENT_ID){
+          res.status(403).render('expired_token', {google:true})
+          return
+        }
+        if (feed == 'feed'){
+          feedbackposting=true;   //ritornerà la foto nel feedback
+        }
+      queryxid = req.query.xid;
+      querynextpg = req.query.nextpg;
+      var url = 'https://photoslibrary.googleapis.com/v1/mediaItems:search'
+      var headers = {'Authorization': 'Bearer '+ gtoken};    //setto gli headers passando al sito il token
+      var request = require('request');
+      if (querynextpg!=undefined && querynextpg!=''){         //se ci troviamo alla pagina 2+
+        numpag= numpag+1;
+        request.post({
+        headers: headers,
+        url:     url,
+        body:    {
+          "pageToken": querynextpg,
+          "filters": {
+            "mediaTypeFilter": {
+              "mediaTypes": [
+                "PHOTO"
+              ]
+            }
+          }
+        },
+        json:true
+        }, function(error, response, body){
+          console.log(JSON.stringify(body));
+          info = JSON.parse(JSON.stringify(body));
+        if (queryxid!=''){  //la foto si sta aggiungendo alla pagina di un monumento
+          res.render('gphotos.ejs', {info:info, feedbackposting: false,  xid : queryxid, numpag:numpag})
+        }
+        else{ //la foto si sta aggiungendo ad un feedback
+          res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :'', numpag:numpag})
+        }
+      });
+    }
+    else{       //se la chiamata non è stata effettuata non ci sarà nell'url la req.query.nextpg
+      numpag=1;
+      request.post({
       headers: headers,
-		  url:     url,
+      url:     url,
       body:    {
-        "pageToken": querynextpg,
         "filters": {
           "mediaTypeFilter": {
             "mediaTypes": [
@@ -1132,46 +1206,23 @@ app.get('/googlephotosapi', function(req,res){
         }
       },
       json:true
-		  }, function(error, response, body){
+      }, function(error, response, body){
         console.log(JSON.stringify(body));
         info = JSON.parse(JSON.stringify(body));
-      if (queryxid!=''){  //la foto si sta aggiungendo alla pagina di un monumento
-        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting,  xid : queryxid, numpag:numpag})
-      }
-      else{ //la foto si sta aggiungendo ad un feedback
-        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :'', numpag:numpag})
-      }
-		});
-  }
-  else{       //se la chiamata non è stata effettuata non ci sarà nell'url la req.query.nextpg
-    numpag=1;
-    request.post({
-		headers: headers,
-		url:     url,
-    body:    {
-      "filters": {
-        "mediaTypeFilter": {
-          "mediaTypes": [
-            "PHOTO"
-          ]
+        if (queryxid!=''){     //la foto si sta aggiungendo alla pagina di un monumento
+          res.render('gphotos.ejs', {info:info, feedbackposting: false,  xid : queryxid, numpag: numpag})
         }
-      }
-    },
-    json:true
-		}, function(error, response, body){
-			console.log(JSON.stringify(body));
-      info = JSON.parse(JSON.stringify(body));
-      if (queryxid!=''){     //la foto si sta aggiungendo alla pagina di un monumento
-        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting,  xid : queryxid, numpag: numpag})
-      }
-      else{                  //la foto si sta aggiungendo ad un feedback
-        res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :'', numpag: numpag})
-      }
-		});
-  }
-	
-    
+        else{                  //la foto si sta aggiungendo ad un feedback
+          res.render('gphotos.ejs', {info:info, feedbackposting: feedbackposting, xid :'', numpag: numpag})
+        }
+      });
+    }
+    }
+  })
+}
 });
+
+
 
 
 
@@ -1209,10 +1260,12 @@ app.post('/reviews', function(req,res){
 //elimina recensione:
 
 app.post('/elimina', function(req,res){
+  email=req.cookies.email
+  email=email.replace('\u0040', '@');
   const obj = JSON.parse(JSON.stringify(req.body));
   console.log(obj)
   try {
-    deletereviewfromUser(obj.codice)
+    deletereviewfromUser(obj.codice, email)
     deletereviewfromCity(obj.codice, obj.xid)
     res.render('eliminated', {cod: obj.codice})
   } catch (error) {
@@ -1225,7 +1278,7 @@ app.post('/elimina', function(req,res){
 })
 
 
-function updateUserReviews(req,res){
+function updateUserReviews(codice,email){
   request({
     url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
     method: 'GET',
@@ -1555,24 +1608,54 @@ function deletereviewfromCity(num, cod){
 
 //feedback
 app.get('/newfeedback', function(req, res){
-  feedbackposting=true;
-  xid='';
-  res.render('feedback', {inviato : false, gconnected: gconnected, photo: ""})
+  if (req.cookies.googleaccess_token!=undefined){
+    gconnected = true
+  }
+  else{
+    gconnected = false
+  }
+  if (!gconnected){
+    res.status(403).render('expired_token', {google:true})
+  }
+  else{
+      res.render('feedback', {inviato : false, gconnected: gconnected, photo: ""})
+  }
 })
 
 app.post('/newfeedback', function(req,res){
-  console.log("bodyfeed: %j", req.body);
-  if (req.body.baseUrl.length>=1){
-    res.render('feedback', {inviato: false, gconnected: gconnected, photo: req.body.baseUrl})
+  if (req.cookies.googleaccess_token!=undefined){
+    gconnected = true
+  }
+  else{
+    gconnected = false
+  }
+  if (!gconnected){
+    res.status(403).render('expired_token', {google:true})
+  }
+  else{
+    console.log("bodyfeed: %j", req.body);
+    if (req.body.baseUrl.length>=1){
+      res.render('feedback', {inviato: false, gconnected: gconnected, photo: req.body.baseUrl})
   }
   else{
     res.redirect(404, '/error?statusCode=404')
   }
-  
+}
 })
 
 let id
 app.post('/feedback', function(req, res){
+  if (req.cookies.googleaccess_token!=undefined){
+    gconnected = true
+  }
+  else{
+    gconnected = false
+  }
+  if (!gconnected){
+    res.status(403).render('expired_token', {google:true})
+  }
+  else{
+  email=req.cookies.email
   date = new Date();
   mese=date.getMonth() +1;
   strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
@@ -1581,7 +1664,7 @@ app.post('/feedback', function(req, res){
     imageToBase64(req.body.baseUrl) // Image URL
     .then(
       (response) => {
-        console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
+        //console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
         var data={
           "id": id,
           "date": date,
@@ -1604,11 +1687,14 @@ app.post('/feedback', function(req, res){
       }
       updateFeedback(data,res)
     }
+  }
 })
 
 
 
 function updateFeedback(data,res){
+  email=req.cookies.email
+  email=email.replace('\u0040', '@');
   request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
 
     var db = JSON.parse(body)
@@ -1644,7 +1730,7 @@ function updateFeedback(data,res){
             const result = channel.assertQueue("feedback")
             channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
             console.log('Feedback sent succefully')
-            console.log(data)
+            //console.log(data)
             
             res.render('feedback', {inviato : true})
             feedbackposting=false;
@@ -1664,7 +1750,13 @@ app.get('/bootstrap.min.css',function (req,res){
 });
 
 app.get('/error',function(req,res){
-  res.render('error', {statusCode: req.query.statusCode, fconnected: fconnected});
+  if (req.cookies.fbaccess_token==undefined){
+    res.render('error', {statusCode: req.query.statusCode, fconnected: false});
+  }
+  else{
+    res.render('error', {statusCode: req.query.statusCode, fconnected: true});
+  }
+  
 })
 
 var server = app.listen(8000, function () {
