@@ -6,7 +6,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const path = require('path');
 var request = require('request');
 var cookieParser= require('cookie-parser');//Usiamo i cookie per: rendere stateless, ridurre l'impatto di attacchi di denial of service e facilita la replicazione di db nel caso di ambienti load-balanced
-var cors = require('cors');
+var cookieEncrypter = require('cookie-encrypter');
 const { ADDRGETNETWORKPARAMS } = require('dns');
 var amqp = require('amqplib'); //Protocollo amqp per rabbitmq
 const imageToBase64 = require('image-to-base64'); //Usato per codificare le immagini in base-64
@@ -15,8 +15,11 @@ const swaggerJsDoc= require('swagger-jsdoc'); //usato per la documentazione
 const swaggerUi= require('swagger-ui-express'); //usato per la documentazione
 require('dotenv').config()
 
-app.use(cookieParser())
-app.use(cors())
+const secretKey = process.env.SECRETKEY;
+
+app.use(cookieParser(secretKey));
+app.use(cookieEncrypter(secretKey));
+
 
 //dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
 app.set('view engine', 'ejs');
@@ -367,11 +370,12 @@ var codice;
  *        404:
  *          description: Error
  * 
- *  /googlephotoapi:
+ *  /googlephotosapi:
  *    get:
  *      tags: [Google photo]
  *      security:
  *        - gcookieAuth: []
+ *        - gidcookieAuth: []
  *      responses:
  *        200:
  *          description: restituisce la pagina gphotos.ejs
@@ -490,7 +494,7 @@ var codice;
 
 
 app.get('/',function (req,res){
-  if (req.cookies.fbaccess_token!=undefined){
+  if (req.signedCookies.fbaccess_token!=undefined){
     res.redirect('/homepage');
   }
   else{
@@ -613,7 +617,7 @@ app.get('/facebooklogin',function (req,res){
 app.get('/googlelogin', function(req, res){
   gconnecting=true;
   if (req.query.length>0){
-    res.cookie('xid', req.query.xid, {maxAge:315360000000, httpOnly: true})
+    res.cookie('xid', req.query.xid, {maxAge:315360000000, signed: true, httpOnly: true})
     xid = req.query.xid;  //se si entra dalla pagina delle review, si ritornerà poi a quella pagina, quindi salvo xid
     res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
   }
@@ -639,10 +643,10 @@ app.get('/homepage', function (req,res){
     }
   }
   else{
-  if(req.cookies.fbaccess_token!=undefined){
-    token = req.cookies.fbaccess_token
+  if(req.signedCookies.fbaccess_token!=undefined){
+    token = req.signedCookies.fbaccess_token
     username = req.cookies.username
-    if (req.cookies.googleaccess_token!=undefined){
+    if (req.signedCookies.googleaccess_token!=undefined){
       gconnected=true;
     }
     //chiamate sincrone che gestiscono se il token è valido o no
@@ -736,10 +740,10 @@ app.get('/gtoken', function(req, res){
       gtoken = info.id_token; 
       gconnected = true;
       console.log("Got the token "+ info.access_token);
-      res.cookie('gid_token', gtoken, {maxAge:315360000000, httpOnly: true})
-      res.cookie('googleaccess_token', googletoken, {maxAge:315360000000, httpOnly: true})
+      res.cookie('gid_token', gtoken, {maxAge:315360000000, signed: true, httpOnly: true})
+      res.cookie('googleaccess_token', googletoken, {maxAge:315360000000, signed: true, httpOnly: true})
       
-      res.render('continue.ejs', {gtoken : googletoken, gconnected:true, feedbackposting: feedbackposting, xid: xid}) 
+      res.render('continue.ejs', {gtoken : googletoken, gconnected:true, gidtoken: gtoken, feedbackposting: feedbackposting, xid: xid}) 
            
     }
   })
@@ -769,7 +773,7 @@ app.get('/ftoken',function (req,res){
     }
     else{
       ftoken = info.access_token;
-      res.cookie('fbaccess_token', ftoken, {maxAge:315360000000, httpOnly: true})
+      res.cookie('fbaccess_token', ftoken, {maxAge:315360000000, signed: true, httpOnly: true})
       res.status(200).redirect('/mytoken')
       //res.redirect('fb_pre_access')
     }
@@ -777,19 +781,19 @@ app.get('/ftoken',function (req,res){
 });
 
 app.get('/mytoken', function(req,res){
-  if(req.cookies.fbaccess_token!=undefined){
+  if(req.signedCookies.fbaccess_token!=undefined){
     fconnected=true;
-    if (req.cookies.googleaccess_token!=undefined){
+    if (req.signedCookies.googleaccess_token!=undefined){
       gconnected=true;
     }
-    res.render('mytoken', {fconnected:fconnected, gconnected: gconnected, ftoken: req.cookies.fbaccess_token})
+    res.render('mytoken', {fconnected:fconnected, gconnected: gconnected, ftoken: req.signedCookies.fbaccess_token})
   }
 })
 
 
 app.get('/fb_pre_access',function (req,res){
-  if (req.cookies.fbaccess_token!=undefined){
-  const ftoken = String(req.cookies.fbaccess_token) 
+  if (req.signedCookies.fbaccess_token!=undefined){
+  const ftoken = String(req.signedCookies.fbaccess_token) 
   }
   var url = 'https://graph.facebook.com/me?fields=id,first_name,last_name,picture,email&access_token='+ftoken
   var headers = {'Authorization': 'Bearer '+ftoken};
@@ -837,8 +841,8 @@ app.get('/fb_pre_access',function (req,res){
 
 
 app.get('/fbsignup', function(req,res){
-  if (req.cookies.fbaccess_token!=undefined){
-    const ftoken = String(req.cookies.fbaccess_token) 
+  if (req.signedCookies.fbaccess_token!=undefined){
+    const ftoken = String(req.signedCookies.fbaccess_token) 
     fconnected=true;
   }
   else{
@@ -897,8 +901,8 @@ app.post('/fbsignup',function (req,res){
 app.get('/info', function(req, res){
   email=req.cookies.email
   email=email.replace('\u0040', '@');
-  if (req.cookies.fbaccess_token!=undefined){
-    const ftoken = String(req.cookies.fbaccess_token) 
+  if (req.signedCookies.fbaccess_token!=undefined){
+    const ftoken = String(req.signedCookies.fbaccess_token) 
     fconnected=true;
     request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
       var data = JSON.parse(body)
@@ -1030,7 +1034,7 @@ app.get('/city_info', function(req,res){
 })
 
 app.get('/app', function(req,res){
-  if(req.cookies.fbaccess_token==undefined){
+  if(req.signedCookies.fbaccess_token==undefined){
     res.redirect(404, '/error?statusCode=404')
     return
   }
@@ -1066,7 +1070,7 @@ let icon_id
 let icon_url
 
 app.get('/details', function(req,res){
-  if(req.cookies.fbaccess_token==undefined){
+  if(req.signedCookies.fbaccess_token==undefined){
     res.redirect(404, '/error?statusCode=404')
   }
   else{
@@ -1137,14 +1141,14 @@ app.get('/details', function(req,res){
 
 app.get('/googlephotosapi', function(req,res){
   feed= req.query.stato;
-  gtoken = req.cookies.googleaccess_token;
+  gtoken = req.signedCookies.googleaccess_token;
   console.log('gtoken : '+ gtoken)
-  if(req.cookies.googleaccess_token==undefined){
+  if(req.signedCookies.googleaccess_token==undefined){
     res.redirect(404, '/error?statusCode=404')
   }
   else{
     request.get({
-      url: 'https://oauth2.googleapis.com/tokeninfo?id_token=' + req.cookies.gid_token
+      url: 'https://oauth2.googleapis.com/tokeninfo?id_token=' + req.signedCookies.gid_token
     }, function(error, response, body){
       if(error){
         console.log(error)
@@ -1608,7 +1612,7 @@ function deletereviewfromCity(num, cod){
 
 //feedback
 app.get('/newfeedback', function(req, res){
-  if (req.cookies.googleaccess_token!=undefined){
+  if (req.signedCookies.googleaccess_token!=undefined){
     gconnected = true
   }
   else{
@@ -1623,7 +1627,7 @@ app.get('/newfeedback', function(req, res){
 })
 
 app.post('/newfeedback', function(req,res){
-  if (req.cookies.googleaccess_token!=undefined){
+  if (req.signedCookies.googleaccess_token!=undefined){
     gconnected = true
   }
   else{
@@ -1645,7 +1649,7 @@ app.post('/newfeedback', function(req,res){
 
 let id
 app.post('/feedback', function(req, res){
-  if (req.cookies.googleaccess_token!=undefined){
+  if (req.signedCookies.googleaccess_token!=undefined){
     gconnected = true
   }
   else{
@@ -1750,13 +1754,12 @@ app.get('/bootstrap.min.css',function (req,res){
 });
 
 app.get('/error',function(req,res){
-  if (req.cookies.fbaccess_token==undefined){
+  if (req.signedCookies.fbaccess_token==undefined){
     res.render('error', {statusCode: req.query.statusCode, fconnected: false});
   }
   else{
     res.render('error', {statusCode: req.query.statusCode, fconnected: true});
   }
-  
 })
 
 var server = app.listen(8000, function () {

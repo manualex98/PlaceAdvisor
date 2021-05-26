@@ -6,8 +6,10 @@
     <script>
     </script>
     <h1>Ciao, e grazie per aver effettuato l'accesso al nostro sito, ecco il tuo token: </h1>
-    <p>Google:</p> <% if (gconnected) { %>
+    <p>Google token:</p> <% if (gconnected) { %>
         <%= gtoken %>
+
+    <p>Google id token:</p> <%=gidtoken %>
     <% } %>
     
     Vuoi continuare? 
