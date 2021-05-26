@@ -1,0 +1,23 @@
+<html>
+<head>
+    <title>Token</title>
+</head>
+<body>
+    <script type="text/javascript">   
+        function Redirect() 
+        {  
+            window.location="http://localhost:8000/fb_pre_access"; 
+        } 
+        setTimeout('Redirect()', 20000);   
+    </script>
+    <h1>Ciao, e grazie per aver effettuato l'accesso al nostro sito, ecco il tuo token: </h1>
+    <p>Facebook Token:</p> <% if (fconnected) { %>
+        <%= ftoken %>
+    <% } %>
+    
+    Vai alla Homepage <a href= 'http://localhost:8000/fb_pre_access'>
+        <button type= 'button'>Homepage</button>
+    </a>  
+    <br><br>
+    Entro 20 secondi verrai reindirizzato alla homepage!!
+</html>

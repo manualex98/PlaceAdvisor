@@ -5,13 +5,18 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 const path = require('path');
 var request = require('request');
+var cookieParser= require('cookie-parser');//Usiamo i cookie per: rendere stateless, ridurre l'impatto di attacchi di denial of service e facilita la replicazione di db nel caso di ambienti load-balanced
+var cors = require('cors');
 const { ADDRGETNETWORKPARAMS } = require('dns');
 var amqp = require('amqplib'); //Protocollo amqp per rabbitmq
 const imageToBase64 = require('image-to-base64'); //Usato per codificare le immagini in base-64
 const WebSocket = require('ws');  
-const swaggerJsDoc= require('swagger-jsdoc');
-const swaggerUi= require('swagger-ui-express');
+const swaggerJsDoc= require('swagger-jsdoc'); //usato per la documentazione
+const swaggerUi= require('swagger-ui-express'); //usato per la documentazione
 require('dotenv').config()
+
+app.use(cookieParser())
+app.use(cors())
 
 //dico a node di usare il template engine ejs e setto la cartella views per i suddetti file
 app.set('view engine', 'ejs');
@@ -61,9 +66,7 @@ wss.on('connection', function connection(ws) {
 
 
 
-var ftoken="";
 var gtoken="";
-var code="";
 let fconnected=false;
 let fconnecting=false;
 let gconnected=false;
@@ -71,16 +74,37 @@ let gconnecting=false;
 let lconnected=false;
 let username;
 let email
-var fbinfo;
 var codice;
 var feedbackposting=false;
 var xid='';
 
 
-// Routes
+
+
+
 /**
  * @swagger
- *components:
+ * components:
+ *  securitySchemes:
+ *    googleOAuth:
+ *      type: oauth2
+ *      flows:
+ *        authorizationCode:
+ *          authorizationUrl: http://localhost:8000/googlelogin
+ *          tokenUrl: http://localhost:8000/gtoken
+ *          scopes: 
+ *            photoslibrary.readonly: Grant read-only access to all your photos
+ *    facebookOAuth:
+ *      type: oauth2
+ *      flows:
+ *        authorizationCode:
+ *          authorizationUrl: http://localhost:8000/facebooklogin
+ *          tokenUrl: http://localhost:8000/ftoken
+ *          scopes: {}
+ *    fbcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
+ *      type: apiKey
+ *      in: cookie
+ *      name: fbaccess_token
  *  schemas:
  *    Review:
  *      type: object
@@ -211,21 +235,11 @@ var xid='';
  *      responses:
  *        200:
  *          description: ok
- * 
- *  /facebooklogin:
- *    get:
- *      tags: [Facebook OAuth]
- *      responses:
- *        202:
- *          description: OK
- * 
- *  /googlelogin:
- *    get:
- *      tags: [Google OAuth]
- *      responses:
- *        200: 
- *          description: OK
- * 
+ *          headers: 
+ *          Set-Cookie:
+ *            schema: 
+ *              type: string
+ *              example: JSESSIONID=abcde12345; Path=/; HttpOnly
  * 
  *  /homepage:
  *    get:
@@ -236,6 +250,8 @@ var xid='';
  *          schema:
  *            type: string
  *            description: Authentication Code ricevuto da Google/Fb
+ *      security:
+ *        - fbcookieAuth: []
  *      responses:
  *        200: 
  *          description: HTML HOMEPAGE
@@ -602,11 +618,53 @@ app.get('/signup', function(req, res){
 });
 
 app.get('/homepage', function (req,res){
-  if (req.body!=''){  
-    code=req.query.code;  
+  fconnected = false;
+  gconnected = false;
+  if (req.query.code!=undefined){  
+    if (req.query.scope!=undefined){
+      res.redirect('gtoken?code='+req.query.code)
+    }
+    else{
+      code=req.query.code;  
+      res.redirect('/ftoken?code='+code)
+    }
   }
+  else{
+  if(req.cookies.fbaccess_token!=undefined){
+    token = req.cookies.fbaccess_token
+    //chiamate sincrone che gestiscono se il token è valido o no
+    request.get({
+      url: "https://graph.facebook.com/oauth/access_token?client_id="+process.env.FB_CLIENT_ID+"&client_secret="+process.env.FB_SECRET_KEY+"&grant_type=client_credentials"
+    }, function( error, response, body){
+      console.log(body)
+      resp=JSON.parse(body)
+      tok=encodeURI(resp.access_token)
+      request.get({
+      url: "https://graph.facebook.com/v10.0/debug_token?input_token="+token+"&access_token="+tok
+    }, function(error, response, body){
+      ret=JSON.parse(body)
+      console.log(ret)
+      if (ret.data.is_valid==true){
+        fconnected=true;
+        if (req.cookies.gaccess_token!=undefined){
+          gconnected=true;
+        }
+      
+      res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
+      }
+      else {
+        res.status(403).render('expired_token')
+      }
+    })
+    })
+  }
+  else{
+      res.status(403).redirect(403, '/error?statusCode=403')
+  }    
+  
+}
   //check sessioni fb e google
-  if (!gconnecting){
+  /*if (!gconnecting){
     if(fconnecting){
       if(fconnected){
         res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
@@ -628,9 +686,9 @@ app.get('/homepage', function (req,res){
     }
  
   }
-
-  else if(lconnected) res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
-  else res.render('index', {check:false, registrazione: false});
+  */
+  //else if(lconnected) res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
+  //else res.render('index', {check:false, registrazione: false});
 })
 
 //acquisisci google token
@@ -658,7 +716,9 @@ app.get('/gtoken', function(req, res){
       gtoken = info.access_token; //prendo l'access token
       gconnected = true;
       console.log("Got the token "+ info.access_token);
-      res.render('continue.ejs', {gtoken : gtoken, gconnected:gconnected, feedbackposting: feedbackposting, xid:xid}) 
+      res.cookie('gaccess_token', gtoken, {maxAge:90000, httpOnly: true})
+      res.json(info)
+      //res.render('continue.ejs', {gtoken : gtoken, gconnected:gconnected, feedbackposting: feedbackposting, xid:xid}) 
            
     }
   })
@@ -667,7 +727,7 @@ app.get('/gtoken', function(req, res){
 
 //acquisici fbtoken
 app.get('/ftoken',function (req,res){
-  code = decodeURIComponent(code)
+  code = decodeURIComponent(req.query.code)
   
   var formData = {
     code: code,
@@ -688,15 +748,28 @@ app.get('/ftoken',function (req,res){
     }
     else{
       ftoken = info.access_token;
-      fconnected = true;
-      res.redirect('fb_pre_access')
+      res.cookie('fbaccess_token', ftoken, {maxAge:90000, httpOnly: true})
+      res.status(200).redirect('/mytoken')
+      //res.redirect('fb_pre_access')
     }
   });
 });
 
-var fbinfo;
+app.get('/mytoken', function(req,res){
+  if(req.cookies.fbaccess_token!=undefined){
+    fconnected=true;
+    if (req.cookies.gaccess_token!=undefined){
+      gconnected=true;
+    }
+    res.render('mytoken', {fconnected:fconnected, gconnected: gconnected, ftoken: req.cookies.fbaccess_token})
+  }
+})
+
 
 app.get('/fb_pre_access',function (req,res){
+  if (req.cookies.fbaccess_token!=undefined){
+  const ftoken = String(req.cookies.fbaccess_token) 
+  }
   var url = 'https://graph.facebook.com/me?fields=id,first_name,last_name,picture,email&access_token='+ftoken
   var headers = {'Authorization': 'Bearer '+ftoken};
   var request = require('request');
@@ -741,17 +814,18 @@ app.get('/fb_pre_access',function (req,res){
 })
 
 
-
-
-
-
-
-
-
-
 app.get('/fbsignup', function(req,res){
-  res.render('fbsignup', {fconnected: fconnected,check: false,username: username,ftoken:ftoken});
+  if (req.cookies.fbaccess_token!=undefined){
+    const ftoken = String(req.cookies.fbaccess_token) 
+    fconnected=true;
+  }
+  else{
+    res.redirect(403, '/error')
+  }
+  res.render('fbsignup', {fconnected: true,check: false,username: username, ftoken:ftoken});
 })
+
+
 app.post('/fbsignup',function (req,res){
   username = req.body.username
   
@@ -797,16 +871,9 @@ app.post('/fbsignup',function (req,res){
 
 
 app.get('/info', function(req, res){
-
-  //Prendo le informazioni dell'utente nel db per la visualizzazione
-  if (fconnected && fbinfo!=undefined){
-    request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
-      var data = JSON.parse(body)
-      res.render('user_info', {data: data});
-    })
-    
-  }
-  else if(lconnected){
+  if (req.cookies.fbaccess_token!=undefined){
+    const ftoken = String(req.cookies.fbaccess_token) 
+    fconnected=true;
     request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
       var data = JSON.parse(body)
       res.render('user_info', {data: data});
