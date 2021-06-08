@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var fs = require('fs');
+const https = require('https')
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 const path = require('path');
@@ -1789,9 +1790,20 @@ app.get('/error',function(req,res){
   }
 })
 
-var server = app.listen(8000, function () {
+
+//Per usare http basta decommentare qui e commentare la parte sotto
+
+/*var server = app.listen(8000, function () {
   var host = server.address().address;
   var port = server.address().port;
   
   console.log('Server listening at http://%s:%s', host, port);
-})
+})*/
+
+
+const sslServer = https.createServer({
+  key: fs.readFileSync(path.join(__dirname, 'security','key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'security','cert.pem'))
+}, app)
+
+sslServer.listen(8000, () => console.log('Secure server on port 8000...'))
