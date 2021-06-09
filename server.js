@@ -59,7 +59,7 @@ const swaggerOptions = {
       },
     },
     servers: [{
-      url: "http://localhost:8000"
+      url: "https://localhost:8000"
     }],
   },
 
@@ -635,7 +635,7 @@ function newUser(req,res){
 
 app.get('/facebooklogin',function (req,res){
   fconnecting=true;
-  res.status(201).redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.FB_CLIENT_ID+"&redirect_uri=http://localhost:8000/homepage&response_type=code");
+  res.status(201).redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.FB_CLIENT_ID+"&redirect_uri=https://localhost:8000/homepage&response_type=code");
 });
 
 app.get('/googlelogin', function(req, res){
@@ -643,10 +643,10 @@ app.get('/googlelogin', function(req, res){
   if (req.query.length>0){
     res.cookie('xid', req.query.xid, {maxAge:315360000000, signed: true, httpOnly: true})
     xid = req.query.xid;  //se si entra dalla pagina delle review, si ritornerà poi a quella pagina, quindi salvo xid
-    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
+    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=https://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
   }
   else{ 
-    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
+    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=https://localhost:8000/homepage&client_id="+process.env.G_CLIENT_ID);
   }
 })
 
@@ -655,8 +655,18 @@ app.get('/signup', function(req, res){
 });
 
 app.get('/home', authenticateToken, function(req,res){
-  token = req.token.info.fbtoken
-  username = req.token.info.info.username
+  payload = req.token.info
+  
+  if(payload.info){
+    token = req.token.info.fbtoken
+    username = req.token.info.info.username
+  }
+  else{
+    token = req.token.fbtoken
+    username = req.token.info.username
+  }
+
+  
   res.render('homepage', {fconnected:true, gconnected:false, username:username})
 })
 
@@ -723,7 +733,7 @@ app.get('/gtoken', function(req, res){
     code: code,
     client_id: process.env.G_CLIENT_ID,
     client_secret: process.env.G_CLIENT_SECRET,
-    redirect_uri: "http://localhost:8000/homepage",
+    redirect_uri: "https://localhost:8000/homepage",
     grant_type: 'authorization_code'
   }
   request.post({url:'https://www.googleapis.com/oauth2/v4/token', form: formData}, function optionalCallback(err, httpResponse, body) {
@@ -759,7 +769,7 @@ app.get('/ftoken',function (req,res){
     code: code,
     client_id: process.env.FB_CLIENT_ID,
     client_secret: process.env.FB_SECRET_KEY,
-    redirect_uri: "http://localhost:8000/homepage",
+    redirect_uri: "https://localhost:8000/homepage",
     grant_type: 'authorization_code'
   }
   request.post({url:'https://graph.facebook.com/v10.0/oauth/access_token?', form: formData}, function callback(err, httpResponse, body) {
@@ -774,7 +784,7 @@ app.get('/ftoken',function (req,res){
     }
     else{
       ftoken = info.access_token;
-      res.cookie('fbaccess_token', ftoken, {maxAge:3153600, signed: true, httpOnly: true})
+      res.cookie('fbaccess_token', ftoken, {maxAge:3153600, signed: true,secure: true, httpOnly: true})
       //res.status(200).redirect('/mytoken')
       res.redirect('fb_pre_access')
     }
@@ -834,8 +844,8 @@ app.get('/fb_pre_access',function (req,res){
                 "fbtoken": ftoken
               }
               accessToken=jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
-                res.cookie('fbaccess_token', '', {httpOnly: true, signed:true, maxAge:0})
-                res.cookie('jwt', token, {httpOnly: true, signed:true, maxAge:3153600})              
+                res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
+                res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:3153600})              
                 console.log('Questo è il JWT!!' + token)
                 res.redirect('/fbsignup') //Utente non esiste quindi lo faccio registrare
               })
@@ -913,12 +923,12 @@ console.log(body1)
           "username": username,
           "fbtoken": payload.fbtoken
         }
-        res.cookie('jwt', '', {httpOnly: true, signed:true, maxAge:0})
+        res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
         jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
-          res.cookie('fbaccess_token', '', {httpOnly: true, signed:true, maxAge:0})
-          res.cookie('jwt', token, {httpOnly: true, signed:true, maxAge:3153600})              
+          res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
+          res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:3153600})              
           console.log('Questo è il nuovo JWT!!' + token)
-          res.redirect(200, '/homepage', authenticateToken);
+          res.redirect(200, '/home');
       })
     }
   });
@@ -933,7 +943,11 @@ console.log(body1)
 
 app.get('/info', authenticateToken, function(req, res){
   payload=req.token.info
-  email=payload.info.email
+
+  var email
+  if(payload.info) email=payload.info.email
+  else email = payload.email
+  
   request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
     var data = JSON.parse(body)
     res.render('user_info', {data: data});
@@ -954,7 +968,7 @@ app.post('/openmap', function(req,res){
   rad = parseFloat(req.body.rad)*1000;
   cate = req.body.cat;
   checkCity(city)                       //aggiungo (aggiorno) la città cercata nel db 'cities'
-  
+  log_on_file("E' stata cercata la città: "+city)
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey='+process.env.OpenMap_KEY+'&name='+city
   }
@@ -1777,6 +1791,14 @@ function updateFeedback(data,res){
   })
 }
 
+function log_on_file(data){
+  date = new Date();
+  fs.appendFile('logs.txt','\r\n'+date+': '+data, ()=>{
+    console.log('scritto su file')
+  })
+
+}
+
 app.get('/bootstrap.min.css',function (req,res){
   res.sendFile(path.resolve('bootstrap.min.css'));
 });
@@ -1801,9 +1823,9 @@ app.get('/error',function(req,res){
 })*/
 
 
-const sslServer = https.createServer({
+const server = https.createServer({
   key: fs.readFileSync(path.join(__dirname, 'security','key.pem')),
   cert: fs.readFileSync(path.join(__dirname, 'security','cert.pem'))
 }, app)
 
-sslServer.listen(8000, () => console.log('Secure server on port 8000...'))
+server.listen(8000, () => console.log('Secure server on port 8000...'))

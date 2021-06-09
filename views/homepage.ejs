@@ -40,11 +40,11 @@
   
   
   <h1 class="mb-3">Homepage</h1>    <h3>Ciao, <%=username%></h3> 
-  <a href="http://localhost:8000/info"><button class="mb-3">Il tuo profilo</button></a>
-  <a href="http://localhost:8000/city_info"><button class="mb-3">Statistiche interessanti</button></a>
+  <a href="https://localhost:8000/info"><button class="mb-3">Il tuo profilo</button></a>
+  <a href="https://localhost:8000/city_info"><button class="mb-3">Statistiche interessanti</button></a>
   <br> 
 
-  <form id='search' action="http://localhost:8000/openmap" method="POST">
+  <form id='search' action="https://localhost:8000/openmap" method="POST">
     
     <input required class="mb-3" type="text" placeholder="Città" size="20" name="city" ><br>
     <select class="mb-3" size=1 cols=3 name="cat"><br>
@@ -69,20 +69,20 @@
   </form>
 
   <% if (!gconnected){ %>
-    <br> <b><a href="http://localhost:8000/googlelogin"><button class="mb-3">Accedi con Google Photos!</button></a></b><br>
+    <br> <b><a href="https://localhost:8000/googlelogin"><button class="mb-3">Accedi con Google Photos!</button></a></b><br>
 
   <%}%>
   <% if (fconnected==true) { %>
   
   
     <p><b>Condividi questo sito con i tuoi amici</b></p>
-    <div class="fb-share-button" data-href="http://127.0.0.1:8000" data-layout="button" data-size="large"><a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2F127.0.0.1%3A8000%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Condividi</a></div>
+    <div class="fb-share-button" data-href="https://127.0.0.1:8000" data-layout="button" data-size="large"><a target="_blank" href="http://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2F127.0.0.1%3A8000%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Condividi</a></div>
     <br><br>
-    <b><a href="http://localhost:8000/newfeedback"><button class="mb-3">Mandaci un feedback</button></a></b>
+    <b><a href="https://localhost:8000/newfeedback"><button class="mb-3">Mandaci un feedback</button></a></b>
 
   <%}%>
 
-    <br><a href="http://localhost:8000/logout"><button class="mb-3">Logout</button></a><br>
+    <br><a href="https://localhost:8000/logout"><button class="mb-3">Logout</button></a><br>
   
    
 

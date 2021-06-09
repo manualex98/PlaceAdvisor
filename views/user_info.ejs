@@ -31,7 +31,7 @@
                     <li><img src= <%= src %> width="200" height="200"></li> 
                 <% } %> 
                 <li>Codice recensione: <%= data.reviews[i].codice%></li>
-                <form name="myForm" method="POST" action="http://localhost:8000/elimina">
+                <form name="myForm" method="POST" action="https://localhost:8000/elimina">
 
                     <input type="hidden" id="codice" name="codice" value=<%=data.reviews[i].codice %>>
                     <input type="hidden" id="xid" name="xid" value=<%=data.reviews[i].xid %>>
@@ -66,14 +66,14 @@
             <h2>Non hai inviato nessun feedback ancora</h2>
         <%}%>
 
-        <a href= "http://localhost:8000/homepage">
+        <a href= "https://localhost:8000/home">
             <button type= 'button'>Torna alla homepage</button>
           </a>
         
 
     <% } else {%>
         Sembra che tu non sia collegato! :( Torna alla homepage! 
-        <a href= "http://localhost:8000/">
+        <a href= "https://localhost:8000/">
             <button type= 'button'>OK :(</button>
           </a>
     <% } %>
