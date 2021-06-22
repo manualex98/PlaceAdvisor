@@ -100,6 +100,7 @@
             <% } else{ %>
                 <input type="hidden" id="baseUrl" name="baseUrl" value=''>
             <% } %>
+                <input type="hidden" id="xid" name="xid" value= <%= xid %>>
                 <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
                 <input class="mb-3" type="submit" value="AGGIUNGI" size="10">
             </form>
@@ -117,7 +118,7 @@
     <% if (fconnected==true) { %>
         <p>Condividi questo posto con i tuoi amici</p>
         <% var link = 'https://127.0.0.1:8000/details?xid='+xid; %>
-        <% var link2 = "http://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid="+xid+"%3A8000%2F&amp;src=sdkpreparse"; %>
+        <% var link2 = "https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2F127.0.0.1%2F8000%2Fdetails?xid="+xid+"%3A8000%2F&amp;src=sdkpreparse"; %>
         <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div><br>
     
     <%}%>

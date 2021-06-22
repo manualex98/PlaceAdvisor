@@ -15,14 +15,14 @@
 
 
         <% if (xid!=undefined && xid!=''){ %>
-            <form method="GET" action="http://localhost:8000/details">
+            <form method="GET" action="https://localhost:8000/details">
 
                 <input type="hidden" id="xid" name="xid" value=<%=xid %>>
                 <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
                 <input class="mb-3" type="submit" value="Scegli" size="30">
             </form>
         <% } else { %>
-            <form method="POST" action="http://localhost:8000/newfeedback">
+            <form method="POST" action="https://localhost:8000/newfeedback">
                 <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
                 <input class="mb-3" type="submit" value="Scegli" size="30">
             </form>
@@ -32,14 +32,14 @@
     </ul> 
     <% var nextpg = info.nextPageToken; %>
     <% if (xid!=undefined && xid!=''){ %>
-        <form method="GET" action="http://localhost:8000/googlephotosapi">
+        <form method="GET" action="https://localhost:8000/googlephotosapi">
 
             <input type="hidden" id="xid" name="xid" value=<%=xid %>>
             <input type="hidden" id="nextpg" name="nextpg" value=<%=info.nextPageToken %>>
             <input class="mb-3" type="submit" value="NEXT PAGE" size="30">
         </form>
     <% } else { %>
-        <form method="POST" action="http://localhost:8000/newfeedback">
+        <form method="POST" action="https://localhost:8000/newfeedback">
             <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
             <input class="mb-3" type="submit" value="Scegli" size="30">
         </form>

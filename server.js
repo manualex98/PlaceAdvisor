@@ -36,9 +36,12 @@ function authenticateToken(req, res, next) {
   if (token == null) return res.sendStatus(401)
 
   jwt.verify(token, secretKey, (err, token) => {
-    console.log(err)
+    
 
-    if (err) return res.sendStatus(403)
+    if (err) {
+      console.log(err)
+      return res.sendStatus(403)
+  }
     req.token=token
     next()
   })
@@ -73,11 +76,11 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 const wss = new WebSocket.Server({ port:8080 });
 
 wss.on('connection', function connection(ws) {
-  console.log('A new client Connected!');
+  console.log('Si è connesso un client');
   ws.send('Welcome New Client!');
 
   ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
+    console.log('Messaggio ricevuto: %s', message);
 
     wss.clients.forEach(function each(client) {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -517,13 +520,8 @@ var codice;
 
 
 
-app.get('/',function (req,res){
-  if (req.signedCookies.fbaccess_token!=undefined){
-    res.redirect('/homepage');
-  }
-  else{
+app.get('/', function (req,res){
     res.render('index', {check: false, registrazione: false});
-  }
 });
 
 
@@ -538,7 +536,7 @@ app.post('/',function (req,res){
 
 app.post('/userinfo', authenticateToken, function(req,res){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.email,
+    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -684,33 +682,6 @@ app.get('/homepage', function (req,res){
     res.status(403).redirect(403, '/error?statusCode=403')
   }    
 })
-  //check sessioni fb e google
-  /*if (!gconnecting){
-    if(fconnecting){
-      if(fconnected){
-        res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
-      }
-      else{
-        res.status(201).redirect('/ftoken?code='+code);
-      }
-    }
-    else{
-      res.redirect(403, '/error?statusCode=403')
-    }
-  }
-  else if(gconnecting){
-    if ( !gconnected){
-      res.redirect('/gtoken?code='+code);
-    }
-    else if(gconnected){
-      res.render('homepage', {fconnected: fconnected, gconnected:gconnected, username: username}) //Ancora da implementare
-    }
- 
-  }
-  */
-  //else if(lconnected) res.render('homepage', {fconnected:fconnected, gconnected:gconnected, username:username})
-  //else res.render('index', {check:false, registrazione: false});
-//})
 
 //acquisisci google token
 app.get('/gtoken', function(req, res){
@@ -963,7 +934,7 @@ let city;
 let rad;
 let cate;
 
-app.post('/openmap', function(req,res){   
+app.post('/openmap', authenticateToken, function(req,res){   
   city = req.body.city;
   rad = parseFloat(req.body.rad)*1000;
   cate = req.body.cat;
@@ -1039,7 +1010,7 @@ function updateRegisterCity(city,data){             //funzione che aggiorna il n
 }
 
 
-app.get('/city_info', function(req,res){
+app.get('/city_info', authenticateToken, function(req,res){
   request({
     url: 'http://admin:admin@127.0.0.1:5984/cities/_all_docs?include_docs=true&limit=10',
     method: 'GET',
@@ -1074,12 +1045,8 @@ app.get('/city_info', function(req,res){
   })
 })
 
-app.get('/app', function(req,res){
-  if(req.signedCookies.fbaccess_token==undefined){
-    res.redirect(404, '/error?statusCode=404')
-    return
-  }
-  else{
+app.get('/app', authenticateToken, function(req,res){
+  
   var options ={
     url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey='+process.env.OpenMap_KEY+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
   }
@@ -1090,7 +1057,7 @@ app.get('/app', function(req,res){
     
     if (data==undefined){
       console.log('Non è stato cercato bene')
-      res.redirect('/homepage')
+      res.redirect('/home')
     }
     else{
       n = data.length;
@@ -1098,7 +1065,6 @@ app.get('/app', function(req,res){
       res.render('list_places', {numero: n, data: data, cat: cate, citta: city});
     }
   })
-}
 });
 
 
@@ -1110,11 +1076,8 @@ let meteo
 let icon_id
 let icon_url
 
-app.get('/details', function(req,res){
-  if(req.signedCookies.fbaccess_token==undefined){
-    res.redirect(404, '/error?statusCode=404')
-  }
-  else{
+app.get('/details', authenticateToken, function(req,res){
+  
     console.log(req.query)
   if (Object.keys(req.query).length > 1){
 
@@ -1159,13 +1122,11 @@ app.get('/details', function(req,res){
           //console.log(icon_id);
           icon_url="http://openweathermap.org/img/wn/"+icon_id+"@2x.png"
           if(infodb.error){
-            reviews_check=false     //Non ci sono recensioni
-            res.render('details', {gconnected : gconnected, fconnected: fconnected,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: "", photo:photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
+            res.render('details', {gconnected : false, fconnected: true,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: "", photo:photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
           } 
           else{
-            
-            reviews_check=true     //Ci sono recensioni
-            res.render('details', {gconnected : gconnected, fconnected:fconnected,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, photo: photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
+            //Ci sono recensioni
+            res.render('details', {gconnected : false, fconnected:true,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, photo: photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
           }
         })
         
@@ -1174,13 +1135,12 @@ app.get('/details', function(req,res){
     });
 
   });
-  }
   
 });
 
 //Google Photos API
 
-app.get('/googlephotosapi', function(req,res){
+app.get('/googlephotosapi', authenticateToken, function(req,res){
   feed= req.query.stato;
   gtoken = req.signedCookies.googleaccess_token;
   console.log('gtoken : '+ gtoken)
@@ -1272,13 +1232,8 @@ app.get('/googlephotosapi', function(req,res){
 
 
 
-app.get('/logout',function(req,res){
-  if (fconnected){
-    res.render('logout.ejs', {user:username})
-  }
-  else{
-    res.redirect(404, '/error?statusCode=404')
-  }
+app.get('/logout', authenticateToken, function(req,res){
+  res.render('logout.ejs', {user:username})
 })
 
 app.post('/logout', function(req,res){
@@ -1292,20 +1247,33 @@ app.post('/logout', function(req,res){
 
 
 //post recensione:
-let reviews_check
-
-app.post('/reviews', function(req,res){
+app.post('/reviews', authenticateToken, function(req,res){
   codice = Date.now();
-  if(!reviews_check) newReview(req,res);  //Se non esiste il documento nel db lo creo
-  else updateReview(req,res);             //Altrimenti aggiorno quello esistente
-  updateUserReviews(req,res);             //Inserisco la recensione anche nel doc utente
-  
+  photo = req.body.baseUrl;
+  request.get('http://admin:admin@127.0.0.1:5984/reviews/'+req.body.xid, function callback(error, response, body){
+    if(error) {
+      console.log(error);
+      res.status(404).render('/error?statusCode=404')
+    } else {
+      console.log(response.statusCode, body);
+      infodb = JSON.parse(body);
+        if(infodb.error){
+          console.log('la f è in err')
+          console.log(req.body)
+          newReview(req, res, codice);  //Se non esiste il documento nel db lo creo
+        } 
+        else{
+          updateReview(req, res, codice);             //Altrimenti aggiorno quello esistente
+        }
+    }
+  });
+  updateUserReviews(req,res, codice);             //Inserisco la recensione anche nel doc utente
 });
 
 //elimina recensione:
 
-app.post('/elimina', function(req,res){
-  email=req.cookies.email
+app.post('/elimina', authenticateToken, function(req,res){
+  email=req.token.info.info.email
   email=email.replace('\u0040', '@');
   const obj = JSON.parse(JSON.stringify(req.body));
   console.log(obj)
@@ -1323,9 +1291,9 @@ app.post('/elimina', function(req,res){
 })
 
 
-function updateUserReviews(req,res){
+function updateUserReviews(req,res, codice){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.cookies.email,
+    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1351,21 +1319,20 @@ function updateUserReviews(req,res){
             item={
               "codice": codice,
               "Posto": place_name,
-              "xid": req.query.xid,
-              "name": req.cookies.username,
+              "xid": req.body.xid,
+              "name": req.token.info.info.username,
               "text": req.body.rev,
               "date": strdate,
               "photo": encoded
             }
             info.reviews.push(item)
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.cookies.email,
+          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
           },
           body: JSON.stringify(info)
-          
         }, function(error, response, body){
             if(error) {
                 console.log(error);
@@ -1386,20 +1353,20 @@ function updateUserReviews(req,res){
           
         } 
         else{
+          var info = JSON.parse(body)
           item={
             "codice": codice,
             "Posto": place_name,
-            "xid": req.query.xid,
-            "name": req.cookies.username,
+            "xid": req.body.xid,
+            "name": req.token.info.info.username,
             "text": req.body.rev,
             "date": strdate,
             "photo": '',
-              
           }
         
         info.reviews.push(item)
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.cookies.email,
+          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1419,7 +1386,9 @@ function updateUserReviews(req,res){
   });
 }
 
-function newReview(req,res){
+function newReview(req,res, codice){
+  xid=req.body.xid
+  payload=req.token.info;
   data = new Date();
   mese=data.getMonth() +1;
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
@@ -1434,7 +1403,7 @@ function newReview(req,res){
               "reviews": [
                 {
                   "codice": codice,
-                  "name": username,
+                  "name": payload.info.username,
                   "text": req.body.rev,
                   "date": strdate,
                   "photo": encoded
@@ -1442,7 +1411,7 @@ function newReview(req,res){
               ]
             }
             request({
-              url: 'http://admin:admin@127.0.0.1:5984/reviews/'+ req.query.xid,
+              url: 'http://admin:admin@127.0.0.1:5984/reviews/'+ xid,
               method: 'PUT',
               headers: {
                 'content-type': 'application/json'
@@ -1470,7 +1439,7 @@ function newReview(req,res){
       "reviews": [
         {
           "codice": codice,
-          "name": username,
+          "name": req.tokusername,
           "text": req.body.rev,
           "date": strdate,
           "photo": ''
@@ -1481,7 +1450,7 @@ function newReview(req,res){
 
 
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+req.query.xid,
+    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -1499,7 +1468,10 @@ function newReview(req,res){
   }
 }
 
-function updateReview(req,res){
+function updateReview(req,res,codice){
+  payload=req.token.info
+  xid = req.body.xid;
+  console.log("XID_ : "+xid)
   data = new Date();
   mese=data.getMonth() +1;
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
@@ -1512,7 +1484,7 @@ function updateReview(req,res){
         encoded=response;      //salviamo la striga
         newItem={
           "codice": codice,
-          "name": username,
+          "name": payload.info.username,
           "text": req.body.rev,
           "date": strdate,
           "photo": encoded    //setto la photo con il valore di response
@@ -1520,7 +1492,7 @@ function updateReview(req,res){
         infodb.reviews.push(newItem);
 
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/reviews/'+req.query.xid,
+          url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1532,7 +1504,7 @@ function updateReview(req,res){
             console.log(error);
           } else {
             console.log(response.statusCode, body);
-            res.redirect('/details?xid='+req.query.xid);
+            res.redirect('/details?xid='+xid);
           }
         });
 
@@ -1547,7 +1519,7 @@ function updateReview(req,res){
   else{
     newItem={
       "codice": codice,
-      "name": username,
+      "name": payload.info.username,
       "text": req.body.rev,
       "date": strdate,
       "photo": ''
@@ -1570,7 +1542,7 @@ function updateReview(req,res){
           console.log(error);
       } else {
           console.log(response.statusCode, body);
-          res.redirect('/details?xid='+req.query.xid);
+          res.redirect('/details?xid='+xid);
       }
   });
 }
@@ -1653,7 +1625,7 @@ function deletereviewfromCity(codice, xid){
 }
 
 //feedback
-app.get('/newfeedback', function(req, res){
+app.get('/newfeedback', authenticateToken, function(req, res){
   if (req.signedCookies.googleaccess_token!=undefined){
     gconnected = true
   }
@@ -1664,11 +1636,11 @@ app.get('/newfeedback', function(req, res){
     res.status(403).render('expired_token', {google:true})
   }
   else{
-      res.render('feedback', {inviato : false, gconnected: gconnected, photo: ""})
+      res.render('feedback', {inviato : false, gconnected: false, photo: ""})
   }
 })
 
-app.post('/newfeedback', function(req,res){
+app.post('/newfeedback', authenticateToken, function(req,res){
   if (req.signedCookies.googleaccess_token!=undefined){
     gconnected = true
   }
@@ -1681,7 +1653,7 @@ app.post('/newfeedback', function(req,res){
   else{
     console.log("bodyfeed: %j", req.body);
     if (req.body.baseUrl.length>=1){
-      res.render('feedback', {inviato: false, gconnected: gconnected, photo: req.body.baseUrl})
+      res.render('feedback', {inviato: false, gconnected: false, photo: req.body.baseUrl})
   }
   else{
     res.redirect(404, '/error?statusCode=404')
@@ -1690,7 +1662,7 @@ app.post('/newfeedback', function(req,res){
 })
 
 let id
-app.post('/feedback', function(req, res){
+app.post('/feedback', authenticateToken, function(req, res){
   if (req.signedCookies.googleaccess_token!=undefined){
     gconnected = true
   }
@@ -1701,7 +1673,7 @@ app.post('/feedback', function(req, res){
     res.status(403).render('expired_token', {google:true})
   }
   else{
-  email=req.cookies.email
+  email=req.token.info.email
   date = new Date();
   mese=date.getMonth() +1;
   strdate = date.getDate()+"/"+mese+"/"+date.getFullYear()
@@ -1739,7 +1711,7 @@ app.post('/feedback', function(req, res){
 
 
 function updateFeedback(data,res){
-  email=req.cookies.email
+  email=req.token.info.email
   email=email.replace('\u0040', '@');
   request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
 
@@ -1804,12 +1776,7 @@ app.get('/bootstrap.min.css',function (req,res){
 });
 
 app.get('/error',function(req,res){
-  if (req.signedCookies.fbaccess_token==undefined){
-    res.render('error', {statusCode: req.query.statusCode, fconnected: false});
-  }
-  else{
     res.render('error', {statusCode: req.query.statusCode, fconnected: true});
-  }
 })
 
 

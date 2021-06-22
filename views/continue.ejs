@@ -14,16 +14,16 @@
     
     Vuoi continuare? 
     <% if (xid!= ''){ %>
-        <% var urll= "http://localhost:8000/details?xid="+xid; %>
+        <% var urll= "https://localhost:8000/details?xid="+xid; %>
         <a href= <%=urll %>>
             <button type= 'button'>YES!!</button>
         </a> 
     <% } else if (feedbackposting==true) { %>
-        <a href= "http://localhost:8000/newfeedback">
+        <a href= "https://localhost:8000/newfeedback">
             <button type= 'button'>YES!!</button>
         </a>
     <% } else { %>
-        <a href= "http://localhost:8000/homepage">
+        <a href= "https://localhost:8000/homepage">
             <button type= 'button'>YES!!</button>
         </a>
     <% } %>
