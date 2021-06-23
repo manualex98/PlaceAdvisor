@@ -532,8 +532,11 @@ var codice;
  *              example: 
  *      responses:
  *        200:
- *          description:
- * 
+ *          description: prima dell'invio del feedback controlla il token e restituisce feedback.ejs
+ *        403: 
+ *          description: Error token expired
+ *        404: 
+ *          description: Error
  *  /feedback:
  *    post:
  *      tags: [Feedback]
@@ -549,14 +552,14 @@ var codice;
  *              example: 
  *      responses:
  *        200:
- *          description: restituisce la pagina feedback.ejs
+ *          description: salva il feedback nel database, lo invia al feedback_consumer con AMQP e reindirizza a feedback.ejs
  * 
  *  /bootstrap.min.css:
  *    get:
  *      tags: [Bootstrap]
  *      responses:
  *        200:
- *          description:
+ *          description: permette di avere bootstrap nelle pagine ejs
  * 
  *  /error:
  *    get:
