@@ -1389,45 +1389,38 @@ function updateUserReviews(req,res, codice){
   //console.log("body funzioneupdateuserreview: %j", req.body)
         if (req.body.baseUrl!=''){
           imageToBase64(req.body.baseUrl) // Image URL
-    .then(
-        (response) => {
-            console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
-            encoded=response;
-            item={
-              "codice": codice,
-              "Posto": place_name,
-              "xid": req.body.xid,
-              "name": req.token.info.info.username,
-              "text": req.body.rev,
-              "date": strdate,
-              "photo": encoded
+          .then((response) => {
+              console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
+              encoded=response;
+              item={
+                "codice": codice,
+                "Posto": place_name,
+                "xid": req.body.xid,
+                "name": req.token.info.info.username,
+                "text": req.body.rev,
+                "date": strdate,
+                "photo": encoded
+              }
+              info.reviews.push(item)
+              request({
+              url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+              method: 'PUT',
+              headers: {
+                'content-type': 'application/json'
+              },
+              body: JSON.stringify(info)
+            }, function(error, response, body){
+                if(error) {
+                  console.log(error);
+                } else {
+                  console.log(response.statusCode, body);
+                }
+              });
             }
-            info.reviews.push(item)
-        request({
-          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
-          method: 'PUT',
-          headers: {
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify(info)
-        }, function(error, response, body){
-            if(error) {
-                console.log(error);
-            } else {
-                console.log(response.statusCode, body);
-                res.redirect('/details?xid='+req.body.xid);
-            }
-        });
-      }
-    )
-    .catch(
-        (error) => {
+          )
+          .catch((error) => {
             console.log(error); // Logs an error if there was one
-        }
-    )
-          
-            
-          
+          })
         } 
         else{
           var info = JSON.parse(body)
@@ -1441,25 +1434,24 @@ function updateUserReviews(req,res, codice){
             "photo": '',
           }
         
-        info.reviews.push(item)
-        request({
-          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
-          method: 'PUT',
-          headers: {
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify(info)
+          info.reviews.push(item)
+          request({
+            url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+            method: 'PUT',
+            headers: {
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify(info)
           
-        }, function(error, response, body){
-            if(error) {
+          }, function(error, response, body){
+              if(error) {
                 console.log(error);
-            } else {
+              } else {
                 console.log(response.statusCode, body);
-                res.redirect('/details?xid='+req.body.xid);
-            }
-        });
+              }
+          });
+        }
       }
-    }
   });
 }
 
@@ -1538,10 +1530,11 @@ function newReview(req,res, codice){
           console.log(error);
       } else {
           console.log(response.statusCode, body);
-          res.redirect('/details?xid='+xid);
+          
       }
     });
   }
+  res.redirect('/details?xid='+xid);
 }
 
 function updateReview(req,res,codice){
@@ -1620,6 +1613,7 @@ function updateReview(req,res,codice){
       }
   });
 }
+res.redirect('/details?xid='+xid);
 }
 
 function deletereviewfromUser(num, email){
