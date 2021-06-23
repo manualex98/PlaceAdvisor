@@ -1,11 +1,18 @@
-<title>Error</title>
-<h1><%=statusCode %></h1>
-<h2>Spiacenti, si è verificato un errore nell'elaborazione della tua richiesta.<br></h2>
-<h3>
-    <% if (fconnected==false){ %>
-        Esegui l'accesso prima! <a href="https://localhost:8000/"><button>Clicca qui</button></a><br><br>
-    <%} else { %>
-        Torna alla home <a href="https://localhost:8000/homepage"><button>Clicca qui</button></a><br><br>
-    <% } %>
-    Se non hai ottenuto quello che stavi cercando, e pensi possa essere un problema legato ad un malfunzionamento della web app <a href="http://localhost:8000/newfeedback"><button>Inviaci un feedback</button></a>
-</h3>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Error</title>
+</head>
+<% var uri = "https://http.cat/"+statusCode %>
+<body>
+    
+    <h1><img src= <%= uri %>><br></h1>
+    <h2>Spiacenti, si è verificato un errore nell'elaborazione della tua richiesta.<br></h2>
+    <h3>
+            Torna alla home <a href="https://localhost:8000/"><button>Clicca qui</button></a><br><br>
+        Se non hai ottenuto quello che stavi cercando, e pensi possa essere un problema legato ad un malfunzionamento della web app <a href="http://localhost:8000/newfeedback"><button>Inviaci un feedback</button></a>
+    </h3>
+</body>
+</html>
