@@ -5,7 +5,6 @@ Progetto per il corso di Reti di Calcolatori 2020/21 tenuto dal prof. Andrea Vit
 L'applicazione richiede i seguenti servizi:
 * CouchDB all'indirizzo localhost:5984;
 * RabbitMQ all'indirizzo localhost:5672;  //docker run --name rabbitmq -p 5672:5672 rabbitmq
-* Swagger.io sudo docker run --name swagger -p 80:8080 swaggerapi/swagger-editor
 
 In particolare in CouchDB devono essere presenti i seguenti database:
 * users, per memorizzare gli utenti;
