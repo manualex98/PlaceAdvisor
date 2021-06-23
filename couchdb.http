@@ -8,8 +8,7 @@ content-type: application/json
 
 
 ###
-GET http://admin:admin@127.0.0.1:5984/cities/_all_docs
-
+GET http://admin:admin@127.0.0.1:5984/cities/_all_docs?include_docs=true&limit=10
 ###
 PUT http://admin:admin@127.0.0.1:5984/cities/parigi
 content-type: application/json

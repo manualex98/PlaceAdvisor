@@ -22,3 +22,11 @@ Wed Jun 23 2021 17:20:48 GMT+0200 (Ora legale dell’Europa centrale): È stata 
 Città: Roma, Categoria: interesting_places, Raggio: 10
 Wed Jun 23 2021 17:24:33 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
 Città: Rome, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 18:27:07 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 18:27:31 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Pippo, Categoria: interesting_places, Raggio: 55
+Wed Jun 23 2021 18:28:51 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 18:33:39 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10

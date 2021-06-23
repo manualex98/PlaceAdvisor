@@ -19,6 +19,7 @@ const { waitForDebugger } = require('inspector');
 require('dotenv').config()
 
 const secretKey = process.env.SECRETKEY;
+const refresh_secretKey = process.env.REFRESH_SECRET;
 
 app.use(cookieParser(secretKey));
 app.use(cookieEncrypter(secretKey));
@@ -34,22 +35,46 @@ app.set('views', __dirname + '/views');
 function authenticateToken(req, res, next) {
   const token = req.signedCookies.jwt
 
-  if (token == null) return res.redirect('/error?statusCode=401')
-
+  if (token == null){
+    if(req.signedCookies.refresh!=null) {
+      return res.redirect('/refreshtoken')
+    }
+    else{
+      return res.redirect('/error?statusCode=401')
+    } 
+  }
+  
 
   jwt.verify(token, secretKey, (err, token) => {
     
 
     if (err) {
       console.log(err)
-      return res.redirect('/error?=statusCode=403')
-  }
+      return res.redirect('/refreshtoken')
+    }
     req.token=token
     next()
   })
 }
 
+app.get('/refreshtoken', function(req, res){
+  const refresher = req.signedCookies.refresh;
 
+  if (refresher == null) return res.redirect('/error?statusCode=401')
+
+  jwt.verify(refresher, refresh_secretKey, (err, token)=>{
+    if (err){
+      return res.redirect('/error?statusCode=403')
+    }
+    else{
+      jwt.sign({info:token.info}, secretKey, { expiresIn: '30m' }, (err, newtoken)=>{
+        res.cookie('jwt', newtoken, {httpOnly: true,secure: true, signed:true, maxAge:1800000});           
+        console.log('Questo è il JWT REFRESHATO!!' + newtoken);
+        res.render('mytoken.ejs', {ntoken: newtoken})
+    })
+    }
+  })
+})
 
 
 //Extended https://swagger.io/specification/
@@ -780,7 +805,7 @@ app.get('/ftoken',function (req,res){
     }
     else{
       ftoken = info.access_token;
-      res.cookie('fbaccess_token', ftoken, {maxAge:3153600, signed: true,secure: true, httpOnly: true})
+      res.cookie('fbaccess_token', ftoken, {maxAge:37500000, signed: true,secure: true, httpOnly: true})
       //res.status(200).redirect('/mytoken')
       res.redirect('fb_pre_access')
     }
@@ -843,7 +868,7 @@ app.get('/fb_pre_access',function (req,res){
               }
               console.log("QUESTA QUA è LA FUNZIONE CHE SETTA IL COOKIE SE L'UTENTE NON ESISTE")
               jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
-                res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:3153600});           
+                res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:1800000});           
                 console.log('Questo è il JWT!!' + token);
                 res.redirect('/fbsignup'); //Utente non esiste quindi lo faccio registrare
               })
@@ -859,15 +884,24 @@ app.get('/fb_pre_access',function (req,res){
                 },
                 "fbtoken": ftoken
               }
+              res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0});
 
               console.log("QUESTA QUA è LA FUNZIONE CHE SETTA IL COOKIE SE L'UTENTE ESISTE")
               jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
                 if (err) console.log(err);
-                res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0});
-                res.cookie('jwt', token, {httpOnly: true, secure:true, signed:true, maxAge:3153600});              
+                res.cookie('jwt', token, {httpOnly: true, secure:true, signed:true, maxAge:1800000});              
                 console.log('Questo è il JWT!!' + token);
+                
+              })
+              if(req.signedCookies.refresh==null){
+              jwt.sign({info:jsonobj}, refresh_secretKey, (err, refreshtoken)=>{
+                res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
                 res.redirect( 200, '/home');  //Utente esiste, può accedere
               })
+            }
+            else{
+              res.redirect( 200, '/home');
+            }
             }
           }
       });
@@ -923,8 +957,10 @@ console.log(body1)
       } else {
         console.log(response.statusCode, body);
         jsonobj={
+          "info":{
           "email": payload.info.email,
           "username": username,
+          },
           "fbtoken": payload.fbtoken
         }
         
@@ -932,9 +968,15 @@ console.log(body1)
           res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
           jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
           res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
-          res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:3153600})              
+          res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:1800000})            
           console.log('Questo è il nuovo JWT!!' + token)
-          res.redirect(200, '/home');
+          
+          
+          })     //refresh_token      
+          jwt.sign({info:jsonobj}, refresh_secretKey, (err, refreshtoken)=>{
+            res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
+            res.redirect( 200, '/home');  //Utente esiste, può accedere
+          
       })
     }
   });
@@ -1047,7 +1089,7 @@ function updateRegisterCity(city,data){             //funzione che aggiorna il n
 
 app.get('/city_info', authenticateToken, function(req,res){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/cities/_all_docs?include_docs=true&limit=10',
+    url: 'http://admin:admin@127.0.0.1:5984/cities/_all_docs?include_docs=true&limit=100',
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1060,11 +1102,12 @@ app.get('/city_info', authenticateToken, function(req,res){
       var data = JSON.parse(body)
       
       var list_city = new Array()                      //Popolo un array con i documenti del db
-      for(var i=0; i<data.total_rows;i++){
+      for(var i=0; i<data.total_rows-1;i++){
+        elem=data.rows[i]
         list_city.push(
           {
-            "city": data.rows[i].doc.name,
-            "search": data.rows[i].doc.search
+            "city": elem.doc.name,
+            "search": elem.doc.search
           }
         )
       }
@@ -1074,8 +1117,9 @@ app.get('/city_info', authenticateToken, function(req,res){
           return b.search - a.search
         }
       )
+      items = list_city.slice(0, 10)
 
-      res.render('city_stat',{data:list_city})
+      res.render('city_stat',{data:items})
     }
   })
 })
