@@ -34,7 +34,7 @@ app.set('views', __dirname + '/views');
 function authenticateToken(req, res, next) {
   const token = req.signedCookies.jwt
 
-  if (token == null) return res.redirect(401, '/error?statusCode=401')
+  if (token == null) return res.redirect('/error?statusCode=401')
 
 
   jwt.verify(token, secretKey, (err, token) => {
@@ -42,7 +42,7 @@ function authenticateToken(req, res, next) {
 
     if (err) {
       console.log(err)
-      return res.sendStatus(403)
+      return res.redirect('/error?=statusCode=403')
   }
     req.token=token
     next()
@@ -83,6 +83,7 @@ wss.on('connection', function connection(ws) {
 
   ws.on('message', function incoming(message) {
     console.log('Messaggio ricevuto: %s', message);
+    log_on_file(message)
 
     wss.clients.forEach(function each(client) {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -974,7 +975,6 @@ app.post('/openmap', authenticateToken, function(req,res){
   rad = parseFloat(req.body.rad)*1000;
   cate = req.body.cat;
   checkCity(city)                       //aggiungo (aggiorno) la città cercata nel db 'cities'
-  log_on_file("E' stata cercata la città: "+city)
   var options = {
     url: 'https://api.opentripmap.com/0.1/en/places/geoname?format=geojson&apikey='+process.env.OpenMap_KEY+'&name='+city
   }
@@ -986,7 +986,7 @@ app.post('/openmap', authenticateToken, function(req,res){
     lat = parseFloat(info.lat);
     lon = parseFloat(info.lon);
     console.log('/app?lat='+lat+'&lon='+lon+'&cate='+cate+'&rad='+rad);
-    res.redirect('/app?lat='+lat+'&lon='+lon+'&cate='+cate+'&rad='+rad);
+    res.redirect('/app?lat='+lat+'&lon='+lon+'&cate='+cate+'&rad='+rad+'&city='+city);
   }); 
 });
 
@@ -1085,6 +1085,7 @@ app.get('/app', authenticateToken, function(req,res){
   lat = req.query.lat;
   lon = req.query.lon;
   cate = req.query.cate;
+  city = req.query.city;
 
   var options ={
     url: 'https://api.opentripmap.com/0.1/en/places/radius?format=geojson&apikey='+process.env.OpenMap_KEY+'&radius='+rad+'&lon='+lon+'&lat='+lat+'&kinds='+cate+'&limit='+100
@@ -1322,7 +1323,7 @@ app.post('/elimina', authenticateToken, function(req,res){
 
 function updateUserReviews(req,res, codice){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.email,
+    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1349,14 +1350,14 @@ function updateUserReviews(req,res, codice){
               "codice": codice,
               "Posto": place_name,
               "xid": req.body.xid,
-              "name": req.token.info.username,
+              "name": req.token.info.info.username,
               "text": req.body.rev,
               "date": strdate,
               "photo": encoded
             }
             info.reviews.push(item)
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.email,
+          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1387,7 +1388,7 @@ function updateUserReviews(req,res, codice){
             "codice": codice,
             "Posto": place_name,
             "xid": req.body.xid,
-            "name": req.token.info.username,
+            "name": req.token.info.info.username,
             "text": req.body.rev,
             "date": strdate,
             "photo": '',
@@ -1395,7 +1396,7 @@ function updateUserReviews(req,res, codice){
         
         info.reviews.push(item)
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.email,
+          url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1467,7 +1468,7 @@ function newReview(req,res, codice){
       "reviews": [
         {
           "codice": codice,
-          "name": req.tokusername,
+          "name": req.token.info.info.username,
           "text": req.body.rev,
           "date": strdate,
           "photo": ''
@@ -1783,8 +1784,7 @@ function updateFeedback(data,res){
 }
 
 function log_on_file(data){
-  date = new Date();
-  fs.appendFile('logs.txt','\r\n'+date+': '+data, ()=>{
+  fs.appendFile('logs.txt','\r\n'+data, ()=>{
     console.log('scritto su file')
   })
 

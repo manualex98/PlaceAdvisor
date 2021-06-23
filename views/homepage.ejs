@@ -28,7 +28,8 @@
         alert("Per favore riempi tutti i campi...!!!!!!");
         return false;
       }else{
-        socket.send('è stata cercata la città: '+city[0].value+', categoria: '+cat[0].value+', raggio: '+rad[0].value);
+        data = new Date();
+        socket.send(data+': È stata cercato:\nCittà: '+city[0].value+', Categoria: '+cat[0].value+', Raggio: '+rad[0].value+'');
         return true;
       }
   }

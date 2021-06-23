@@ -1,38 +1,24 @@
-Wed Jun 09 2021 12:40:22 GMT+0200 (Ora legale dell’Europa centrale)E' stata cercata la città: Firenze
-Tue Jun 22 2021 17:42:39 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 17:42:53 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 17:44:28 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 17:49:05 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 17:55:15 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 17:59:12 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 18:11:12 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 18:19:09 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 18:26:34 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Rome
-Tue Jun 22 2021 18:29:27 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 19:04:10 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 19:09:20 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 19:20:31 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 19:37:34 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 19:39:28 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 19:40:26 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 19:42:37 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 19:50:16 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 20:14:26 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 20:22:54 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 20:39:10 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 20:40:06 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 21:37:36 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 21:41:15 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Tue Jun 22 2021 21:46:16 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 11:21:38 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 11:22:32 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 11:24:34 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Rome
-Wed Jun 23 2021 11:32:39 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 11:43:40 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 11:46:03 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 11:46:45 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 11:47:48 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 11:49:09 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 13:37:12 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 13:41:00 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
-Wed Jun 23 2021 15:32:53 GMT+0200 (Ora legale dell’Europa centrale): E' stata cercata la città: Roma
+Wed Jun 23 2021 17:08:35 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Milano, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:09:35 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:09:40 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Torino, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:09:46 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Helsinki, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:09:51 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Parigi, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:09:58 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Pozzuoli, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:10:05 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Rocca cannuccia, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:10:17 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Napoli, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:10:39 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Sidney, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:15:46 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Sidney, Categoria: interesting_places, Raggio: 9
+Wed Jun 23 2021 17:20:48 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Wed Jun 23 2021 17:24:33 GMT+0200 (Ora legale dell’Europa centrale): È stata cercato:
+Città: Rome, Categoria: interesting_places, Raggio: 10
