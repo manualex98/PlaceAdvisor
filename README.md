@@ -3,7 +3,7 @@ Progetto per il corso di Reti di Calcolatori 2020/21 tenuto dal prof. Andrea Vit
 
 ## Configuration
 L'applicazione richiede i seguenti servizi:
-* CouchDB all'indirizzo localhost:5984;
+* CouchDB all'indirizzo localhost:5984;   //sudo docker run -d --name couchdb -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=admin couchdb
 * RabbitMQ all'indirizzo localhost:5672;  //docker run --name rabbitmq -p 5672:5672 rabbitmq
 
 In particolare in CouchDB devono essere presenti i seguenti database:
@@ -22,12 +22,26 @@ $ git clone https://github.com/manualex98/Progetto-RetiDiCalcolatori.git
 $ cd ../path/to/the/file
 $ npm install
 $ npm start
+$ sudo docker-compose up -d
+$ sudo docker container ps  //selezionare l'id del container di couchdb
+$ sudo docker exec -it <container-name> /bin/bash
+$ curl -X PUT http://admin:admin@127.0.0.1:5984/users
+$ curl -X PUT http://admin:admin@127.0.0.1:5984/cities
+$ curl -X PUT http://admin:admin@127.0.0.1:5984/reviews
+
 ```
-Aprire un altro terminale per far funzionare il feedback service consumer implementato con RabbitMQ
+Per far funzionare anche il feedback
 ```
-$ cd ../path/to/the/file
+$ sudo docker container ps 
+$ sudo docker exec -it <container-name> /bin/bash
 $ node feedback_consumer.js
 ```
+Per chiudere tutto:
+```
+$ sudo docker-compose down --remove 
+```
+
+
 
 -----------------
 
