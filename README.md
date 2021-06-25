@@ -3,7 +3,7 @@ Progetto per il corso di Reti di Calcolatori 2020/21 tenuto dal prof. Andrea Vit
 
 ## Configuration
 L'applicazione richiede i seguenti servizi:
-* CouchDB all'indirizzo localhost:5984;
+* CouchDB all'indirizzo localhost:5984;   //sudo docker run -d --name couchdb -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=admin couchdb
 * RabbitMQ all'indirizzo localhost:5672;  //docker run --name rabbitmq -p 5672:5672 rabbitmq
 
 In particolare in CouchDB devono essere presenti i seguenti database:
