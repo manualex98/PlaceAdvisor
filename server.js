@@ -1772,7 +1772,6 @@ app.post('/feedback', authenticateToken, function(req, res){
 
 
 function updateFeedback(data,res){
-  email=
   email=data.email.replace('\u0040', '@');
   request.get('http://admin:admin@couchdb:5984/users/'+email, function callback(error, response, body){
 
