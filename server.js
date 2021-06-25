@@ -593,7 +593,7 @@ app.post('/',function (req,res){
 
 app.post('/userinfo', authenticateToken, function(req,res){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+req.token.info.info.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -622,7 +622,7 @@ let check;
 
 function gestisciAccessoLocale(req,res){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.body.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+req.body.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -670,7 +670,7 @@ function newUser(req,res){
   };
   
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.body.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+req.body.email,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -850,7 +850,7 @@ app.get('/fb_pre_access',function (req,res){
       const fbinfo=parsed
       //CONTROLLO SE ESISTE L'UTENTE NEL DB
       request({
-        url: 'http://admin:admin@127.0.0.1:5984/users/'+fbinfo.email,
+        url: 'http://admin:admin@couchdb:5984/users/'+fbinfo.email,
         method: 'GET',
         headers: {
           'content-type': 'application/json'
@@ -947,7 +947,7 @@ app.post('/fbsignup', authenticateToken, function (req,res){
 };
 console.log(body1)
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+payload.info.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+payload.info.email,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -1006,7 +1006,7 @@ app.get('/info', authenticateToken, function(req, res){
   if(payload.info) email=payload.info.email
   else email = payload.email
   
-  request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
+  request.get('http://admin:admin@couchdb:5984/users/'+email, function callback(error, response, body){
     var data = JSON.parse(body)
     res.render('user_info', {data: data});
   })
@@ -1037,7 +1037,7 @@ app.post('/openmap', authenticateToken, function(req,res){
 
 
 function checkCity(city){               //funzione che esegue un check all'interno del db cities per vedere se esiste un doc col nome della città 'city'
-  request.get('http://admin:admin@127.0.0.1:5984/cities/'+city, function callback(error, response, body){
+  request.get('http://admin:admin@couchdb:5984/cities/'+city, function callback(error, response, body){
     var data = JSON.parse(body)
       if(data.error){
         newRegisterCity(city)
@@ -1052,7 +1052,7 @@ function newRegisterCity(city){         //funzione che salva una nuova città
           "search": 1
         }
     request({
-          url: 'http://admin:admin@127.0.0.1:5984/cities/'+city,
+          url: 'http://admin:admin@couchdb:5984/cities/'+city,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1073,7 +1073,7 @@ function newRegisterCity(city){         //funzione che salva una nuova città
 function updateRegisterCity(city,data){             //funzione che aggiorna il numero di ricerche di una città
   data.search+=1
   request({
-          url: 'http://admin:admin@127.0.0.1:5984/cities/'+city,
+          url: 'http://admin:admin@couchdb:5984/cities/'+city,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1092,7 +1092,7 @@ function updateRegisterCity(city,data){             //funzione che aggiorna il n
 
 app.get('/city_info', authenticateToken, function(req,res){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/cities/_all_docs?include_docs=true&limit=100',
+    url: 'http://admin:admin@couchdb:5984/cities/_all_docs?include_docs=true&limit=100',
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1182,7 +1182,7 @@ app.get('/details', authenticateToken, function(req,res){
     lat = info.point.lat
     lon= info.point.lat
     console.log('\r\n'+place_name+'\r\n')
-    request.get('http://admin:admin@127.0.0.1:5984/reviews/'+xid, function callback(error, response, body){
+    request.get('http://admin:admin@couchdb:5984/reviews/'+xid, function callback(error, response, body){
       if(error) {
         console.log(error);
         res.status(404).render('/error?statusCode=404')
@@ -1327,7 +1327,7 @@ app.post('/logout', function(req,res){
 app.post('/reviews', authenticateToken, function(req,res){
   codice = Date.now();
   photo = req.body.baseUrl;
-  request.get('http://admin:admin@127.0.0.1:5984/reviews/'+req.body.xid, function callback(error, response, body){
+  request.get('http://admin:admin@couchdb:5984/reviews/'+req.body.xid, function callback(error, response, body){
     if(error) {
       console.log(error);
       res.status(404).render('/error?statusCode=404')
@@ -1370,7 +1370,7 @@ app.post('/elimina', authenticateToken, function(req,res){
 
 function updateUserReviews(req,res, codice){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+req.token.info.info.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1403,7 +1403,7 @@ function updateUserReviews(req,res, codice){
               }
               info.reviews.push(item)
               request({
-              url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+              url: 'http://admin:admin@couchdb:5984/users/'+req.token.info.info.email,
               method: 'PUT',
               headers: {
                 'content-type': 'application/json'
@@ -1436,7 +1436,7 @@ function updateUserReviews(req,res, codice){
         
           info.reviews.push(item)
           request({
-            url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+            url: 'http://admin:admin@couchdb:5984/users/'+req.token.info.info.email,
             method: 'PUT',
             headers: {
               'content-type': 'application/json'
@@ -1480,7 +1480,7 @@ function newReview(req,res, codice){
               ]
             }
             request({
-              url: 'http://admin:admin@127.0.0.1:5984/reviews/'+ xid,
+              url: 'http://admin:admin@couchdb:5984/reviews/'+ xid,
               method: 'PUT',
               headers: {
                 'content-type': 'application/json'
@@ -1518,7 +1518,7 @@ function newReview(req,res, codice){
 
 
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+    url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -1561,7 +1561,7 @@ function updateReview(req,res,codice){
         infodb.reviews.push(newItem);
 
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+          url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1598,7 +1598,7 @@ function updateReview(req,res,codice){
   infodb.reviews.push(newItem);
 
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+    url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -1618,7 +1618,7 @@ res.redirect('/details?xid='+xid);
 
 function deletereviewfromUser(num, email){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+    url: 'http://admin:admin@couchdb:5984/users/'+email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1636,7 +1636,7 @@ function deletereviewfromUser(num, email){
           } 
         }}
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+          url: 'http://admin:admin@couchdb:5984/users/'+email,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1657,7 +1657,7 @@ function deletereviewfromUser(num, email){
 
 function deletereviewfromCity(codice, xid){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+    url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1674,7 +1674,7 @@ function deletereviewfromCity(codice, xid){
           } 
         }
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+          url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1774,7 +1774,7 @@ app.post('/feedback', authenticateToken, function(req, res){
 function updateFeedback(data,res){
   email=
   email=data.email.replace('\u0040', '@');
-  request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
+  request.get('http://admin:admin@couchdb:5984/users/'+email, function callback(error, response, body){
 
     var db = JSON.parse(body)
     newItem = {
@@ -1787,7 +1787,7 @@ function updateFeedback(data,res){
     db.feedbacks.push(newItem);
 
     request({
-      url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+      url: 'http://admin:admin@couchdb:5984/users/'+email,
       method: 'PUT',
       headers: {
         'content-type': 'application/json'
