@@ -46,6 +46,7 @@ Link API usate:
 ### Schema
 ![schema](https://user-images.githubusercontent.com/80718809/123552915-d1bffe00-d778-11eb-82da-a587dd4e50b3.jpg)
 
+
 ## Istruzioni per l'installazione
 WINDOWS: Installare Docker Desktop cliccando su https://www.docker.com/products/docker-desktop e NodeJS su https://nodejs.org/it/download.
 UBUNTU: Aprire un terminale ed eseguire sudo apt install docker e sudo apt install nodejs.
@@ -73,7 +74,7 @@ Aprire un terzo terminale per avviare un docker container con l'immagine Rabbit 
 $ docker run --name rabbitmq -p 5672:5672 rabbitmq
 
 ```
-Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accessibile cliccando su https://localhost:8000, però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
+Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accessibile cliccando ![qui](https://localhost:8000), però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
 Aprire un quarto terminale per far funzionare il feedback service consumer implementato con RabbitMQ
 ```
 $ cd PlaceAdvisor
@@ -97,8 +98,12 @@ password: Passtest1
 
 Questo utente è uno user test creato direttamente da Facebook for Developers. 
 
--Il primo punto è quello di connettersi alla pagine https://localhost:8000/
--Una volta eseguito l'accesso e accettato le condizioni si verrà reindirizzati a una pagina che ci chiederà di scegliere un username. Una volta scelto, se questo sarà disponibile, si verrà reindirizzati alla Homepage con response status code 200 e verrà inoltre creato e firmato un jwt e un refresh jwt che verranno settati nei cookie, altrimenti verrà chiesto di scegliere un altro username. 
+-Il primo punto è quello di connettersi alla pagina https://localhost:8000/. Verrà visualizzata la pagina di accesso:
+![Homepage](https://user-images.githubusercontent.com/50673340/123555442-04242800-d786-11eb-8b37-991b34499ddf.png)
+-Una volta eseguito l'accesso e accettato le condizioni si verrà reindirizzati a una pagina che ci chiederà di scegliere un username.
+![Fbsignup](https://user-images.githubusercontent.com/50673340/123555763-05eeeb00-d788-11eb-8a86-eb78eaf23b02.png)
+-Una volta scelto, se questo sarà disponibile, si verrà reindirizzati alla Homepage con response status code 200 e verrà inoltre creato e firmato un jwt e un refresh jwt che verranno settati nei cookie, altrimenti verrà chiesto di scegliere un altro username. 
+![Homepage](https://user-images.githubusercontent.com/50673340/123555798-42bae200-d788-11eb-906c-4531dcad3d16.png)
 - Cliccando su *Il tuo Profilo* verranno visualizzate le informazioni di base e le recensioni/feedback effettuati. 
 - Nella Homepage è presente una form per cercare dei punti d'interesse, inserendo la città (non è case sensitive), una categoria e il raggio limite di distanza da un punto d'interesse all'altro. Verremo dunque reindirizzati alla pagina /app che ci restituirà i primi 100 luoghi di interesse, ognuno dei quali ha un bottone 'dettagli'.
   - Cliccando su 'dettagli' verremo reindirizzati ad una pagina dettagliata del luogo (/details?xid=...). Avremo modo, quindi, di visualizzare l'immagine del luogo, un piccolo paragrafo di Wikipedia, l'indirizzo, il meteo in quel momento nella acittà in cui si trova il luogo, e tutte le recensioni effettuate dagli utenti su quel luogo. Sarà inoltre disponibile un form in cui si potrà aggiungere una recensione con testo e/o foto. Una volta inserito il testo e/o aver selezionato una foto), cliccando 'Aggiungi' verrà effettuata una POST su /review, che eseguirà il caricamento della recensione nel documento dei db User e Reviews. Verremo dunque reindirizzati alla precedente pagina (/details?xid=...) dove avremo modo di vedere la nostra nuova recensione che sarà visibile anche agli altri utenti del sito.
