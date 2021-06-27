@@ -937,8 +937,9 @@ app.get('/fb_pre_access',function (req,res){
 
 app.get('/fbsignup', authenticateToken, function(req,res){
   const ftoken = req.token.info.fbtoken
+  const fbinfo= req.token.info.info
   fconnected=true;
-  res.render('fbsignup', {fconnected: true,check: false, ftoken:ftoken});
+  res.render('fbsignup', {fconnected: true,check: false, ftoken:ftoken, data: fbinfo});
 })
 
 

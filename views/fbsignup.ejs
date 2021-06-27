@@ -11,6 +11,16 @@
         <%= ftoken %>
     <% } %><br><br>
 
+    Ecco i tuoi dati:<br>
+    <ul>
+        <li> <%= data.first_name %></li>
+        <li> Cognome: <%= data.surname %></li>
+         <% email = data.email.replace('\u0040', '@'); %>
+        <li> Email: <%= email %></li>
+        <% photourl = data.picture.data.url %>
+        <li> Foto: <img src=<%= photourl  %> width=<%=data.picture.data.width%> height=<%=data.picture.data.height%>></li>
+    </ul>
+
     <h1 class="mb-3">Per completare la registrazione scegli un username </h1>
         <form method="POST" action="https://localhost:8000/fbsignup">
 
