@@ -41,8 +41,11 @@ Link API usate:
 - HERE API: https://developer.here.com/documentation/maps/3.1.25.0/dev_guide/topics/get-started.html
 - OpenWeatherMap API: https://openweathermap.org/current
 
+### Schema
+![schema](https://user-images.githubusercontent.com/80718809/123552915-d1bffe00-d778-11eb-82da-a587dd4e50b3.jpg)
 ## Istruzioni per l'installazione
-*!!DA VEDERE SE LASCIARE!*
+*!!DA VEDERE SE LASCIARE!!*
+
 **NOTA BENE:** La procedura d'installazione è specifica per macchine con sistema operativo Windows.
 Visitare il sito di [Apache CouchDB](https://couchdb.apache.org/), effettuare il download e seguire le procedure d'installazione. Una volta completata l'installazione accedere al servizio digitando in un browser o cliccando su questo link: http://127.0.0.1:5984/_utils. Accedere con username 'admin' e password 'admin' e creare tre database con questi nomi: users, reviews e cities.
 
