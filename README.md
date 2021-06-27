@@ -43,6 +43,7 @@ Link API usate:
 
 ### Schema
 ![schema](https://user-images.githubusercontent.com/80718809/123552915-d1bffe00-d778-11eb-82da-a587dd4e50b3.jpg)
+
 ## Istruzioni per l'installazione
 *!!DA VEDERE SE LASCIARE!!*
 
@@ -93,6 +94,12 @@ Per effettuare un test loggarsi con le seguenti credenziali Facebook:
 email: 	test_zreyrfg_user@tfbnw.net
 password: Passtest1
 
-Questo utente è uno user test creato direttamente da Facebook for Developers. Una volta effettuato l'accesso e accettato le condizioni si verrà reindirizzati a una pagina che chiederà un username, una volta scelto si arriverà alla Homepage della nostra applicazione. Cliccando su *Il tuo Profilo* verranno visualizzate le informazioni di base e le recensioni/feedback effettuati. Nella Homepage è presente una form per cercare un punto d'interesse, cerchiamo 'Roma' (non è case sentitive), selezionando come categoria Interesting Places (default) e con un raggio di 10 KM da un punto d'interesse all'altro. Avremo come risultato i primi 100 riscontri con sotto ognuno un link che cliccato porta alla pagina dei dettagli del riscontro. 
+Questo utente è uno user test creato direttamente da Facebook for Developers. Una volta effettuato l'accesso e accettato le condizioni si verrà reindirizzati a una pagina che chiederà un username, una volta scelto si arriverà alla Homepage della nostra applicazione. 
+- Cliccando su *Il tuo Profilo* verranno visualizzate le informazioni di base e le recensioni/feedback effettuati. 
+- Nella Homepage è presente una form per cercare dei punti d'interesse, inserendo la città (non è case sensitive), una categoria e il raggio limite di distanza da un punto d'interesse all'altro. Avremo come risultato i primi 100 riscontri con sotto ognuno un link che cliccato porta alla pagina dei dettagli del riscontro.
+  - Cliccando su 'dettagli' otterremo una pagina dettagliata del luogo con una form in cui possiamo aggiungere una recensione con testo e/o foto e cliccando 'Aggiungi' verrà ricaricata la pagina e vedremo aggiunta la nostra recensione che sarà visibile agli altri utenti del sito.
+
+- Nella Homepage cliccando su *Inviaci un feedback* si aprirà una form in cui si può inviare il feedback con testo e/o foto
+- Tornando su *Il tuo profilo* possiamo vedere che sono state aggiunte le info sulla recensione ed il feedback effettuato. Lanciando il feedback_consumer.js processiamo i feedback e su *Il tuo Profilo* risulteranno letti.
 
 
