@@ -1798,28 +1798,41 @@ function updateFeedback(data,res){
         console.log(error);
       } else {
         console.log(response.statusCode, body);
-        connect();
-        async function connect() {
+         
+        amqp.connect('amqp://localhost:5672', function(error0, connection) {
+          if (error0) {
+            //throw error0; 
+            console.log("Sistema di feedback non funziona " + error0.toString());
+            return;
+         }
 
-          try {
-            
-            const connection = await amqp.connect("amqp://localhost:5672")
-            const channel = await connection.createChannel();
-            const result = channel.assertQueue("feedback")
-            channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
-            console.log('Feedback sent succefully')
-            //console.log(data)
-            
-            res.render('feedback', {inviato : true})
-            feedbackposting=false;
-          }
-          catch(error){
-            console.error(error);
-          }
-        }
-      }
+          connection.createChannel(function(error1, channel) {
+            if (error1) {
+                console.log("Sistema di feedback non funziona " + error0.toString());
+                return;
+            }
+
+            var queue = 'feedback';
+            var msg = JSON.stringify(data)
+
+            channel.assertQueue(queue);
+
+            console.log("-- INVIANDO MESSAGGIO '%s' ALLA CODA %s --", msg, queue);
+
+            channel.sendToQueue(queue, Buffer.from(msg));
+
+            console.log("-- HO INVIATO IL MESSAGGIO --");
+          });
+
+
+        setTimeout(function() { //importante mettere il timeout perchè altrimenti la connessione si chiude
+            connection.close(); // prima di riuscire a passare il msg
+        }, 500);
+        res.render('feedback', {inviato : true})
+        feedbackposting=false;
     });
-
+  }
+})
   })
 }
 
