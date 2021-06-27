@@ -24,13 +24,15 @@ L'applicazione richiede i seguenti servizi:
 - OpenWeatherMap API: Per ottenere il meteo giornaliero di un certo punto d'interesse;
 - HERE API: Per ottenere la mappa del punto d'interesse;
 - OpenTripMap API: Principale API del servizio, ci permette di ottenere luoghi e dettagli di luoghi;
+  - Le 3 tecnologie sopra citate soddisfano il requisito n°2;
 - Google Photos: Per caricare foto nelle recensioni o nei feedback (con accesso Oauth);
-  - Soddisfa il requisito n°3 e insieme alle altre 3 tecnologie sopra il requisito n°2;;
+  - Soddisfa il requisito n°3 e 4.
 - Facebook: Per accesso al servizio con Oauth e condividere post;
   - Soddisfa il requisito n°4.
 - RabbitMQ: Per inviare feedback al feedback consumer;
   - Soddisfa il requisito n°5.
 - Web Socket: Logging;
+  - Soddisfa il requisito n°5.
 - CouchDB: Data storage;
 - OpenSSL: Per ottenere una connessione sicura con https.
 
@@ -45,14 +47,8 @@ Link API usate:
 ![schema](https://user-images.githubusercontent.com/80718809/123552915-d1bffe00-d778-11eb-82da-a587dd4e50b3.jpg)
 
 ## Istruzioni per l'installazione
-*!!DA VEDERE SE LASCIARE!!*
-
-**NOTA BENE:** La procedura d'installazione è specifica per macchine con sistema operativo Windows.
-Visitare il sito di [Apache CouchDB](https://couchdb.apache.org/), effettuare il download e seguire le procedure d'installazione. Una volta completata l'installazione accedere al servizio digitando in un browser o cliccando su questo link: http://127.0.0.1:5984/_utils. Accedere con username 'admin' e password 'admin' e creare tre database con questi nomi: users, reviews e cities.
-
-*!!DA VEDERE SE LASCIARE!!*
-
-Installare Docker Desktop cliccando su https://www.docker.com/products/docker-desktop e NodeJS su https://nodejs.org/it/download.
+WINDOWS: Installare Docker Desktop cliccando su https://www.docker.com/products/docker-desktop e NodeJS su https://nodejs.org/it/download.
+UBUNTU: Aprire un terminale ed eseguire sudo apt install docker e sudo apt install nodejs.
 Una volta completati questi passaggi possiamo passare alla configurazione del servizio **PlaceAdvisor** (si assume che sia stato installato Git):
 Apriamo il terminale ed eseguiamo i seguenti comandi:
 ```
@@ -60,31 +56,36 @@ $ git clone https://github.com/manualex98/PlaceAdvisor.git
 $ cd PlaceAdvisor
 $ npm install
 $ npm start
-$ sudo docker-compose up -d
+```
+Aprire un secondo terminale per avviare un docker container con l'immagine di CouchDB:
+```
+$ sudo docker run -d --name couchdb -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=admin couchdb
 $ sudo docker container ps  //selezionare l'id del container di couchdb
 $ sudo docker exec -it <container-name> /bin/bash
 $ curl -X PUT http://admin:admin@127.0.0.1:5984/users
 $ curl -X PUT http://admin:admin@127.0.0.1:5984/cities
 $ curl -X PUT http://admin:admin@127.0.0.1:5984/reviews
+$ exit
 
 ```
-Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accedibile cliccando su https://localhost:8000, però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
-Apriamo un altro terminale per far funzionare il feedback service consumer implementato con RabbitMQ
+Aprire un terzo terminale per avviare un docker container con l'immagine Rabbit MQ:
+```
+$ docker run --name rabbitmq -p 5672:5672 rabbitmq
+
+```
+Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accessibile cliccando su https://localhost:8000, però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
+Aprire un quarto terminale per far funzionare il feedback service consumer implementato con RabbitMQ
 ```
 $ cd PlaceAdvisor
-$ docker run --name rabbitmq -p 5672:5672 rabbitmq
 $ node feedback_consumer.js
 ```
 Ora non rimane che andare su https://localhost:8000 e godersi il servizio!
-Per far funzionare anche il feedback
-```
-$ sudo docker container ps 
-$ sudo docker exec -it <container-name> /bin/bash
-$ node feedback_consumer.js
-```
+
 Per chiudere tutto:
 ```
-$ sudo docker-compose down --remove 
+$ sudo docker ps  
+$ sudo docker rm <couchdb-container>
+$ sudo docker rm <rabbitmq-container>
 ```
 
 
@@ -94,12 +95,14 @@ Per effettuare un test loggarsi con le seguenti credenziali Facebook:
 email: 	test_zreyrfg_user@tfbnw.net
 password: Passtest1
 
-Questo utente è uno user test creato direttamente da Facebook for Developers. Una volta effettuato l'accesso e accettato le condizioni si verrà reindirizzati a una pagina che chiederà un username, una volta scelto si arriverà alla Homepage della nostra applicazione. 
-- Cliccando su *Il tuo Profilo* verranno visualizzate le informazioni di base e le recensioni/feedback effettuati. 
-- Nella Homepage è presente una form per cercare dei punti d'interesse, inserendo la città (non è case sensitive), una categoria e il raggio limite di distanza da un punto d'interesse all'altro. Avremo come risultato i primi 100 riscontri con sotto ognuno un link che cliccato porta alla pagina dei dettagli del riscontro.
-  - Cliccando su 'dettagli' otterremo una pagina dettagliata del luogo con una form in cui possiamo aggiungere una recensione con testo e/o foto e cliccando 'Aggiungi' verrà ricaricata la pagina e vedremo aggiunta la nostra recensione che sarà visibile agli altri utenti del sito.
+Questo utente è uno user test creato direttamente da Facebook for Developers. 
 
-- Nella Homepage cliccando su *Inviaci un feedback* si aprirà una form in cui si può inviare il feedback con testo e/o foto
-- Tornando su *Il tuo profilo* possiamo vedere che sono state aggiunte le info sulla recensione ed il feedback effettuato. Lanciando il feedback_consumer.js processiamo i feedback e su *Il tuo Profilo* risulteranno letti.
+-Il primo punto è quello di connettersi alla pagine https://localhost:8000/
+-Una volta eseguito l'accesso e accettato le condizioni si verrà reindirizzati a una pagina che ci chiederà di scegliere un username. Una volta scelto, se questo sarà disponibile, si verrà reindirizzati alla Homepage con response status code 200 e verrà inoltre creato e firmato un jwt e un refresh jwt che verranno settati nei cookie, altrimenti verrà chiesto di scegliere un altro username. 
+- Cliccando su *Il tuo Profilo* verranno visualizzate le informazioni di base e le recensioni/feedback effettuati. 
+- Nella Homepage è presente una form per cercare dei punti d'interesse, inserendo la città (non è case sensitive), una categoria e il raggio limite di distanza da un punto d'interesse all'altro. Verremo dunque reindirizzati alla pagina /app che ci restituirà i primi 100 luoghi di interesse, ognuno dei quali ha un bottone 'dettagli'.
+  - Cliccando su 'dettagli' verremo reindirizzati ad una pagina dettagliata del luogo (/details?xid=...). Avremo modo, quindi, di visualizzare l'immagine del luogo, un piccolo paragrafo di Wikipedia, l'indirizzo, il meteo in quel momento nella acittà in cui si trova il luogo, e tutte le recensioni effettuate dagli utenti su quel luogo. Sarà inoltre disponibile un form in cui si potrà aggiungere una recensione con testo e/o foto. Una volta inserito il testo e/o aver selezionato una foto), cliccando 'Aggiungi' verrà effettuata una POST su /review, che eseguirà il caricamento della recensione nel documento dei db User e Reviews. Verremo dunque reindirizzati alla precedente pagina (/details?xid=...) dove avremo modo di vedere la nostra nuova recensione che sarà visibile anche agli altri utenti del sito.
+- Nella Homepage cliccando su *Inviaci un feedback* si aprirà una form in cui si può inviare il feedback con testo e/o foto.
+- Una volta inviato il feedback, avremo modo anche di visualizzare dalla nostra pagina personale (/info) se il feedback sia stato letto o no.
 
 
