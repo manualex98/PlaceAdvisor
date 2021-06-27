@@ -31,7 +31,7 @@ app.set('views', __dirname + '/views');
 
 
 //Funzione di middleware per l'autenticazione
-
+//According to RFC, it's best to rotate or invalidate refresh token
 function authenticateToken(req, res, next) {
   const token = req.signedCookies.jwt
 
@@ -119,7 +119,8 @@ wss.on('connection', function connection(ws) {
   });
 });
 
-var codice;
+
+//************************INIZIO DOCUMENTAZIONE************************//
 
 /**
  * @swagger
@@ -129,22 +130,26 @@ var codice;
  *      type: oauth2
  *      flows:
  *        authorizationCode:
- *          authorizationUrl: http://localhost:8000/googlelogin
- *          tokenUrl: http://localhost:8000/gtoken
+ *          authorizationUrl: https://localhost:8000/googlelogin
+ *          tokenUrl: https://localhost:8000/gtoken
  *          scopes: 
  *            photoslibrary.readonly: Grant read-only access to all your photos
  *    facebookOAuth:
  *      type: oauth2
  *      flows:
  *        authorizationCode:
- *          authorizationUrl: http://localhost:8000/facebooklogin
- *          tokenUrl: http://localhost:8000/ftoken
+ *          authorizationUrl: https://localhost:8000/facebooklogin
+ *          tokenUrl: https://localhost:8000/ftoken
  *          scopes: {}
  *    fbcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
  *      type: apiKey
  *      in: cookie
  *      name: fbaccess_token 
- *    gcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
+ *    GoogleAccessToken:         # arbitrary name for the security scheme; will be used in the "security" key later
+ *      type: apiKey
+ *      in: cookie
+ *      name: googleaccess_token
+ *    GoogleIdToken:
  *      type: apiKey
  *      in: cookie
  *      name: googleaccess_token
@@ -253,7 +258,14 @@ var codice;
  *          - text: Non mi piace per niente
  *          - read: true
  *          - photo: 
- *        
+ *    Ricerca: 
+ *      properties:
+ *        Città:
+ *          type: string
+ *        Categoria:
+ *          type: string
+ *        Raggio:
+ *          type: float    
  *   
  *  
  */
@@ -281,34 +293,18 @@ var codice;
  *              example: Accedi con Facebook
  *      responses:
  *        200:
- *          description: ok
+ *          description: >
+ *            Successfully authenticated.
+ *            The session ID is returned in a cookie named `JSESSIONID`. You need to include this cookie in subsequent requests.
  *          headers: 
  *          Set-Cookie:
  *            schema: 
  *              type: string
- *              example: JSESSIONID=abcde12345; Path=/; HttpOnly
+ *              example: jwt=abcde12345; Path=/; HttpOnly
  * 
  *  /homepage:
  *    get:
  *      tags: [Callback]
- *      parameters:
- *        - in: query
- *          name: code
- *          schema:
- *            type: string
- *            description: Authentication Code ricevuto da Google/Fb
- *      security:
- *        - fbcookieAuth: []
- *      responses:
- *        200: 
- *          description: HTML HOMEPAGE
- *        403:
- *          description: Error 403. User not authenticated
- * 
- * 
- *  /home:
- *    get:
- *      tags: [Home]
  *      parameters:
  *        - in: query
  *          name: code
@@ -322,7 +318,6 @@ var codice;
  *          description: HTML HOMEPAGE
  *        403:
  *          description: Error 403. User not authenticated
- * 
  *  /gtoken:
  *    get:
  *      tags: [Google OAuth]
@@ -336,6 +331,11 @@ var codice;
  *      responses:
  *        200:
  *          description: HTML token page
+ *          headers: 
+ *            Set-Cookie:
+ *              schema: 
+ *                type: string
+ *                example: googleaccess_token=abcde12345, gid_token; Path=/; HttpOnly
  *        404:
  *          description: Invalid Grant, malformed auth code.
  * 
@@ -362,9 +362,23 @@ var codice;
  *        200:
  *          description: reindirizza alla homepage
  * 
+ * 
+ *  /home:
+ *    get:
+ *      tags: [Home]
+ *      security:
+ *        - JWT: []
+ *      responses:
+ *        200: 
+ *          description: HTML HOMEPAGE
+ *        403:
+ *          description: Error 403. User not authenticated
+ * 
  *  /info:
  *    get:
- *      tags: [User]
+ *      tags: [Home]
+ *      security:
+ *        - JWT: []
  *      responses:
  *        200:
  *          description: HTML user_info
@@ -378,16 +392,9 @@ var codice;
  *        200:
  *          description: restituisce la pagina signup.ejs
  * 
- *  /fsignup:
- *    get:
- *      tags: [Facebook OAuth]
- *      responses:
- *        200:
- *          description: reindirizza alla homepage
- * 
  *  /city_info:
  *    get:
- *      tags: [City info]
+ *      tags: [Home]
  *      responses:
  *        200:
  *          description: restituisce la pagina city_stat.ejs
@@ -418,7 +425,9 @@ var codice;
  *            type: float
  *          required: true
  *          description: Raggio
- *      tags : [API]
+ *      security:
+ *        - JWT: []
+ *      tags : [APIs]
  *      responses:
  *        200:
  *          description: Restituisce tutti i posti appartenenti alla categoria 'cate' che si trovano nel raggio 'rad' rispetto alla longitudine 'lon' e latitudine 'lat'
@@ -426,24 +435,24 @@ var codice;
  *          description: Error
  *  /openmap:
  *    post:
- *      tags: [Open Trip Map]
+ *      tags: [APIs]
  *      requestBody:
  *        required: true
  *        content:
  *          application/x-www-form-urlencoded:
- *            schema:
- *              type: object
- *              properties:
- *                sub:       
- *                  type: string
- *              example: 
+ *          schema:
+ *            $ref: '#/components/schemas/Ricerca' 
+ *      security:
+ *        - JWT: []
  *      responses:
  *        200:
  *          description:
  *    
  *  /details:
  *    get:
- *      tags: [Details]
+ *      security:
+ *        - JWT: []
+ *      tags: [APIs]
  *      responses:
  *        200:
  *          description: restituisce la pagina details
@@ -452,8 +461,9 @@ var codice;
  * 
  *  /googlephotosapi:
  *    get:
- *      tags: [Google photo]
+ *      tags: [APIs]
  *      security:
+ *        - JWT: []
  *        - gcookieAuth: []
  *        - gidcookieAuth: []
  *      responses:
@@ -464,14 +474,14 @@ var codice;
  * 
  *  /logout:
  *    get:
- *      tags: [Logout]
+ *      tags: [Home]
  *      responses:
  *        200:
  *          description: restituisce la pagina logout.ejs
  *        404: 
  *          description: Error
  *    post:
- *      tags: [Logout]
+ *      tags: [Home]
  *      requestBody:
  *        required: true
  *        content:
@@ -488,17 +498,28 @@ var codice;
  * 
  *  /reviews:
  *    post:
+ *      summary: Posta una recensione
  *      tags: [Reviews]
+ *      security:
+ *        - JWT: []
  *      requestBody:
  *        required: true
  *        content:
  *          application/x-www-form-urlencoded:
  *            schema:
- *              type: object
  *              properties:
- *                sub:       
- *                  type: 
- *              example: 
+ *                xid:
+ *                  type: string
+ *                  description: Codice luogo
+ *                name:
+ *                  type: string
+ *                  description: Username
+ *                text:   
+ *                  type: string
+ *                photo:
+ *                  type: string
+ *                  format: byte
+ *            
  *      responses:
  *        200:
  *          description: permette di creare o aggiornare una recensione
@@ -575,6 +596,8 @@ var codice;
  */
 
 
+//*****************************FINE DOCUMENTAZIONE*******************************/
+
 
 app.get('/', function (req,res){
   console.log(JSON.stringify(req.signedCookies))
@@ -593,7 +616,7 @@ app.post('/',function (req,res){
 
 app.post('/userinfo', authenticateToken, function(req,res){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+req.token.info.info.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -622,7 +645,7 @@ let check;
 
 function gestisciAccessoLocale(req,res){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.body.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+req.body.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -670,7 +693,7 @@ function newUser(req,res){
   };
   
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.body.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+req.body.email,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -850,7 +873,7 @@ app.get('/fb_pre_access',function (req,res){
       const fbinfo=parsed
       //CONTROLLO SE ESISTE L'UTENTE NEL DB
       request({
-        url: 'http://admin:admin@127.0.0.1:5984/users/'+fbinfo.email,
+        url: 'http://admin:admin@couchdb:5984/users/'+fbinfo.email,
         method: 'GET',
         headers: {
           'content-type': 'application/json'
@@ -947,7 +970,7 @@ app.post('/fbsignup', authenticateToken, function (req,res){
 };
 console.log(body1)
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+payload.info.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+payload.info.email,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -1006,7 +1029,7 @@ app.get('/info', authenticateToken, function(req, res){
   if(payload.info) email=payload.info.email
   else email = payload.email
   
-  request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
+  request.get('http://admin:admin@couchdb:5984/users/'+email, function callback(error, response, body){
     var data = JSON.parse(body)
     res.render('user_info', {data: data});
   })
@@ -1037,7 +1060,7 @@ app.post('/openmap', authenticateToken, function(req,res){
 
 
 function checkCity(city){               //funzione che esegue un check all'interno del db cities per vedere se esiste un doc col nome della città 'city'
-  request.get('http://admin:admin@127.0.0.1:5984/cities/'+city, function callback(error, response, body){
+  request.get('http://admin:admin@couchdb:5984/cities/'+city, function callback(error, response, body){
     var data = JSON.parse(body)
       if(data.error){
         newRegisterCity(city)
@@ -1052,7 +1075,7 @@ function newRegisterCity(city){         //funzione che salva una nuova città
           "search": 1
         }
     request({
-          url: 'http://admin:admin@127.0.0.1:5984/cities/'+city,
+          url: 'http://admin:admin@couchdb:5984/cities/'+city,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1073,7 +1096,7 @@ function newRegisterCity(city){         //funzione che salva una nuova città
 function updateRegisterCity(city,data){             //funzione che aggiorna il numero di ricerche di una città
   data.search+=1
   request({
-          url: 'http://admin:admin@127.0.0.1:5984/cities/'+city,
+          url: 'http://admin:admin@couchdb:5984/cities/'+city,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1092,7 +1115,7 @@ function updateRegisterCity(city,data){             //funzione che aggiorna il n
 
 app.get('/city_info', authenticateToken, function(req,res){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/cities/_all_docs?include_docs=true&limit=100',
+    url: 'http://admin:admin@couchdb:5984/cities/_all_docs?include_docs=true&limit=100',
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1182,7 +1205,7 @@ app.get('/details', authenticateToken, function(req,res){
     lat = info.point.lat
     lon= info.point.lat
     console.log('\r\n'+place_name+'\r\n')
-    request.get('http://admin:admin@127.0.0.1:5984/reviews/'+xid, function callback(error, response, body){
+    request.get('http://admin:admin@couchdb:5984/reviews/'+xid, function callback(error, response, body){
       if(error) {
         console.log(error);
         res.status(404).render('/error?statusCode=404')
@@ -1327,7 +1350,7 @@ app.post('/logout', function(req,res){
 app.post('/reviews', authenticateToken, function(req,res){
   codice = Date.now();
   photo = req.body.baseUrl;
-  request.get('http://admin:admin@127.0.0.1:5984/reviews/'+req.body.xid, function callback(error, response, body){
+  request.get('http://admin:admin@couchdb:5984/reviews/'+req.body.xid, function callback(error, response, body){
     if(error) {
       console.log(error);
       res.status(404).render('/error?statusCode=404')
@@ -1370,7 +1393,7 @@ app.post('/elimina', authenticateToken, function(req,res){
 
 function updateUserReviews(req,res, codice){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+    url: 'http://admin:admin@couchdb:5984/users/'+req.token.info.info.email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1403,7 +1426,7 @@ function updateUserReviews(req,res, codice){
               }
               info.reviews.push(item)
               request({
-              url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+              url: 'http://admin:admin@couchdb:5984/users/'+req.token.info.info.email,
               method: 'PUT',
               headers: {
                 'content-type': 'application/json'
@@ -1436,7 +1459,7 @@ function updateUserReviews(req,res, codice){
         
           info.reviews.push(item)
           request({
-            url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
+            url: 'http://admin:admin@couchdb:5984/users/'+req.token.info.info.email,
             method: 'PUT',
             headers: {
               'content-type': 'application/json'
@@ -1480,7 +1503,7 @@ function newReview(req,res, codice){
               ]
             }
             request({
-              url: 'http://admin:admin@127.0.0.1:5984/reviews/'+ xid,
+              url: 'http://admin:admin@couchdb:5984/reviews/'+ xid,
               method: 'PUT',
               headers: {
                 'content-type': 'application/json'
@@ -1518,7 +1541,7 @@ function newReview(req,res, codice){
 
 
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+    url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -1561,7 +1584,7 @@ function updateReview(req,res,codice){
         infodb.reviews.push(newItem);
 
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+          url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1598,7 +1621,7 @@ function updateReview(req,res,codice){
   infodb.reviews.push(newItem);
 
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+    url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
     method: 'PUT',
     headers: {
       'content-type': 'application/json'
@@ -1618,7 +1641,7 @@ res.redirect('/details?xid='+xid);
 
 function deletereviewfromUser(num, email){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+    url: 'http://admin:admin@couchdb:5984/users/'+email,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1636,7 +1659,7 @@ function deletereviewfromUser(num, email){
           } 
         }}
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+          url: 'http://admin:admin@couchdb:5984/users/'+email,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1657,7 +1680,7 @@ function deletereviewfromUser(num, email){
 
 function deletereviewfromCity(codice, xid){
   request({
-    url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+    url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
     method: 'GET',
     headers: {
       'content-type': 'application/json'
@@ -1674,7 +1697,7 @@ function deletereviewfromCity(codice, xid){
           } 
         }
         request({
-          url: 'http://admin:admin@127.0.0.1:5984/reviews/'+xid,
+          url: 'http://admin:admin@couchdb:5984/reviews/'+xid,
           method: 'PUT',
           headers: {
             'content-type': 'application/json'
@@ -1772,9 +1795,8 @@ app.post('/feedback', authenticateToken, function(req, res){
 
 
 function updateFeedback(data,res){
-  email=
   email=data.email.replace('\u0040', '@');
-  request.get('http://admin:admin@127.0.0.1:5984/users/'+email, function callback(error, response, body){
+  request.get('http://admin:admin@couchdb:5984/users/'+email, function callback(error, response, body){
 
     var db = JSON.parse(body)
     newItem = {
@@ -1787,7 +1809,7 @@ function updateFeedback(data,res){
     db.feedbacks.push(newItem);
 
     request({
-      url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
+      url: 'http://admin:admin@couchdb:5984/users/'+email,
       method: 'PUT',
       headers: {
         'content-type': 'application/json'
@@ -1799,28 +1821,41 @@ function updateFeedback(data,res){
         console.log(error);
       } else {
         console.log(response.statusCode, body);
-        connect();
-        async function connect() {
+         
+        amqp.connect('amqp://localhost:5672', function(error0, connection) {
+          if (error0) {
+            //throw error0; 
+            console.log("Sistema di feedback non funziona " + error0.toString());
+            return;
+         }
 
-          try {
-            
-            const connection = await amqp.connect("amqp://localhost:5672")
-            const channel = await connection.createChannel();
-            const result = channel.assertQueue("feedback")
-            channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
-            console.log('Feedback sent succefully')
-            //console.log(data)
-            
-            res.render('feedback', {inviato : true})
-            feedbackposting=false;
-          }
-          catch(error){
-            console.error(error);
-          }
-        }
-      }
+          connection.createChannel(function(error1, channel) {
+            if (error1) {
+                console.log("Sistema di feedback non funziona " + error0.toString());
+                return;
+            }
+
+            var queue = 'feedback';
+            var msg = JSON.stringify(data)
+
+            channel.assertQueue(queue);
+
+            console.log("-- INVIANDO MESSAGGIO '%s' ALLA CODA %s --", msg, queue);
+
+            channel.sendToQueue(queue, Buffer.from(msg));
+
+            console.log("-- HO INVIATO IL MESSAGGIO --");
+          });
+
+
+        setTimeout(function() { //importante mettere il timeout perchè altrimenti la connessione si chiude
+            connection.close(); // prima di riuscire a passare il msg
+        }, 500);
+        res.render('feedback', {inviato : true})
+        feedbackposting=false;
     });
-
+  }
+})
   })
 }
 

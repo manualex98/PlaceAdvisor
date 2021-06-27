@@ -4,6 +4,10 @@ Studenti: Alessi Manuel e Fortunato Francesco
 
 ## Scopo del progetto
 La nostra web application **PlaceAdvisor** nasce con l'idea di facilitare la ricerca di punti d'interesse in una determinata zona o città. Un utente dopo aver ottenuto tutte le informazioni utili su un punto d'interesse (indirizzo, mappa, cenni storici e molto altro) può anche visuallizare le recensioni degli altri utenti ed eventualmente aggiurnene una propria.
+## Configuration
+L'applicazione richiede i seguenti servizi:
+* CouchDB all'indirizzo localhost:5984;   //sudo docker run -d --name couchdb -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=admin couchdb
+* RabbitMQ all'indirizzo localhost:5672;  //docker run --name rabbitmq -p 5672:5672 rabbitmq
 
 ## Architettura di riferimento e tecnologie usate
 
@@ -38,8 +42,11 @@ Link API usate:
 - OpenWeatherMap API: https://openweathermap.org/current
 
 ## Istruzioni per l'installazione
+*!!DA VEDERE SE LASCIARE!*
 **NOTA BENE:** La procedura d'installazione è specifica per macchine con sistema operativo Windows.
 Visitare il sito di [Apache CouchDB](https://couchdb.apache.org/), effettuare il download e seguire le procedure d'installazione. Una volta completata l'installazione accedere al servizio digitando in un browser o cliccando su questo link: http://127.0.0.1:5984/_utils. Accedere con username 'admin' e password 'admin' e creare tre database con questi nomi: users, reviews e cities.
+
+*!!DA VEDERE SE LASCIARE!!*
 
 Installare Docker Desktop cliccando su https://www.docker.com/products/docker-desktop e NodeJS su https://nodejs.org/it/download.
 Una volta completati questi passaggi possiamo passare alla configurazione del servizio **PlaceAdvisor** (si assume che sia stato installato Git):
@@ -49,6 +56,13 @@ $ git clone https://github.com/manualex98/PlaceAdvisor.git
 $ cd PlaceAdvisor
 $ npm install
 $ npm start
+$ sudo docker-compose up -d
+$ sudo docker container ps  //selezionare l'id del container di couchdb
+$ sudo docker exec -it <container-name> /bin/bash
+$ curl -X PUT http://admin:admin@127.0.0.1:5984/users
+$ curl -X PUT http://admin:admin@127.0.0.1:5984/cities
+$ curl -X PUT http://admin:admin@127.0.0.1:5984/reviews
+
 ```
 Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accedibile cliccando su https://localhost:8000, però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
 Apriamo un altro terminale per far funzionare il feedback service consumer implementato con RabbitMQ
@@ -58,6 +72,18 @@ $ docker run --name rabbitmq -p 5672:5672 rabbitmq
 $ node feedback_consumer.js
 ```
 Ora non rimane che andare su https://localhost:8000 e godersi il servizio!
+Per far funzionare anche il feedback
+```
+$ sudo docker container ps 
+$ sudo docker exec -it <container-name> /bin/bash
+$ node feedback_consumer.js
+```
+Per chiudere tutto:
+```
+$ sudo docker-compose down --remove 
+```
+
+
 
 ## Istruzioni per il test
 Per effettuare un test loggarsi con le seguenti credenziali Facebook:
