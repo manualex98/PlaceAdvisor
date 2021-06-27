@@ -31,7 +31,7 @@ app.set('views', __dirname + '/views');
 
 
 //Funzione di middleware per l'autenticazione
-
+//According to RFC, it's best to rotate or invalidate refresh token
 function authenticateToken(req, res, next) {
   const token = req.signedCookies.jwt
 
@@ -119,7 +119,8 @@ wss.on('connection', function connection(ws) {
   });
 });
 
-var codice;
+
+//************************INIZIO DOCUMENTAZIONE************************//
 
 /**
  * @swagger
@@ -129,22 +130,26 @@ var codice;
  *      type: oauth2
  *      flows:
  *        authorizationCode:
- *          authorizationUrl: http://localhost:8000/googlelogin
- *          tokenUrl: http://localhost:8000/gtoken
+ *          authorizationUrl: https://localhost:8000/googlelogin
+ *          tokenUrl: https://localhost:8000/gtoken
  *          scopes: 
  *            photoslibrary.readonly: Grant read-only access to all your photos
  *    facebookOAuth:
  *      type: oauth2
  *      flows:
  *        authorizationCode:
- *          authorizationUrl: http://localhost:8000/facebooklogin
- *          tokenUrl: http://localhost:8000/ftoken
+ *          authorizationUrl: https://localhost:8000/facebooklogin
+ *          tokenUrl: https://localhost:8000/ftoken
  *          scopes: {}
  *    fbcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
  *      type: apiKey
  *      in: cookie
  *      name: fbaccess_token 
- *    gcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
+ *    GoogleAccessToken:         # arbitrary name for the security scheme; will be used in the "security" key later
+ *      type: apiKey
+ *      in: cookie
+ *      name: googleaccess_token
+ *    GoogleIdToken:
  *      type: apiKey
  *      in: cookie
  *      name: googleaccess_token
@@ -253,7 +258,14 @@ var codice;
  *          - text: Non mi piace per niente
  *          - read: true
  *          - photo: 
- *        
+ *    Ricerca: 
+ *      properties:
+ *        Città:
+ *          type: string
+ *        Categoria:
+ *          type: string
+ *        Raggio:
+ *          type: float    
  *   
  *  
  */
@@ -281,34 +293,18 @@ var codice;
  *              example: Accedi con Facebook
  *      responses:
  *        200:
- *          description: ok
+ *          description: >
+ *            Successfully authenticated.
+ *            The session ID is returned in a cookie named `JSESSIONID`. You need to include this cookie in subsequent requests.
  *          headers: 
  *          Set-Cookie:
  *            schema: 
  *              type: string
- *              example: JSESSIONID=abcde12345; Path=/; HttpOnly
+ *              example: jwt=abcde12345; Path=/; HttpOnly
  * 
  *  /homepage:
  *    get:
  *      tags: [Callback]
- *      parameters:
- *        - in: query
- *          name: code
- *          schema:
- *            type: string
- *            description: Authentication Code ricevuto da Google/Fb
- *      security:
- *        - fbcookieAuth: []
- *      responses:
- *        200: 
- *          description: HTML HOMEPAGE
- *        403:
- *          description: Error 403. User not authenticated
- * 
- * 
- *  /home:
- *    get:
- *      tags: [Home]
  *      parameters:
  *        - in: query
  *          name: code
@@ -322,7 +318,6 @@ var codice;
  *          description: HTML HOMEPAGE
  *        403:
  *          description: Error 403. User not authenticated
- * 
  *  /gtoken:
  *    get:
  *      tags: [Google OAuth]
@@ -336,6 +331,11 @@ var codice;
  *      responses:
  *        200:
  *          description: HTML token page
+ *          headers: 
+ *            Set-Cookie:
+ *              schema: 
+ *                type: string
+ *                example: googleaccess_token=abcde12345, gid_token; Path=/; HttpOnly
  *        404:
  *          description: Invalid Grant, malformed auth code.
  * 
@@ -362,9 +362,23 @@ var codice;
  *        200:
  *          description: reindirizza alla homepage
  * 
+ * 
+ *  /home:
+ *    get:
+ *      tags: [Home]
+ *      security:
+ *        - JWT: []
+ *      responses:
+ *        200: 
+ *          description: HTML HOMEPAGE
+ *        403:
+ *          description: Error 403. User not authenticated
+ * 
  *  /info:
  *    get:
- *      tags: [User]
+ *      tags: [Home]
+ *      security:
+ *        - JWT: []
  *      responses:
  *        200:
  *          description: HTML user_info
@@ -378,16 +392,9 @@ var codice;
  *        200:
  *          description: restituisce la pagina signup.ejs
  * 
- *  /fsignup:
- *    get:
- *      tags: [Facebook OAuth]
- *      responses:
- *        200:
- *          description: reindirizza alla homepage
- * 
  *  /city_info:
  *    get:
- *      tags: [City info]
+ *      tags: [Home]
  *      responses:
  *        200:
  *          description: restituisce la pagina city_stat.ejs
@@ -418,7 +425,9 @@ var codice;
  *            type: float
  *          required: true
  *          description: Raggio
- *      tags : [API]
+ *      security:
+ *        - JWT: []
+ *      tags : [APIs]
  *      responses:
  *        200:
  *          description: Restituisce tutti i posti appartenenti alla categoria 'cate' che si trovano nel raggio 'rad' rispetto alla longitudine 'lon' e latitudine 'lat'
@@ -426,24 +435,24 @@ var codice;
  *          description: Error
  *  /openmap:
  *    post:
- *      tags: [Open Trip Map]
+ *      tags: [APIs]
  *      requestBody:
  *        required: true
  *        content:
  *          application/x-www-form-urlencoded:
- *            schema:
- *              type: object
- *              properties:
- *                sub:       
- *                  type: string
- *              example: 
+ *          schema:
+ *            $ref: '#/components/schemas/Ricerca' 
+ *      security:
+ *        - JWT: []
  *      responses:
  *        200:
  *          description:
  *    
  *  /details:
  *    get:
- *      tags: [Details]
+ *      security:
+ *        - JWT: []
+ *      tags: [APIs]
  *      responses:
  *        200:
  *          description: restituisce la pagina details
@@ -452,8 +461,9 @@ var codice;
  * 
  *  /googlephotosapi:
  *    get:
- *      tags: [Google photo]
+ *      tags: [APIs]
  *      security:
+ *        - JWT: []
  *        - gcookieAuth: []
  *        - gidcookieAuth: []
  *      responses:
@@ -464,14 +474,14 @@ var codice;
  * 
  *  /logout:
  *    get:
- *      tags: [Logout]
+ *      tags: [Home]
  *      responses:
  *        200:
  *          description: restituisce la pagina logout.ejs
  *        404: 
  *          description: Error
  *    post:
- *      tags: [Logout]
+ *      tags: [Home]
  *      requestBody:
  *        required: true
  *        content:
@@ -488,17 +498,28 @@ var codice;
  * 
  *  /reviews:
  *    post:
+ *      summary: Posta una recensione
  *      tags: [Reviews]
+ *      security:
+ *        - JWT: []
  *      requestBody:
  *        required: true
  *        content:
  *          application/x-www-form-urlencoded:
  *            schema:
- *              type: object
  *              properties:
- *                sub:       
- *                  type: 
- *              example: 
+ *                xid:
+ *                  type: string
+ *                  description: Codice luogo
+ *                name:
+ *                  type: string
+ *                  description: Username
+ *                text:   
+ *                  type: string
+ *                photo:
+ *                  type: string
+ *                  format: byte
+ *            
  *      responses:
  *        200:
  *          description: permette di creare o aggiornare una recensione
@@ -574,6 +595,8 @@ var codice;
  *  
  */
 
+
+//*****************************FINE DOCUMENTAZIONE*******************************/
 
 
 app.get('/', function (req,res){
