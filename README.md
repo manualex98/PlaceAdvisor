@@ -4,10 +4,6 @@ Studenti: Alessi Manuel e Fortunato Francesco
 
 ## Scopo del progetto
 La nostra web application **PlaceAdvisor** nasce con l'idea di facilitare la ricerca di punti d'interesse in una determinata zona o città. Un utente dopo aver ottenuto tutte le informazioni utili su un punto d'interesse (indirizzo, mappa, cenni storici e molto altro) può anche visuallizare le recensioni degli altri utenti ed eventualmente aggiurnene una propria.
-## Configuration
-L'applicazione richiede i seguenti servizi:
-* CouchDB all'indirizzo localhost:5984;   //sudo docker run -d --name couchdb -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=admin couchdb
-* RabbitMQ all'indirizzo localhost:5672;  //docker run --name rabbitmq -p 5672:5672 rabbitmq
 
 ## Architettura di riferimento e tecnologie usate
 
@@ -48,8 +44,9 @@ Link API usate:
 
 
 ## Istruzioni per l'installazione
-WINDOWS: Installare Docker Desktop cliccando su https://www.docker.com/products/docker-desktop e NodeJS su https://nodejs.org/it/download.
-UBUNTU: Aprire un terminale ed eseguire sudo apt install docker e sudo apt install nodejs.
+<ins>WINDOWS</ins>: Installare Docker Desktop cliccando su https://www.docker.com/products/docker-desktop e NodeJS su https://nodejs.org/it/download.
+
+<ins>UBUNTU</ins>: Aprire un terminale ed eseguire sudo apt install docker e sudo apt install nodejs.
 Una volta completati questi passaggi possiamo passare alla configurazione del servizio **PlaceAdvisor** (si assume che sia stato installato Git):
 Apriamo il terminale ed eseguiamo i seguenti comandi:
 ```
@@ -69,15 +66,11 @@ $ curl -X PUT http://admin:admin@127.0.0.1:5984/reviews
 $ exit
 
 ```
-Aprire un terzo terminale per avviare un docker container con l'immagine Rabbit MQ:
-```
-$ docker run --name rabbitmq -p 5672:5672 rabbitmq
-
-```
-Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accessibile cliccando ![qui](https://localhost:8000), però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
-Aprire un quarto terminale per far funzionare il feedback service consumer implementato con RabbitMQ
+Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accessibile cliccando [qui](https://localhost:8000), però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
+Aprire il terminale per far funzionare il feedback service consumer implementato con RabbitMQ ed eseguire:
 ```
 $ cd PlaceAdvisor
+$ docker run --name rabbitmq -p 5672:5672 rabbitmq
 $ node feedback_consumer.js
 ```
 Ora non rimane che andare su https://localhost:8000 e godersi il servizio!
@@ -93,21 +86,29 @@ $ sudo docker rm <rabbitmq-container>
 
 ## Istruzioni per il test
 Per effettuare un test loggarsi con le seguenti credenziali Facebook:
+
 email: 	test_zreyrfg_user@tfbnw.net
+
 password: Passtest1
 
 Questo utente è uno user test creato direttamente da Facebook for Developers. 
 
 
--Il primo punto è quello di connettersi alla pagina https://localhost:8000/. Verrà visualizzata la pagina di accesso: ![Homepage](https://user-images.githubusercontent.com/50673340/123555442-04242800-d786-11eb-8b37-991b34499ddf.png)
+-Il primo punto è quello di connettersi alla pagina https://localhost:8000/. Verrà visualizzata la pagina di accesso: 
 
--Una volta eseguito l'accesso e accettato le condizioni si verrà reindirizzati a una pagina che ci chiederà di scegliere un username. ![Fbsignup](https://user-images.githubusercontent.com/50673340/123555763-05eeeb00-d788-11eb-8a86-eb78eaf23b02.png)
+![Homepage](https://user-images.githubusercontent.com/50673340/123555442-04242800-d786-11eb-8b37-991b34499ddf.png)
 
--Una volta scelto, se questo sarà disponibile, si verrà reindirizzati alla Homepage con response status code 200 e verrà inoltre creato e firmato un jwt e un refresh jwt che verranno settati nei cookie, altrimenti verrà chiesto di scegliere un altro username. ![Homepage](https://user-images.githubusercontent.com/50673340/123555798-42bae200-d788-11eb-906c-4531dcad3d16.png)
+-Una volta eseguito l'accesso e accettato le condizioni si verrà reindirizzati a una pagina che ci chiederà di scegliere un username.
+
+ ![Fbsignup](https://user-images.githubusercontent.com/50673340/123555763-05eeeb00-d788-11eb-8a86-eb78eaf23b02.png)
+
+-Una volta scelto, se questo sarà disponibile, si verrà reindirizzati alla Homepage con response status code 200 e verrà inoltre creato e firmato un jwt e un refresh jwt che verranno settati nei cookie, altrimenti verrà chiesto di scegliere un altro username. 
+
+![Homepage](https://user-images.githubusercontent.com/50673340/123555798-42bae200-d788-11eb-906c-4531dcad3d16.png)
 
 - Cliccando su *Il tuo Profilo* verranno visualizzate le informazioni di base e le recensioni/feedback effettuati. 
-- Nella Homepage è presente una form per cercare dei punti d'interesse, inserendo la città (non è case sensitive), una categoria e il raggio limite di distanza da un punto d'interesse all'altro. Verremo dunque reindirizzati alla pagina /app che ci restituirà i primi 100 luoghi di interesse, ognuno dei quali ha un bottone 'dettagli'.
-  - Cliccando su 'dettagli' verremo reindirizzati ad una pagina dettagliata del luogo (/details?xid=...). Avremo modo, quindi, di visualizzare l'immagine del luogo, un piccolo paragrafo di Wikipedia, l'indirizzo, il meteo in quel momento nella acittà in cui si trova il luogo, e tutte le recensioni effettuate dagli utenti su quel luogo. Sarà inoltre disponibile un form in cui si potrà aggiungere una recensione con testo e/o foto. Una volta inserito il testo e/o aver selezionato una foto), cliccando 'Aggiungi' verrà effettuata una POST su /review, che eseguirà il caricamento della recensione nel documento dei db User e Reviews. Verremo dunque reindirizzati alla precedente pagina (/details?xid=...) dove avremo modo di vedere la nostra nuova recensione che sarà visibile anche agli altri utenti del sito.
+- Nella Homepage è presente una form per cercare dei punti d'interesse, inserendo la città (non è case sensitive), una categoria e il raggio limite di distanza da un punto d'interesse all'altro. Verremo dunque reindirizzati alla pagina list_places.ejs che ci restituirà i primi 100 luoghi di interesse, ognuno dei quali ha un bottone 'dettagli'.
+  - Cliccando su 'dettagli' verremo reindirizzati ad una pagina dettagliata del luogo (/details?xid=...). Avremo modo, quindi, di visualizzare l'immagine del luogo, un piccolo paragrafo di Wikipedia, l'indirizzo, il meteo in quel momento nella città in cui si trova il luogo, e tutte le recensioni effettuate dagli utenti su quel luogo. Sarà inoltre disponibile una form in cui si potrà aggiungere una recensione con testo e/o foto. Una volta inserito il testo e/o aver selezionato una foto, cliccando 'Aggiungi' verrà effettuata una POST su /review, che eseguirà il caricamento della recensione nel documento dei db User e Reviews. Verremo dunque reindirizzati alla precedente pagina (/details?xid=...) dove avremo modo di vedere la nostra nuova recensione che sarà visibile anche agli altri utenti del sito.
 - Nella Homepage cliccando su *Inviaci un feedback* si aprirà una form in cui si può inviare il feedback con testo e/o foto.
 - Una volta inviato il feedback, avremo modo anche di visualizzare dalla nostra pagina personale (/info) se il feedback sia stato letto o no.
 
