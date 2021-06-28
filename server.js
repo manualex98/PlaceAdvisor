@@ -922,11 +922,11 @@ app.get('/fb_pre_access',function (req,res){
               if(req.signedCookies.refresh==null){
               jwt.sign({info:jsonobj}, refresh_secretKey, (err, refreshtoken)=>{
                 res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
-                res.redirect( 200, '/home');  //Utente esiste, può accedere
+                res.redirect('/home').statusCode(200);  //Utente esiste, può accedere
               })
             }
             else{
-              res.redirect( 200, '/home');
+              res.redirect('/home').statusCode(200);
             }
             }
           }
@@ -1002,7 +1002,7 @@ console.log(body1)
           })     //refresh_token      
           jwt.sign({info:jsonobj}, refresh_secretKey, (err, refreshtoken)=>{
             res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
-            res.redirect( 200, '/home');  //Utente esiste, può accedere
+            res.redirect('/home').statusCode(200);  //Utente esiste, può accedere
           
       })
     }
@@ -1357,8 +1357,8 @@ app.post('/reviews', authenticateToken, function(req,res){
       console.log(response.statusCode, body);
       infodb = JSON.parse(body);
         if(infodb.error){
-          console.log('la f è in err')
-          console.log(req.body)
+          //console.log('la f è in err')
+          //console.log(req.body)
           newReview(req, res, codice);  //Se non esiste il documento nel db lo creo
         } 
         else{
@@ -1513,7 +1513,8 @@ function newReview(req,res, codice){
                 if(error) {
                     console.log(error);
                 } else {
-                    console.log(response.statusCode, body);
+                    //console.log(response.statusCode, body);
+                    res.redirect('/details?xid='+xid);
                 }
             });
         }
@@ -1551,12 +1552,12 @@ function newReview(req,res, codice){
       if(error) {
           console.log(error);
       } else {
-          console.log(response.statusCode, body);
-          
+          //console.log(response.statusCode, body);
+          res.redirect('/details?xid='+xid);
       }
     });
   }
-  res.redirect('/details?xid='+xid);
+  
 }
 
 function updateReview(req,res,codice){
@@ -1594,7 +1595,8 @@ function updateReview(req,res,codice){
           if(error) {
             console.log(error);
           } else {
-            console.log(response.statusCode, body);
+            //console.log(response.statusCode, body);
+            res.redirect('/details?xid='+xid);
           }
         });
 
@@ -1631,11 +1633,12 @@ function updateReview(req,res,codice){
       if(error) {
           console.log(error);
       } else {
-          console.log(response.statusCode, body);
+          //console.log(response.statusCode, body);
+          res.redirect('/details?xid='+xid);
       }
   });
 }
-res.redirect('/details?xid='+xid);
+
 }
 
 function deletereviewfromUser(num, email){
@@ -1737,7 +1740,7 @@ app.post('/newfeedback', authenticateToken, function(req,res){
     res.status(403).render('expired_token', {google:true})
   }
   else{
-    console.log("bodyfeed: %j", req.body);
+    //console.log("bodyfeed: %j", req.body);
     if (req.body.baseUrl.length>=1){
       res.render('feedback', {inviato: false, gconnected: gconnected, photo: req.body.baseUrl})
   }
@@ -1819,7 +1822,7 @@ function updateFeedback(data,res){
       if(error) {
         console.log(error);
       } else {
-        console.log(response.statusCode, body);
+        //console.log(response.statusCode, body);
          
         amqp.connect('amqp://localhost:5672', function(error0, connection) {
           if (error0) {

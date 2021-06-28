@@ -85,7 +85,7 @@
                     Data:<%=reviews[i].date%><br> Da <%=reviews[i].name%>: <%=reviews[i].text %><% if (reviews[i].photo!="") { %>
                         <br><% src="data:image/png;base64,"+reviews[i].photo; %>
                         Foto: <img src= <%= src %> width="200" height="200">
-                    <% } %><br> Codice: <%= reviews[i].codice%><br><br>
+                    <% } %>
                     
                 <% } %>
             <% } %>

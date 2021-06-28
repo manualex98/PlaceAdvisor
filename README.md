@@ -69,7 +69,7 @@ $ exit
 Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accessibile cliccando [qui](https://localhost:8000), però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
 Aprire un terzo terminale per far funzionare il feedback service consumer implementato con RabbitMQ ed eseguire:
 
-```$ docker run --name rabbitmq -p 5672:5672 rabbitmq```
+```$ sudo docker run --name rabbitmq -p 5672:5672 rabbitmq```
 
 Poi con un quarto terminale lanciamo feedback_consumer.js:
 ```
