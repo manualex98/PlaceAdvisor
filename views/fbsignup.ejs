@@ -14,7 +14,7 @@
     Ecco i tuoi dati:<br>
     <ul>
         <li> Nome: <%= data.first_name %></li>
-        <li> Cognome: <%= data.surname %></li>
+        <li> Cognome: <%= data.last_name %></li>
          <% email = data.email.replace('\u0040', '@'); %>
         <li> Email: <%= email %></li>
         <% photourl = data.picture.data.url %>

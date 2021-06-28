@@ -1338,11 +1338,9 @@ app.get('/logout', authenticateToken, function(req,res){
 })
 
 app.post('/logout', function(req,res){
-  fconnected=false;
-  gconnected=false;
-  lconnected=false;
-  ftoken='';
-  gtoken='';
+  res.cookie('gid_token', '', {maxAge:0, secure:true, signed: true, httpOnly: true})
+  res.cookie('googleaccess_token', '', {maxAge:0, secure:true, signed: true, httpOnly: true})
+  res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0}) 
   res.redirect('/');
 })
 
