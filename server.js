@@ -249,7 +249,7 @@ wss.on('connection', function connection(ws) {
  *          - Posto: Hypogeum of the Aurelii
  *          - xid: N3594410888
  *          - name: admin
- *          - text: Molto bello!!
+ *          - rev: Molto bello!!
  *          - date: 25/5/2021
  *          - photo:  
  *        feedbacks: 
@@ -284,7 +284,7 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          multipart/form-data:
+ *          application/x-www-form-urlencoded:
  *            schema:
  *              type: object
  *              properties:
@@ -439,9 +439,19 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          multipart/form-data:
- *          schema:
- *            $ref: '#/components/schemas/Ricerca' 
+ *          application/x-www-form-urlencoded:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                city:
+ *                  type: string
+ *                  description: Nome città (es. Roma)
+ *                rad:
+ *                  type: float
+ *                  description: Raggio espresso in km (es. 10)
+ *                cat:   
+ *                  type: string
+ *                  description: Categoria (es. interesting_places)
  *      security:
  *        - JWT: []
  *      responses:
@@ -485,7 +495,7 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          multipart/form-data:
+ *          application/x-www-form-urlencoded:
  *            schema:
  *              type: object
  *              properties:
@@ -505,20 +515,22 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          multipart/form-data:
+ *          application/x-www-form-urlencoded:
  *            schema:
+ *              type: object
  *              properties:
  *                xid:
  *                  type: string
  *                  description: Codice luogo
- *                name:
+ *                place:
  *                  type: string
- *                  description: Username
- *                text:   
+ *                  description: Nome Luogo
+ *                rev:   
  *                  type: string
- *                photo:
+ *                  description: Testo
+ *                baseUrl:
  *                  type: string
- *                  format: byte
+ *                  description: Foto in base64
  *            
  *      responses:
  *        200:
@@ -1054,7 +1066,6 @@ app.post('/openmap', authenticateToken, function(req,res){
     
     lat = parseFloat(info.lat);
     lon = parseFloat(info.lon);
-    console.log('/app?lat='+lat+'&lon='+lon+'&cate='+cate+'&rad='+rad);
     res.redirect('/app?lat='+lat+'&lon='+lon+'&cate='+cate+'&rad='+rad+'&city='+city);
   }); 
 });
@@ -1087,7 +1098,7 @@ function newRegisterCity(city){         //funzione che salva una nuova città
               console.log(error);
             } else {
               var info = JSON.parse(body)
-              console.log("Città creata")
+              console.log("\nCittà creata\n")
             }
     })
 
@@ -1108,7 +1119,7 @@ function updateRegisterCity(city,data){             //funzione che aggiorna il n
               console.log(error);
             } else {
               var info = JSON.parse(body)
-              console.log("Città aggiornata")
+              console.log("\nNumero ricerce per la città "+city+" aggiornato\n")
             }
   })
 }
@@ -1357,7 +1368,6 @@ app.post('/reviews', authenticateToken, function(req,res){
       console.log(response.statusCode, body);
       infodb = JSON.parse(body);
         if(infodb.error){
-          //console.log('la f è in err')
           //console.log(req.body)
           newReview(req, res, codice);  //Se non esiste il documento nel db lo creo
         } 
@@ -1402,6 +1412,7 @@ function updateUserReviews(req,res, codice){
       if(error) {
           console.log(error);
       } else {
+        place_name=req.body.place;
         var info = JSON.parse(body)
         console.log('\r\n'+place_name+'\r\n')
         data = new Date();

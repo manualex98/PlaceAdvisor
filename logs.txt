@@ -17,3 +17,7 @@ Tue Jun 29 2021 14:26:46 GMT+0200 (Ora legale dell’Europa centrale): È stato 
 Tue Jun 29 2021 14:26:52 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
 Tue Jun 29 2021 14:26:58 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
 Tue Jun 29 2021 14:27:05 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
+Tue Jun 29 2021 14:51:42 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 28
+Tue Jun 29 2021 15:24:00 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 28
