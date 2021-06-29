@@ -284,7 +284,7 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          application/x-www-form-urlencoded:
+ *          multipart/form-data:
  *            schema:
  *              type: object
  *              properties:
@@ -439,7 +439,7 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          application/x-www-form-urlencoded:
+ *          multipart/form-data:
  *          schema:
  *            $ref: '#/components/schemas/Ricerca' 
  *      security:
@@ -485,7 +485,7 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          application/x-www-form-urlencoded:
+ *          multipart/form-data:
  *            schema:
  *              type: object
  *              properties:
@@ -505,7 +505,7 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          application/x-www-form-urlencoded:
+ *          multipart/form-data:
  *            schema:
  *              properties:
  *                xid:
@@ -544,7 +544,7 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          application/x-www-form-urlencoded:
+ *          multipart/form-data:
  *            schema:
  *              type: 
  *              properties:
@@ -564,7 +564,7 @@ wss.on('connection', function connection(ws) {
  *      requestBody:
  *        required: true
  *        content:
- *          application/x-www-form-urlencoded:
+ *          multipart/form-data:
  *            schema:
  *              type: object
  *              properties:
@@ -922,11 +922,11 @@ app.get('/fb_pre_access',function (req,res){
               if(req.signedCookies.refresh==null){
               jwt.sign({info:jsonobj}, refresh_secretKey, (err, refreshtoken)=>{
                 res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
-                res.redirect('/home').statusCode(200);  //Utente esiste, può accedere
+                res.redirect('/home');  //Utente esiste, può accedere
               })
             }
             else{
-              res.redirect('/home').statusCode(200);
+              res.redirect('/home');
             }
             }
           }
@@ -1002,7 +1002,7 @@ console.log(body1)
           })     //refresh_token      
           jwt.sign({info:jsonobj}, refresh_secretKey, (err, refreshtoken)=>{
             res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
-            res.redirect('/home').statusCode(200);  //Utente esiste, può accedere
+            res.redirect('/home');  //Utente esiste, può accedere
           
       })
     }
@@ -1862,7 +1862,7 @@ function updateFeedback(data,res){
 }
 
 function log_on_file(data){
-  fs.appendFile('logs.txt','\r\n'+data, ()=>{
+  fs.appendFile('logs.txt',data+'\r\n', ()=>{
     console.log('scritto su file')
   })
 

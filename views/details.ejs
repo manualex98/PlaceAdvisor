@@ -72,26 +72,26 @@
             map.addObject(marker);
             map.setCenter(coords);
         </script>
-        <li><h3><b><i>Meteo: </b></h3>
-        <%= info_weather %></ul>
-        <img src= <%=icon_url %> >
+        <li><h3><b><i>Meteo:</li> </b></h3></i>
+        <%= info_weather %>
+        <img src= <%=icon_url %> </ul>
         
 
 
-        <li><h3>Recensioni: </h3><i>
+        <h3><li><b><i>Recensioni:</b></i></li></h3>
             <% if (reviews!="") { %>
-                <% for(var i=0; i<n ;i++) {%>
+                <% for(var i=0; i<n ;i++) {%><li>
                     Recensione numero <%= i+1%>:<br>
                     Data:<%=reviews[i].date%><br> Da <%=reviews[i].name%>: <%=reviews[i].text %><% if (reviews[i].photo!="") { %>
                         <br><% src="data:image/png;base64,"+reviews[i].photo; %>
-                        Foto: <img src= <%= src %> width="200" height="200">
-                    <% } %>
+                        Foto: <img src= <%= src %> width="200" height="200"></li>
+                    <% } %><br>
                     
                 <% } %>
-            <% } %>
+            <% } %></ul>
 
 
-            Scrivi la tua recensione:
+            <li>Scrivi la tua recensione:
             <br><form action="https://localhost:8000/reviews" method="POST">
             <% if (photo!=""){ %>
                 Immagine aggiunta:<br>
@@ -102,16 +102,16 @@
             <% } %>
                 <input type="hidden" id="xid" name="xid" value= <%= xid %>>
                 <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
-                <input class="mb-3" type="submit" value="AGGIUNGI" size="10">
+                <input class="mb-3" type="submit" value="Condividi" size="10">
             </form>
-                <p>Vuoi aggiungere anche una fotina da gdrive??:D
+                <p>Vuoi condividere anche una foto con Google Photos?
                     <% if (!gconnected){ %>
                         <br>Prima devi collegarti però!!</p>
                         <% var urii = "https://localhost:8000/googlelogin?xid="+xid %>
                         <a href=<%=urii %>><button class="mb-3">Collegati con google</button></a><br>
                     <% } else { %></p>
                          <% var linkgoogle = "https://localhost:8000/googlephotosapi?xid="+ xid; %>
-                        <a href= <%= linkgoogle %>><button class="mb-3" value="Aggiungi fotina">Aggiungi</button></a><br>
+                        <a href= <%= linkgoogle %>><button class="mb-3" value="Google Photos">Allega Google Photo</button></a><br>
                         
                     <% } %>
     
@@ -122,5 +122,5 @@
         <div class="fb-share-button" data-href= <%= link %> data-layout="button" data-size="large"><a target="_blank" href=<%= link2%> class="fb-xfbml-parse-ignore">Share</a></div><br>
     
     <%}%>
-    <br><a href= "https://localhost:8000/home"><button class="mb-3" value="submit">Torna alla home</button></a><br></ul>
+    <br><a href= "https://localhost:8000/home"><button class="mb-3" value="submit">Torna alla home</button></a><br></li></ul>
 </html>
