@@ -11,27 +11,15 @@
 <body class="text-center">
    
   <h2 class="mb-3">Benvenuto in PlaceAdvisor</h2>
-  <h3 class="mb-3">Hai esaurito le idee su cosa andare a visitare? Ci siamo qui noi per te!</h3><br>
-  <h3 class="mb-3">Registrati e scopri posti ed attrazioni in tutto il mondo!</h3>
+  <h3 class="mb-3">Utilizza il nostro motore di ricerca per cercare e scoprire luoghi ed attrazioni in tutto il mondo!</h3><br>
+  <h3 class="mb-3">Accedi e inizia subito!</h3>
 
   <form name="myForm" method="POST" action="https://localhost:8000/">
-
-    <input class="mb-3" type="email" name="email" placeholder="Email" size="25"><br>
-    <input class="mb-3" type="password" name="password" placeholder="Password" size="20"><br>
-    Non hai un account? <a href="signup"> Registrati </a><br><br>
-    <input type="submit" value="Accedi" name="sub"><br><br>
     <input type="submit" value="Accedi con Facebook" name="sub">
 
   </form>
 
 
-
-    <%if (check==true){%>
-      <h3>L'utente non esiste</h3>
-     <%}%>
-    <%if(registrazione==true){%>
-      <h3>Registrazione effettuata correttamente</h3>
-    <%}%>
 </body>
 
 </html>

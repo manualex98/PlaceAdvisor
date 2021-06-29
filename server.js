@@ -85,7 +85,7 @@ const swaggerOptions = {
       title: "PlaceAdvisor",
       description: "Web App che permette di trovare e recensire luoghi di ogni tipo",
       contact: {
-        name: "Alessi Manuel, Fortunato Francesco, Lai Simona",
+        name: "Alessi Manuel, Fortunato Francesco",
       },
     },
     servers: [{
@@ -290,12 +290,12 @@ wss.on('connection', function connection(ws) {
  *              properties:
  *                sub:       
  *                  type: string
- *              example: Accedi con Facebook
+ *                  description: Accedi con Facebook
  *      responses:
  *        200:
  *          description: >
  *            Successfully authenticated.
- *            The session ID is returned in a cookie named `JSESSIONID`. You need to include this cookie in subsequent requests.
+ *            The session ID is returned in a cookie named `JWT`. You need to include this cookie in subsequent requests.
  *          headers: 
  *          Set-Cookie:
  *            schema: 
@@ -626,103 +626,6 @@ app.post('/',function (req,res){
   }
 })
 
-app.post('/userinfo', authenticateToken, function(req,res){
-  request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.token.info.info.email,
-    method: 'GET',
-    headers: {
-      'content-type': 'application/json'
-    },
-    
-  }, function(error, response, body){
-      if(error) {
-          console.log(error);
-      } else {
-          //console.log(response.statusCode, body);
-          infousers=JSON.parse(body);
-
-          if (!infousers.error){                  //Controlla se è presente già un documento nel db
-            res.render('signup', {check: false})  //Se c'è si deve scegliere un altro username
-          }
-          else{
-            newUser(req,res)                      //Altrimenti si effettua la registrazione
-          }
-          
-      }
-    });
-  });
-let user;
-let check;
-
-
-function gestisciAccessoLocale(req,res){
-  request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.body.email,
-    method: 'GET',
-    headers: {
-      'content-type': 'application/json'
-    },
-    
-  }, function(error, response, body){
-      if(error) {
-          console.log(error);
-      } else {
-          //console.log(response.statusCode, body);
-          user=JSON.parse(body);
-
-          //AUTENTICAZIONE
-          if (user.email==req.body.email && user.password==req.body.password){
-            username=user.username
-            email= user.email
-            lconnected=true
-            res.render('homepage', {gconnected: false ,username: username, fconnected:false});
-          }
-          else{
-            res.render('index', {check: true, registrazione: false});
-          }
-      }      
-    });
-  
-}
-
-function newUser(req,res){
-  fbinfo = req.token.info
-  body={
-  
-      "name": req.body.name,
-      "surname": req.body.surname,
-      "email": req.body.email,
-      "username": req.body.username,
-      "password": req.body.password,
-      "picture": {
-        "url": "",
-        "height": 0,
-        "width": 0
-      },
-      "reviews": [],
-      "feedback":[]
-    
-  };
-  
-  request({
-    url: 'http://admin:admin@127.0.0.1:5984/users/'+req.body.email,
-    method: 'PUT',
-    headers: {
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify(body)
-    
-  }, function(error, response, body){
-      if(error) {
-          console.log(error);
-      } else {
-          //console.log(response.statusCode, body);
-          res.render('index', {check:false, registrazione: true});
-      }
-  });
-}
-
-
 app.get('/facebooklogin',function (req,res){
   fconnecting=true;
   res.status(201).redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.FB_CLIENT_ID+"&redirect_uri=https://localhost:8000/homepage&response_type=code");
@@ -811,7 +714,7 @@ app.get('/gtoken', authenticateToken, function(req, res){
       googletoken = info.access_token; //google access token
       gtoken = info.id_token; //google id_token
       gconnected = true;
-      console.log("Got the token "+ info.access_token);
+      console.log("Google access token "+ info.access_token);
       res.cookie('gid_token', gtoken, {maxAge:86400000, secure:true, signed: true, httpOnly: true})
       res.cookie('googleaccess_token', googletoken, {maxAge:900000, secure:true, signed: true, httpOnly: true})
       res.redirect('/home')
@@ -907,7 +810,7 @@ app.get('/fb_pre_access',function (req,res){
               //console.log("QUESTA QUA è LA FUNZIONE CHE SETTA IL COOKIE SE L'UTENTE NON ESISTE")
               jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
                 res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:1800000});           
-                console.log('Questo è il JWT!!' + token);
+                //console.log('Questo è il JWT!!' + token);
                 res.redirect('/fbsignup'); //Utente non esiste quindi lo faccio registrare
               })
               

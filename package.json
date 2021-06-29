@@ -19,7 +19,7 @@
     "type": "git",
     "url": "git+https://github.com/manualex98/PlaceAdvisor.git"
   },
-  "author": "Alessi Manuel, Fortunato Francesco, Lai Simona",
+  "author": "Alessi Manuel, Fortunato Francesco",
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.7.1",

@@ -49,17 +49,17 @@
             <input class="mb-3" type="submit" value="Invia" size="30" onclick="sendMessage()">
         </form>
         
-        <p>Vuoi aggiungere anche una fotina da gdrive??:D 
+        <p>Vuoi allegare anche una foto da Google Photos?
             <% if (!gconnected){ %>
                 <br>Prima devi collegarti però!!</p>
                 <a href="https://localhost:8000/googlelogin"><button class="mb-3">Collegati con google</button></a><br>
             <% } else { %>
                  
                 
-                <a href="https://localhost:8000/googlephotosapi?stato=feed"><button class="mb-3">Aggiungi fotina</button></a><br>
+                <a href="https://localhost:8000/googlephotosapi?stato=feed"><button class="mb-3">Condividi foto</button></a><br>
         <% } %>
     <% } else { %>
-        Fantastico!! Il feedback è stato ricevuto correttamente. Grazie per averci segnalato questa brutta cosa, ce ne faremo una ragione. :*
+        Fantastico!! Il feedback è stato ricevuto correttamente. Grazie per averci segnalato questa brutta cosa, cercheremo di risolverla al più presto!
         <a href="https://localhost:8000/home"><button class="mb-3">Torna alla home</button></a><br>
     <% } %>
 </body>
