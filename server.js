@@ -103,7 +103,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 const wss = new WebSocket.Server({ port:8080 });
 
 wss.on('connection', function connection(ws) {
-  console.log('Si è connesso un client');
+  console.log('Web Socket connection activated');
   ws.send('Welcome New Client!');
 
   ws.on('message', function incoming(message) {
@@ -796,12 +796,12 @@ app.get('/gtoken', authenticateToken, function(req, res){
       res.redirect(404, '/error?statusCode=404' );
     }
     else{
-      googletoken = info.access_token; //prendo l'access token
-      gtoken = info.id_token; 
+      googletoken = info.access_token; //google access token
+      gtoken = info.id_token; //google id_token
       gconnected = true;
       console.log("Got the token "+ info.access_token);
-      res.cookie('gid_token', gtoken, {maxAge:315360000000, secure:true, signed: true, httpOnly: true})
-      res.cookie('googleaccess_token', googletoken, {maxAge:315360000000, secure:true, signed: true, httpOnly: true})
+      res.cookie('gid_token', gtoken, {maxAge:86400000, secure:true, signed: true, httpOnly: true})
+      res.cookie('googleaccess_token', googletoken, {maxAge:900000, secure:true, signed: true, httpOnly: true})
       res.redirect('/home')
     }
   })
@@ -1244,7 +1244,7 @@ app.get('/details', authenticateToken, function(req,res){
 app.get('/googlephotosapi', authenticateToken, function(req,res){
   feed= req.query.stato;
   gtoken = req.signedCookies.googleaccess_token;
-  console.log('gtoken : '+ gtoken)
+  console.log('GoogleToken : '+ gtoken)
   if(req.signedCookies.googleaccess_token==undefined){
     res.redirect(404, '/error?statusCode=404')
   }
@@ -1287,7 +1287,7 @@ app.get('/googlephotosapi', authenticateToken, function(req,res){
         },
         json:true
         }, function(error, response, body){
-          console.log(JSON.stringify(body));
+          //console.log(JSON.stringify(body));
           info = JSON.parse(JSON.stringify(body));
         if (queryxid!=''){  //la foto si sta aggiungendo alla pagina di un monumento
           res.render('gphotos.ejs', {info:info, feedbackposting: false,  xid : queryxid, numpag:numpag})
@@ -1297,7 +1297,7 @@ app.get('/googlephotosapi', authenticateToken, function(req,res){
         }
       });
     }
-    else{       //se la chiamata non è stata effettuata non ci sarà nell'url la req.query.nextpg
+    else{       //se la chiamata non è ancora stata effettuata, allora non ci sarà nell'url la req.query.nextpg
       numpag=1;
       request.post({
       headers: headers,
@@ -1823,42 +1823,31 @@ function updateFeedback(data,res){
         console.log(error);
       } else {
         //console.log(response.statusCode, body);
-         
-        amqp.connect('amqp://localhost:5672', function(error0, connection) {
-          if (error0) {
-            //throw error0; 
-            console.log("Sistema di feedback non funziona " + error0.toString());
-            return;
-         }
+        connect();
+        async function connect() {
 
-          connection.createChannel(function(error1, channel) {
-            if (error1) {
-                console.log("Sistema di feedback non funziona " + error0.toString());
-                return;
-            }
+          try {
+            
+            const connection = await amqp.connect("amqp://localhost:5672")
+            const channel = await connection.createChannel();
+            const result = channel.assertQueue("feedback")
+            channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
+            console.log('Feedback sent succefully')
+            //console.log(data)
+            
+            res.render('feedback', {inviato : true})
+            feedbackposting=false;
+          }
+          catch(error){
+            console.error(error);
+          }
+        }
+      }
+    })
 
-            var queue = 'feedback';
-            var msg = JSON.stringify(data)
-
-            channel.assertQueue(queue);
-
-            console.log("-- INVIANDO MESSAGGIO '%s' ALLA CODA %s --", msg, queue);
-
-            channel.sendToQueue(queue, Buffer.from(msg));
-
-            console.log("-- HO INVIATO IL MESSAGGIO --");
-          });
-
-
-        setTimeout(function() { //importante mettere il timeout perchè altrimenti la connessione si chiude
-            connection.close(); // prima di riuscire a passare il msg
-        }, 500);
-        res.render('feedback', {inviato : true})
-        feedbackposting=false;
+        
+        
     });
-  }
-})
-  })
 }
 
 function log_on_file(data){

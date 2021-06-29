@@ -28,13 +28,6 @@ async function connect() {
             update(mex.email,mex.id,channel,message) 
             
             
-            //ACK
-            
-            
-            
-            
-            
-            
     })
 
     

@@ -19,7 +19,7 @@
           return false;
         }else{
           data = new Date();
-          socket.send(data+':Inviato feedback:\n: '+feed[0].value);
+          socket.send(data+': È stato inviato un feedback');
           return true;
         }
     }
@@ -37,7 +37,7 @@
         <% } %>
         
         <textarea name="feed" cols="60" rows="30" placeholder="Inviaci il tuo feed"></textarea><br>
-        <input class="mb-3" type="submit" value="Invia" size="30">
+        <input class="mb-3" type="submit" value="Invia" size="30" onclick="sendMessage()">
     </form>
     
     <p>Vuoi aggiungere anche una fotina da gdrive??:D 
