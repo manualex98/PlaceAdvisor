@@ -159,6 +159,10 @@ wss.on('connection', function connection(ws) {
  *      type: apiKey
  *      in: cookie
  *      name: jwt
+ *    JWT_refresh:
+ *      type:apiKey
+ *      in: cookie
+ *      name: refresh
  *  schemas:
  *    Review:
  *      type: object
@@ -511,6 +515,13 @@ wss.on('connection', function connection(ws) {
  *        200:
  *          description: Invia il feedback alla coda 'feedback' sfruttando il protocollo AMQP, salva il feedback nel DB e reindirizza feedback.ejs
  * 
+ * 
+ *  /refreshtoken:
+ *    get:
+ *      tags: [Refreshtoken]
+ *      security:
+ *        - JWT: []
+ *        - JWT_refresh: []
  *  /bootstrap.min.css:
  *    get:
  *      tags: [Bootstrap]
