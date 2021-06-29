@@ -22,7 +22,7 @@
                 <input class="mb-3" type="submit" value="Scegli" size="30">
             </form>
         <% } else { %>
-            <form method="POST" action="https://localhost:8000/newfeedback">
+            <form method="GET" action="https://localhost:8000/newfeedback">
                 <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
                 <input class="mb-3" type="submit" value="Scegli" size="30">
             </form>

@@ -84,9 +84,11 @@ const swaggerOptions = {
     info: {
       title: "PlaceAdvisor",
       description: "Web App che permette di trovare e recensire luoghi di ogni tipo",
-      contact: {
-        name: "Alessi Manuel, Fortunato Francesco",
-      },
+      version: "1.0.1"
+    },
+    externalDocs: {
+      description: "Github",
+      url: 'https://github.com/manualex98/PlaceAdvisor'
     },
     servers: [{
       url: "https://localhost:8000"
@@ -119,11 +121,32 @@ wss.on('connection', function connection(ws) {
   });
 });
 
-
 //************************INIZIO DOCUMENTAZIONE************************//
+
 
 /**
  * @swagger
+ * tags:
+ *  - name: Root
+ *    description: Start
+ *  - name: User
+ *    description: Ottieni informazioni su di te
+ *  - name: Home
+ *    description: Gestisci il tuo accesso, accedi alle API
+ *  - name: APIs
+ *    description: Accedi alle API
+ *  - name: Reviews
+ *    description: Gestisci le tue recensioni
+ *  - name: Feedback
+ *    description: Gestisci i tuoi feedback
+ *  - name: Error
+ *    description: Errore
+ *  - name: Refreshtoken
+ */
+
+/**
+ * @swagger
+ * 
  * components:
  *  securitySchemes:
  *    googleOAuth:
@@ -281,11 +304,13 @@ wss.on('connection', function connection(ws) {
  * paths:
  *  /:
  *    get:
+ *      summary: Root
  *      tags: [Root]
  *      responses:
  *        200: 
  *          description: restituisce la pagina index.ejs
  *    post:
+ *      summary: Accedi con Facebook
  *      tags: [Root]
  *      requestBody:
  *        required: true
@@ -311,6 +336,7 @@ wss.on('connection', function connection(ws) {
  * 
  *  /home:
  *    get:
+ *      summary: Pagina di ricerca
  *      tags: [Home]
  *      security:
  *        - JWT: []
@@ -322,7 +348,8 @@ wss.on('connection', function connection(ws) {
  * 
  *  /info:
  *    get:
- *      tags: [Home]
+ *      summary: Ottieni le tue informazioni, le tue recensioni e i tuoi feedback
+ *      tags: [User]
  *      security:
  *        - JWT: []
  *      responses:
@@ -333,6 +360,7 @@ wss.on('connection', function connection(ws) {
  * 
  *  /city_info:
  *    get:
+ *      summary: Ottieni la lista dei posti più ricercati nel nostro sito!
  *      tags: [Home]
  *      security:
  *        - JWT: []
@@ -341,6 +369,7 @@ wss.on('connection', function connection(ws) {
  *          description: Restituisce la pagina city_stat.ejs.
  *  /app:
  *    get:
+ *      summary: Restituisce la lista di posti in una certa località, all'interno di un raggio di un certo numero di km e di una certa categoria
  *      parameters:
  *        - in: query
  *          name: lat
@@ -376,6 +405,7 @@ wss.on('connection', function connection(ws) {
  *          description: Error
  *  /openmap:
  *    post:
+ *      summary: Esegui la ricerca dei luoghi di interesse in base a città, raggio e categoria
  *      tags: [APIs]
  *      requestBody:
  *        required: true
@@ -401,6 +431,7 @@ wss.on('connection', function connection(ws) {
  *    
  *  /details:
  *    get:
+ *      summary: Ottieni i dettagli sul luogo desiderato
  *      parameters:
  *        - in: query
  *          name: xid
@@ -408,6 +439,12 @@ wss.on('connection', function connection(ws) {
  *            type: string
  *          required: true
  *          description: Codice XID del luogo (es. N5978649686)
+ *        - in: query
+ *          name: baseUrl
+ *          schema:
+ *            type: string
+ *          required: false
+ *          description: Url foto da allegare
  *      security:
  *        - JWT: []
  *      tags: [APIs]
@@ -419,7 +456,21 @@ wss.on('connection', function connection(ws) {
  * 
  *  /googlephotosapi:
  *    get:
+ *      summary: Ottieni le tue foto google maps da caricare su PlaceAdvisor
  *      tags: [APIs]
+ *      parameters:
+ *        - in: query
+ *          name: stato
+ *          schema:
+ *            type: string
+ *          required: false
+ *          description: Se si vuole postare la foto in un feedback, digitare stato=feed (Usare solo una query)
+ *        - in: query
+ *          name: xid
+ *          schema:
+ *            type: string
+ *          required: false
+ *          description: Codice XID del luogo (es. N5978649686) in cui postare la foto (Usare solo una query)
  *      security:
  *        - JWT: []
  *        - gcookieAuth: []
@@ -432,6 +483,7 @@ wss.on('connection', function connection(ws) {
  * 
  *  /logout:
  *    get:
+ *      summary: Pagina di logout
  *      tags: [Home]
  *      security:
  *        - JWT: []
@@ -441,6 +493,7 @@ wss.on('connection', function connection(ws) {
  *        404: 
  *          description: Error
  *    post:
+ *      summary: Esegui il logout
  *      security:
  *        - JWT: []
  *      tags: [Home]
@@ -479,9 +532,24 @@ wss.on('connection', function connection(ws) {
  *          description: permette di creare o aggiornare una recensione
  * 
  *  /elimina:
- *    get:
+ *    post:
+ *      summary: Elimina una recensione in base al codice
  *      security:
  *        - JWT: []
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/x-www-form-urlencoded:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                codice:
+ *                  type: int
+ *                  description: Codice recensione
+ *                xid:
+ *                  type: string
+ *                  description: Codice luogo (es. N5978649686)
+ *                  
  *      tags: [Reviews]
  *      responses:
  *        200:
@@ -491,23 +559,27 @@ wss.on('connection', function connection(ws) {
  * 
  *  /newfeedback:
  *    get:
+ *      summary: Modulo per scrivere i feedback
  *      security:
  *        - JWT: []
+ *      parameters:
+ *        - in: query
+ *          name: baseUrl
+ *          schema:
+ *            type: string
+ *          required: false
+ *          description: Url foto da allegare 
  *      tags: [Feedback]
  *      responses:
  *        200:
- *          description: restituisce la pagina feedback.ejs
- *    post:
- *      tags: [Feedback]
- *      responses:
- *        200:
- *          description: Prima dell'invio del feedback, allega la foto alla review e restituisce feedback.ejs
+ *          description: Restituisce la pagina feedback.ejs con il modulo per inserire i feedback (e, se definita nella query anche la foto aggiunta)
  *        403: 
  *          description: Error token expired
  *        404: 
  *          description: Error
  *  /feedback:
  *    post:
+ *      summary: Invia il tuo feedback
  *      security:
  *        - JWT: []
  *      tags: [Feedback]
@@ -518,19 +590,15 @@ wss.on('connection', function connection(ws) {
  * 
  *  /refreshtoken:
  *    get:
+ *      summary: Refresha il tuo token jwt
  *      tags: [Refreshtoken]
  *      security:
  *        - JWT: []
  *        - JWT_refresh: []
- *  /bootstrap.min.css:
- *    get:
- *      tags: [Bootstrap]
- *      responses:
- *        200:
- *          description: permette di avere bootstrap nelle pagine ejs
  * 
  *  /error:
  *    get:
+ *      summary: Errore (Status Code = x)
  *      parameters:
  *        - in: query
  *          name: statusCode
@@ -777,7 +845,7 @@ app.get('/fb_pre_access',function (req,res){
                 
               })
               if(req.signedCookies.refresh==null){
-              jwt.sign({info:jsonobj}, refresh_secretKey, (err, refreshtoken)=>{
+              jwt.sign({info:jsonobj}, refresh_secretKey, { expiresIn: '24h' }, (err, refreshtoken)=>{
                 res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
                 res.redirect('/home');  //Utente esiste, può accedere
               })
@@ -985,7 +1053,7 @@ app.get('/city_info', authenticateToken, function(req,res){
       var data = JSON.parse(body)
       
       var list_city = new Array()                      //Popolo un array con i documenti del db
-      for(var i=0; i<data.total_rows-1;i++){
+      for(var i=0; i<data.total_rows;i++){
         elem=data.rows[i]
         list_city.push(
           {
@@ -1115,7 +1183,7 @@ app.get('/googlephotosapi', authenticateToken, function(req,res){
         console.log(error)
       }
       else{
-        //console.log(body)
+        console.log(body)
         ref=JSON.parse(body)
         if (ref.azp!=process.env.G_CLIENT_ID){
           res.status(403).render('expired_token', {google:true})
@@ -1238,9 +1306,9 @@ app.post('/elimina', authenticateToken, function(req,res){
   email=email.replace('\u0040', '@');
   const obj = JSON.parse(JSON.stringify(req.body));
   //console.log(obj)
+  
   try {
-    deletereviewfromUser(obj.codice, email)
-    deletereviewfromCity(obj.codice, obj.xid)
+    deletereviewfromUser(obj.codice, email, obj.xid)
     res.render('eliminated', {cod: obj.codice})
   } catch (error) {
     console.log(error)
@@ -1504,7 +1572,7 @@ function updateReview(req,res,codice){
 
 }
 
-function deletereviewfromUser(num, email){
+function deletereviewfromUser(num, email, xid){
   request({
     url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
     method: 'GET',
@@ -1535,6 +1603,7 @@ function deletereviewfromUser(num, email){
             if(error) {
                 console.log(error);
             } else {
+              deletereviewfromCity(num, xid)
                 //console.log(response.statusCode, body);
             }
         })
@@ -1588,29 +1657,15 @@ app.get('/newfeedback', authenticateToken, function(req, res){
   else{
     gconnected = false
   }
-  res.render('feedback', {inviato : false, gconnected: gconnected, photo: ""})
-  
-})
+  if (Object.keys(req.query).length == 1){
 
-app.post('/newfeedback', authenticateToken, function(req,res){
-  if (req.signedCookies.googleaccess_token!=undefined){
-    gconnected = true
+    var photo =req.query.baseUrl;
   }
   else{
-    gconnected = false
+    var photo = '';
   }
-  if (!gconnected){
-    res.status(403).render('expired_token', {google:true})
-  }
-  else{
-    //console.log("bodyfeed: %j", req.body);
-    if (req.body.baseUrl.length>=1){
-      res.render('feedback', {inviato: false, gconnected: gconnected, photo: req.body.baseUrl})
-  }
-  else{
-    res.redirect(404, '/error?statusCode=404')
-  }
-}
+  res.render('feedback', {inviato : false, gconnected: gconnected, photo: photo})
+  
 })
 
 app.post('/feedback', authenticateToken, function(req, res){

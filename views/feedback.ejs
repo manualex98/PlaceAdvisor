@@ -37,12 +37,14 @@
         <h2>SEGNALACELO:</h2>
         
         <br><form action="https://localhost:8000/feedback" method="POST">
-            <% if (photo!=""){ %>
+            <% if (photo==""){ %>
+                <input type="hidden" id="baseUrl" name="baseUrl" value=''>
+            <% } else{ %>
                 Immagine aggiunta:<br>
                 <img src= <%= photo %> width="200" height="200"><br>
                 <input type="hidden" id="baseUrl" name="baseUrl" value=<%=photo %>>
-            <% } else{ %>
-                <input type="hidden" id="baseUrl" name="baseUrl" value=''>
+            
+                
             <% } %>
             
             <textarea name="feed" style="resize:none" cols="60" rows="10" placeholder="Inviaci il tuo feed"></textarea><br>

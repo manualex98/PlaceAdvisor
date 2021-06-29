@@ -134,7 +134,7 @@
                 <p>Vuoi condividere anche una foto con Google Photos?
                     <% if (!gconnected){ %>
                         <br>Prima devi collegarti però!!</p>
-                        <% var urii = "https://localhost:8000/googlelogin?xid="+xid %>
+                        <% var urii = "https://localhost:8000/googlelogin"; %>
                         <a href=<%=urii %>><button class="mb-3">Collegati con google</button></a><br>
                     <% } else { %></p>
                          <% var linkgoogle = "https://localhost:8000/googlephotosapi?xid="+ xid; %>
