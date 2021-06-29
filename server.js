@@ -1427,7 +1427,7 @@ function updateUserReviews(req,res, codice){
         if (req.body.baseUrl!=''){
           imageToBase64(req.body.baseUrl) // Image URL
           .then((response) => {
-              console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
+              //console.log(response); "iVBORw0KGgoAAAANSwCAIA..."
               encoded=response;
               item={
                 "codice": codice,
@@ -1503,7 +1503,7 @@ function newReview(req,res, codice){
     imageToBase64(req.body.baseUrl) // Image URL
     .then(
         (response) => {
-            console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
+            //console.log(response); // "iVBORw0KGgoAAAANSwCAIA..."
             encoded=response;
             item={
               "reviews": [
