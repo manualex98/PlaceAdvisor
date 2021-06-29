@@ -160,7 +160,7 @@ wss.on('connection', function connection(ws) {
  *      in: cookie
  *      name: jwt
  *    JWT_refresh:
- *      type:apiKey
+ *      type: apiKey
  *      in: cookie
  *      name: refresh
  *  schemas:
