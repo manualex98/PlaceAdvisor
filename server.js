@@ -140,7 +140,9 @@ wss.on('connection', function connection(ws) {
  *        authorizationCode:
  *          authorizationUrl: https://localhost:8000/facebooklogin
  *          tokenUrl: https://localhost:8000/ftoken
- *          scopes: {}
+ *          scopes: 
+ *            public_profile: Grant access to your public profile id, first name, last name and picture
+ *            email: Grant access to your email
  *    fbcookieAuth:         # arbitrary name for the security scheme; will be used in the "security" key later
  *      type: apiKey
  *      in: cookie
@@ -280,7 +282,7 @@ wss.on('connection', function connection(ws) {
  *        200: 
  *          description: restituisce la pagina index.ejs
  *    post:
- *      tags: [Facebook OAuth]
+ *      tags: [Root]
  *      requestBody:
  *        required: true
  *        content:
@@ -301,66 +303,6 @@ wss.on('connection', function connection(ws) {
  *            schema: 
  *              type: string
  *              example: jwt=abcde12345; Path=/; HttpOnly
- * 
- *  /homepage:
- *    get:
- *      tags: [Callback]
- *      parameters:
- *        - in: query
- *          name: code
- *          schema:
- *            type: string
- *            description: Authentication Code ricevuto da Google/Fb
- *      security:
- *        - JWT: []
- *      responses:
- *        200: 
- *          description: HTML HOMEPAGE
- *        403:
- *          description: Error 403. User not authenticated
- *  /gtoken:
- *    get:
- *      tags: [Google OAuth]
- *      parameters:
- *        - in: query
- *          name: code
- *          required: true
- *          schema:
- *            type: string
- *            description: Authentication Code ricevuto da Google
- *      responses:
- *        200:
- *          description: HTML token page
- *          headers: 
- *            Set-Cookie:
- *              schema: 
- *                type: string
- *                example: googleaccess_token=abcde12345, gid_token; Path=/; HttpOnly
- *        404:
- *          description: Invalid Grant, malformed auth code.
- * 
- *  /ftoken:
- *    get:
- *      tags: [Facebook OAuth]
- *      parameters:
- *        - in: query
- *          name: code
- *          required: true
- *          schema:
- *            type: string
- *            description: Authentication Code ricevuto da Facebook
- *      responses:
- *        200:
- *          description: reindirizza a /fb_pre_access
- *        404:
- *          description: Error.
- *  
- *  /fb_pre_access:
- *    get:
- *      tags: [Facebook OAuth]
- *      responses:
- *        200:
- *          description: reindirizza alla homepage
  * 
  * 
  *  /home:
@@ -384,20 +326,15 @@ wss.on('connection', function connection(ws) {
  *          description: HTML user_info
  *        403:
  *          description: HTML error page. user not authenticated
- *  
- *  /signup:
- *    get:
- *      tags: [Signup]
- *      responses:
- *        200:
- *          description: restituisce la pagina signup.ejs
  * 
  *  /city_info:
  *    get:
  *      tags: [Home]
+ *      security:
+ *        - JWT: []
  *      responses:
  *        200:
- *          description: restituisce la pagina city_stat.ejs
+ *          description: Restituisce la pagina city_stat.ejs.
  *  /app:
  *    get:
  *      parameters:
@@ -460,12 +397,19 @@ wss.on('connection', function connection(ws) {
  *    
  *  /details:
  *    get:
+ *      parameters:
+ *        - in: query
+ *          name: xid
+ *          schema:
+ *            type: string
+ *          required: true
+ *          description: Codice XID del luogo (es. N5978649686)
  *      security:
  *        - JWT: []
  *      tags: [APIs]
  *      responses:
  *        200:
- *          description: restituisce la pagina details
+ *          description: Restituisce la pagina details.ejs riferita al luogo <xid>.
  *        404:
  *          description: Error
  * 
@@ -478,33 +422,27 @@ wss.on('connection', function connection(ws) {
  *        - gidcookieAuth: []
  *      responses:
  *        200:
- *          description: restituisce la pagina gphotos.ejs
+ *          description: Restituisce la pagina gphotos.ejs con la lista delle foto dell'utente
  *        404:
  *          description: Error
  * 
  *  /logout:
  *    get:
  *      tags: [Home]
+ *      security:
+ *        - JWT: []
  *      responses:
  *        200:
  *          description: restituisce la pagina logout.ejs
  *        404: 
  *          description: Error
  *    post:
+ *      security:
+ *        - JWT: []
  *      tags: [Home]
- *      requestBody:
- *        required: true
- *        content:
- *          application/x-www-form-urlencoded:
- *            schema:
- *              type: object
- *              properties:
- *                sub:       
- *                  type: boolean
- *              example: 
  *      responses:
  *        200:
- *          description: reindirizza alla pagina index.ejs
+ *          description: Distrugge i cookies e reindirizza alla pagine index.ejs
  * 
  *  /reviews:
  *    post:
@@ -521,10 +459,10 @@ wss.on('connection', function connection(ws) {
  *              properties:
  *                xid:
  *                  type: string
- *                  description: Codice luogo
+ *                  description: Codice luogo (es. N5978649686)
  *                place:
  *                  type: string
- *                  description: Nome Luogo
+ *                  description: Nome Luogo (es. Colosseum)
  *                rev:   
  *                  type: string
  *                  description: Testo
@@ -538,6 +476,8 @@ wss.on('connection', function connection(ws) {
  * 
  *  /elimina:
  *    get:
+ *      security:
+ *        - JWT: []
  *      tags: [Reviews]
  *      responses:
  *        200:
@@ -547,45 +487,29 @@ wss.on('connection', function connection(ws) {
  * 
  *  /newfeedback:
  *    get:
+ *      security:
+ *        - JWT: []
  *      tags: [Feedback]
  *      responses:
  *        200:
  *          description: restituisce la pagina feedback.ejs
  *    post:
  *      tags: [Feedback]
- *      requestBody:
- *        required: true
- *        content:
- *          multipart/form-data:
- *            schema:
- *              type: 
- *              properties:
- *                sub:       
- *                  type: 
- *              example: 
  *      responses:
  *        200:
- *          description: prima dell'invio del feedback controlla il token e restituisce feedback.ejs
+ *          description: Prima dell'invio del feedback, allega la foto alla review e restituisce feedback.ejs
  *        403: 
  *          description: Error token expired
  *        404: 
  *          description: Error
  *  /feedback:
  *    post:
+ *      security:
+ *        - JWT: []
  *      tags: [Feedback]
- *      requestBody:
- *        required: true
- *        content:
- *          multipart/form-data:
- *            schema:
- *              type: object
- *              properties:
- *                sub:       
- *                  type: 
- *              example: 
  *      responses:
  *        200:
- *          description: salva il feedback nel database, lo invia al feedback_consumer con AMQP e reindirizza a feedback.ejs
+ *          description: Invia il feedback alla coda 'feedback' sfruttando il protocollo AMQP, salva il feedback nel DB e reindirizza feedback.ejs
  * 
  *  /bootstrap.min.css:
  *    get:
@@ -596,10 +520,17 @@ wss.on('connection', function connection(ws) {
  * 
  *  /error:
  *    get:
+ *      parameters:
+ *        - in: query
+ *          name: statusCode
+ *          schema:
+ *            type: int
+ *          required: true
+ *          description: Codice dell'errore
  *      tags: [Error]
  *      responses:
  *        200:
- *          description: restituisce la pagina error.ejs
+ *          description: Restituisce la pagina error.ejs che spiega con la foto di un gattino qual è l'errore e offre la possibilità all'utente di inviare un feedback o accedere se non ha effettuato l'accesso
  * 
  *  
  *     
@@ -1106,6 +1037,9 @@ app.get('/details', authenticateToken, function(req,res){
   }
   else{
     var photo = '';
+  }
+  if(req.query.xid=='' || req.query.xid==undefined){
+    return res.redirect('error?statusCode=404')
   }
 
   xid = req.query.xid;
@@ -1783,6 +1717,8 @@ app.get('/error',function(req,res){
     res.render('error', {statusCode: req.query.statusCode, fconnected: true});
 })
 
+app.get('*', function(req, res){
+  res.redirect('/error?statusCode=404')});
 
 //Per usare http basta decommentare qui e commentare la parte sotto
 
