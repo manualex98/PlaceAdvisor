@@ -39,9 +39,10 @@
             <input class="mb-3" type="submit" value="NEXT PAGE" size="30">
         </form>
     <% } else { %>
-        <form method="POST" action="https://localhost:8000/newfeedback">
-            <input type="hidden" id="baseUrl" name="baseUrl" value=<%=uri %>>
-            <input class="mb-3" type="submit" value="Scegli" size="30">
+        <form method="GET" action="https://localhost:8000/googlephotosapi"> 
+            <input type="hidden" id="nextpg" name="nextpg" value=<%=info.nextPageToken %>>
+            <input type="hidden" id="stato" name="stato" value="feed">
+            <input class="mb-3" type="submit" value="NEXT PAGE" size="30">
         </form>
     <% } %>
     
