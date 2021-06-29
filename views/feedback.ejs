@@ -1,3 +1,11 @@
+<html lang="eng">
+<head>
+  <title>Feedback</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width initial-scale=1.0"/>
+  <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
+</head>
 <script>
     // Create WebSocket connection.
     const socket = new WebSocket('ws://localhost:8080');
@@ -24,32 +32,35 @@
         }
     }
 </script>
-<% if (!inviato){ %>
-    SEGNALACELO:
-    
-    <br><form action="https://localhost:8000/feedback" method="POST">
-        <% if (photo!=""){ %>
-            Immagine aggiunta:<br>
-            <img src= <%= photo %> width="200" height="200"><br>
-            <input type="hidden" id="baseUrl" name="baseUrl" value=<%=photo %>>
-        <% } else{ %>
-            <input type="hidden" id="baseUrl" name="baseUrl" value=''>
-        <% } %>
+<body class="text-center">
+    <% if (!inviato){ %>
+        <h2>SEGNALACELO:</h2>
         
-        <textarea name="feed" cols="60" rows="30" placeholder="Inviaci il tuo feed"></textarea><br>
-        <input class="mb-3" type="submit" value="Invia" size="30" onclick="sendMessage()">
-    </form>
-    
-    <p>Vuoi aggiungere anche una fotina da gdrive??:D 
-        <% if (!gconnected){ %>
-            <br>Prima devi collegarti però!!</p>
-            <a href="https://localhost:8000/googlelogin"><button class="mb-3">Collegati con google</button></a><br>
-        <% } else { %>
-             
+        <br><form action="https://localhost:8000/feedback" method="POST">
+            <% if (photo!=""){ %>
+                Immagine aggiunta:<br>
+                <img src= <%= photo %> width="200" height="200"><br>
+                <input type="hidden" id="baseUrl" name="baseUrl" value=<%=photo %>>
+            <% } else{ %>
+                <input type="hidden" id="baseUrl" name="baseUrl" value=''>
+            <% } %>
             
-            <a href="https://localhost:8000/googlephotosapi?stato=feed"><button class="mb-3">Aggiungi fotina</button></a><br>
+            <textarea name="feed" style="resize:none" cols="60" rows="10" placeholder="Inviaci il tuo feed"></textarea><br>
+            <input class="mb-3" type="submit" value="Invia" size="30" onclick="sendMessage()">
+        </form>
+        
+        <p>Vuoi aggiungere anche una fotina da gdrive??:D 
+            <% if (!gconnected){ %>
+                <br>Prima devi collegarti però!!</p>
+                <a href="https://localhost:8000/googlelogin"><button class="mb-3">Collegati con google</button></a><br>
+            <% } else { %>
+                 
+                
+                <a href="https://localhost:8000/googlephotosapi?stato=feed"><button class="mb-3">Aggiungi fotina</button></a><br>
+        <% } %>
+    <% } else { %>
+        Fantastico!! Il feedback è stato ricevuto correttamente. Grazie per averci segnalato questa brutta cosa, ce ne faremo una ragione. :*
+        <a href="https://localhost:8000/home"><button class="mb-3">Torna alla home</button></a><br>
     <% } %>
-<% } else { %>
-    Fantastico!! Il feedback è stato ricevuto correttamente. Grazie per averci segnalato questa brutta cosa, ce ne faremo una ragione. :*
-    <a href="https://localhost:8000/home"><button class="mb-3">Torna alla home</button></a><br>
-<% } %>
+</body>
+</html>

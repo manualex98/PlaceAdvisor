@@ -69,7 +69,7 @@ app.get('/refreshtoken', function(req, res){
     else{
       jwt.sign({info:token.info}, secretKey, { expiresIn: '30m' }, (err, newtoken)=>{
         res.cookie('jwt', newtoken, {httpOnly: true,secure: true, signed:true, maxAge:1800000});           
-        console.log('Questo è il JWT REFRESHATO!!' + newtoken);
+        //console.log('Questo è il JWT REFRESHATO!!' + newtoken);
         res.render('mytoken.ejs', {ntoken: newtoken})
     })
     }
@@ -600,7 +600,7 @@ wss.on('connection', function connection(ws) {
 
 
 app.get('/', function (req,res){
-  console.log(JSON.stringify(req.signedCookies))
+  //console.log(JSON.stringify(req.signedCookies))
     res.render('index', {check: false, registrazione: false});
 });
 
@@ -626,7 +626,7 @@ app.post('/userinfo', authenticateToken, function(req,res){
       if(error) {
           console.log(error);
       } else {
-          console.log(response.statusCode, body);
+          //console.log(response.statusCode, body);
           infousers=JSON.parse(body);
 
           if (!infousers.error){                  //Controlla se è presente già un documento nel db
@@ -655,7 +655,7 @@ function gestisciAccessoLocale(req,res){
       if(error) {
           console.log(error);
       } else {
-          console.log(response.statusCode, body);
+          //console.log(response.statusCode, body);
           user=JSON.parse(body);
 
           //AUTENTICAZIONE
@@ -704,7 +704,7 @@ function newUser(req,res){
       if(error) {
           console.log(error);
       } else {
-          console.log(response.statusCode, body);
+          //console.log(response.statusCode, body);
           res.render('index', {check:false, registrazione: true});
       }
   });
@@ -790,7 +790,7 @@ app.get('/gtoken', authenticateToken, function(req, res){
     if (err) {
       return console.error('upload failed:', err);
     }
-    console.log('Upload successful!  Server responded with:', body);
+    //console.log('Upload successful!  Server responded with:', body);
     var info = JSON.parse(body);
     if(info.error != undefined){
       res.redirect(404, '/error?statusCode=404' );
@@ -824,7 +824,7 @@ app.get('/ftoken',function (req,res){
     if (err) {
       return console.error('upload failed:', err);
     }
-    console.log('Upload successful!  Server responded with:', body);
+    //console.log('Upload successful!  Server responded with:', body);
     var info = JSON.parse(body);
     if(info.error != undefined){
       res.redirect(404, 'error');
@@ -863,13 +863,13 @@ app.get('/fb_pre_access',function (req,res){
     headers: headers,
     url:     url,
     }, function(error, response, body){
-      console.log(body);
+      //console.log(body);
       body1 = JSON.parse(body);
       var stringified = JSON.stringify(body1);
       stringified = stringified.replace('\u0040', '@');
       var parsed =JSON.parse(stringified);
       email = parsed.email
-      console.log(email)
+      //console.log(email)
       const fbinfo=parsed
       //CONTROLLO SE ESISTE L'UTENTE NEL DB
       request({
@@ -884,7 +884,7 @@ app.get('/fb_pre_access',function (req,res){
           if(error) {
             console.log(error);
           } else {
-            console.log(response.statusCode, body);
+            //console.log(response.statusCode, body);
             var info = JSON.parse(body)
                         
             if(info.error){
@@ -892,7 +892,7 @@ app.get('/fb_pre_access',function (req,res){
                 "info": fbinfo,
                 "fbtoken": ftoken
               }
-              console.log("QUESTA QUA è LA FUNZIONE CHE SETTA IL COOKIE SE L'UTENTE NON ESISTE")
+              //console.log("QUESTA QUA è LA FUNZIONE CHE SETTA IL COOKIE SE L'UTENTE NON ESISTE")
               jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
                 res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:1800000});           
                 console.log('Questo è il JWT!!' + token);
@@ -912,7 +912,7 @@ app.get('/fb_pre_access',function (req,res){
               }
               res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0});
 
-              console.log("QUESTA QUA è LA FUNZIONE CHE SETTA IL COOKIE SE L'UTENTE ESISTE")
+              //console.log("QUESTA QUA è LA FUNZIONE CHE SETTA IL COOKIE SE L'UTENTE ESISTE")
               jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
                 if (err) console.log(err);
                 res.cookie('jwt', token, {httpOnly: true, secure:true, signed:true, maxAge:1800000});              
@@ -951,7 +951,7 @@ app.post('/fbsignup', authenticateToken, function (req,res){
   */
   payload=req.token.info
   username=req.body.username
-  console.log(payload)
+  //console.log(payload)
   
   
   body1={
@@ -969,7 +969,7 @@ app.post('/fbsignup', authenticateToken, function (req,res){
     "feedbacks":[]
   
 };
-console.log(body1)
+//console.log(body1)
   request({
     url: 'http://admin:admin@127.0.0.1:5984/users/'+payload.info.email,
     method: 'PUT',
@@ -982,7 +982,7 @@ console.log(body1)
       if(error) {
         console.log(error);
       } else {
-        console.log(response.statusCode, body);
+        //console.log(response.statusCode, body);
         jsonobj={
           "info":{
           "email": payload.info.email,
@@ -1054,7 +1054,7 @@ app.post('/openmap', authenticateToken, function(req,res){
     
     lat = parseFloat(info.lat);
     lon = parseFloat(info.lon);
-    console.log('/app?lat='+lat+'&lon='+lon+'&cate='+cate+'&rad='+rad);
+    //console.log('/app?lat='+lat+'&lon='+lon+'&cate='+cate+'&rad='+rad);
     res.redirect('/app?lat='+lat+'&lon='+lon+'&cate='+cate+'&rad='+rad+'&city='+city);
   }); 
 });
@@ -1087,7 +1087,7 @@ function newRegisterCity(city){         //funzione che salva una nuova città
               console.log(error);
             } else {
               var info = JSON.parse(body)
-              console.log("Città creata")
+              //console.log("Città creata")
             }
     })
 
@@ -1108,7 +1108,7 @@ function updateRegisterCity(city,data){             //funzione che aggiorna il n
               console.log(error);
             } else {
               var info = JSON.parse(body)
-              console.log("Città aggiornata")
+              //console.log("Città aggiornata")
             }
   })
 }
@@ -1125,7 +1125,7 @@ app.get('/city_info', authenticateToken, function(req,res){
   }, function(error, response, body){
     if(error){console.log(error)}
     else{
-      console.log(body)
+      //console.log(body)
       var data = JSON.parse(body)
       
       var list_city = new Array()                      //Popolo un array con i documenti del db
@@ -1205,14 +1205,14 @@ app.get('/details', authenticateToken, function(req,res){
     place_name=info.name
     lat = info.point.lat
     lon= info.point.lat
-    console.log('\r\n'+place_name+'\r\n')
+    //console.log('\r\n'+place_name+'\r\n')
     request.get('http://admin:admin@127.0.0.1:5984/reviews/'+xid, function callback(error, response, body){
       if(error) {
         console.log(error);
         res.status(404).render('/error?statusCode=404')
         return
       } else {
-        console.log(response.statusCode, body);
+        //console.log(response.statusCode, body);
         infodb = JSON.parse(body);
         var weather = {
           url: 'https://api.openweathermap.org/data/2.5/weather?lat='+lat+'&lon='+lon+'&appid='+process.env.OpenWeatherMap_KEY+'&lang=it'
@@ -1256,7 +1256,7 @@ app.get('/googlephotosapi', authenticateToken, function(req,res){
         console.log(error)
       }
       else{
-        console.log(body)
+        //console.log(body)
         ref=JSON.parse(body)
         if (ref.azp!=process.env.G_CLIENT_ID){
           res.status(403).render('expired_token', {google:true})
@@ -1313,7 +1313,7 @@ app.get('/googlephotosapi', authenticateToken, function(req,res){
       },
       json:true
       }, function(error, response, body){
-        console.log(JSON.stringify(body));
+        //console.log(JSON.stringify(body));
         info = JSON.parse(JSON.stringify(body));
         if (queryxid!=''){     //la foto si sta aggiungendo alla pagina di un monumento
           res.render('gphotos.ejs', {info:info, feedbackposting: false,  xid : queryxid, numpag: numpag})
@@ -1349,12 +1349,14 @@ app.post('/logout', function(req,res){
 app.post('/reviews', authenticateToken, function(req,res){
   codice = Date.now();
   photo = req.body.baseUrl;
-  request.get('http://admin:admin@127.0.0.1:5984/reviews/'+req.body.xid, function callback(error, response, body){
+  if(req.body.rev==='') res.redirect('/details?xid='+req.body.xid);
+  else{
+    request.get('http://admin:admin@127.0.0.1:5984/reviews/'+req.body.xid, function callback(error, response, body){
     if(error) {
       console.log(error);
       res.status(404).render('/error?statusCode=404')
     } else {
-      console.log(response.statusCode, body);
+      //console.log(response.statusCode, body);
       infodb = JSON.parse(body);
         if(infodb.error){
           //console.log('la f è in err')
@@ -1364,9 +1366,11 @@ app.post('/reviews', authenticateToken, function(req,res){
         else{
           updateReview(req, res, codice);             //Altrimenti aggiorno quello esistente
         }
-    }
-  });
-  updateUserReviews(req,res, codice);             //Inserisco la recensione anche nel doc utente
+      }
+    });
+    updateUserReviews(req,res, codice);             //Inserisco la recensione anche nel doc utente
+  }
+  
 });
 
 //elimina recensione:
@@ -1375,7 +1379,7 @@ app.post('/elimina', authenticateToken, function(req,res){
   email=req.token.info.info.email
   email=email.replace('\u0040', '@');
   const obj = JSON.parse(JSON.stringify(req.body));
-  console.log(obj)
+  //console.log(obj)
   try {
     deletereviewfromUser(obj.codice, email)
     deletereviewfromCity(obj.codice, obj.xid)
@@ -1403,7 +1407,7 @@ function updateUserReviews(req,res, codice){
           console.log(error);
       } else {
         var info = JSON.parse(body)
-        console.log('\r\n'+place_name+'\r\n')
+        //console.log('\r\n'+place_name+'\r\n')
         data = new Date();
         mese=data.getMonth() +1;
         strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
@@ -1435,7 +1439,7 @@ function updateUserReviews(req,res, codice){
                 if(error) {
                   console.log(error);
                 } else {
-                  console.log(response.statusCode, body);
+                  //console.log(response.statusCode, body);
                 }
               });
             }
@@ -1469,7 +1473,7 @@ function updateUserReviews(req,res, codice){
               if(error) {
                 console.log(error);
               } else {
-                console.log(response.statusCode, body);
+                //console.log(response.statusCode, body);
               }
           });
         }
@@ -1483,7 +1487,7 @@ function newReview(req,res, codice){
   data = new Date();
   mese=data.getMonth() +1;
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
-  console.log("body funzionenewreview: %j", req.body)
+  //console.log("body funzionenewreview: %j", req.body)
   if (req.body.baseUrl!=''){
     imageToBase64(req.body.baseUrl) // Image URL
     .then(
@@ -1530,7 +1534,7 @@ function newReview(req,res, codice){
       "reviews": [
         {
           "codice": codice,
-          "name": req.token.info.info.username,
+          "name": payload.info.username, //req.token.info.info.username,
           "text": req.body.rev,
           "date": strdate,
           "photo": ''
@@ -1561,13 +1565,13 @@ function newReview(req,res, codice){
 }
 
 function updateReview(req,res,codice){
-  payload=req.token
+  payload=req.token.info
   xid = req.body.xid;
-  console.log("XID_ : "+xid)
+  //console.log("XID_ : "+xid)
   data = new Date();
   mese=data.getMonth() +1;
   strdate = data.getDate()+"/"+mese+"/"+data.getFullYear()
-  console.log("body funzioneupdatereview: %j", req.body)
+  //console.log("body funzioneupdatereview: %j", req.body)
   if (req.body.baseUrl!=''){ 
     imageToBase64(req.body.baseUrl) // Image URL
     .then(
@@ -1672,7 +1676,7 @@ function deletereviewfromUser(num, email){
             if(error) {
                 console.log(error);
             } else {
-                console.log(response.statusCode, body);
+                //console.log(response.statusCode, body);
             }
         })
       }
@@ -1710,7 +1714,7 @@ function deletereviewfromCity(codice, xid){
             if(error) {
                 console.log(error);
             } else {
-                console.log(response.statusCode, body);
+                //console.log(response.statusCode, body);
             }
         })
       }
@@ -1832,7 +1836,7 @@ function updateFeedback(data,res){
             const channel = await connection.createChannel();
             const result = channel.assertQueue("feedback")
             channel.sendToQueue("feedback", Buffer.from(JSON.stringify(data)))
-            console.log('Feedback sent succefully')
+            //console.log('Feedback sent succefully')
             //console.log(data)
             
             res.render('feedback', {inviato : true})
@@ -1852,7 +1856,7 @@ function updateFeedback(data,res){
 
 function log_on_file(data){
   fs.appendFile('logs.txt',data+'\r\n', ()=>{
-    console.log('scritto su file')
+    //console.log('scritto su file')
   })
 
 }

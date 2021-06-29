@@ -8,10 +8,36 @@
     <title>Search</title>
     <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
 </head>
-    
+<script>
+    // Create WebSocket connection.
+    const socket = new WebSocket('ws://localhost:8080');
+  
+    // Connection opened
+    socket.addEventListener('open', function (event) {
+        console.log('Connected to WS Server')
+    });
+  
+    // Listen for messages
+    socket.addEventListener('message', function (event) {
+        console.log('Message from server ', event.data);
+    });
+  
+    const sendMessage = () => {
+        var rev = document.getElementsByName('rev');
+        var head = document.getElementsByName('header');
+        if(rev[0].value ===''){
+          alert("Per favore riempi tutti i campi...!!!!!!");
+          return false;
+        }else{
+          data = new Date();
+          socket.send(data+': È stato recensito '+this.query.xid);
+          return true;
+        }
+    }
+</script>    
     <div id="fb-root"></div><script async defer crossorigin="anonymous" src="https://connect.facebook.net/it_IT/sdk.js#xfbml=1&version=v10.0&appId=468739614360394&autoLogAppEvents=1" nonce="iFPJ5Fwi"></script>
 
-    <h1> <%= info.name %> </h1><br>
+    <h1 name="header"> <%= info.name %> </h1><br>
     <h2>Dettagli:</h2>
     <% if (info.preview!=undefined) {%>
         <img src=<%= info.preview.source  %> width=<%=info.preview.width%> height=<%=info.preview.height%>>
@@ -101,8 +127,8 @@
                 <input type="hidden" id="baseUrl" name="baseUrl" value=''>
             <% } %>
                 <input type="hidden" id="xid" name="xid" value= <%= xid %>>
-                <textarea name="rev" cols="30" rows="6" placeholder="Add a review"></textarea><br>
-                <input class="mb-3" type="submit" value="Condividi" size="10">
+                <textarea name="rev" style="resize:none" cols="30" rows="6" placeholder="Add a review"></textarea><br>
+                <input class="mb-3" type="submit" value="Condividi" size="10" onclick="sendMessage()">
             </form>
                 <p>Vuoi condividere anche una foto con Google Photos?
                     <% if (!gconnected){ %>

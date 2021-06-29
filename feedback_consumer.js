@@ -47,8 +47,6 @@ function update(email,id,channel,message){
         for(var i=0; i<data.feedbacks.length;i++){
             if(data.feedbacks[i].feedback_id == id){
 
-                console.log("\r\nModifica dell'id : "+id+"\r\n")
-
                 data.feedbacks[i].read=true
                 request({
                     url: 'http://admin:admin@127.0.0.1:5984/users/'+email,
@@ -62,15 +60,10 @@ function update(email,id,channel,message){
                         if(error) {
                             console.log(error);
                         } else {
-                            console.log(response.statusCode, body);
+                            //console.log(response.statusCode, body);
                             channel.ack(message)
                         }
                     });
-                    
-                      
-                    
-                    
-    
             }
         }
     })
