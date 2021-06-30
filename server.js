@@ -846,7 +846,7 @@ app.get('/fb_pre_access',function (req,res){
               })
               if(req.signedCookies.refresh==null){
               jwt.sign({info:jsonobj}, refresh_secretKey, { expiresIn: '24h' }, (err, refreshtoken)=>{
-                res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
+                res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true, maxAge:86400000})
                 res.redirect('/home');  //Utente esiste, può accedere
               })
             }
@@ -925,8 +925,8 @@ app.post('/fbsignup', authenticateToken, function (req,res){
           
           
           })     //refresh_token      
-          jwt.sign({info:jsonobj}, refresh_secretKey, (err, refreshtoken)=>{
-            res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true})
+          jwt.sign({info:jsonobj}, refresh_secretKey, {expiresIn: '24h'}, (err, refreshtoken)=>{
+            res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true, maxAge:86400000})
             res.redirect('/home');  //Utente esiste, può accedere
           
       })
