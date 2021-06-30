@@ -40,7 +40,8 @@ Link API usate:
 - OpenWeatherMap API: https://openweathermap.org/current
 
 ### Schema
-![schema](https://user-images.githubusercontent.com/80718809/123552915-d1bffe00-d778-11eb-82da-a587dd4e50b3.jpg)
+![schema](https://user-images.githubusercontent.com/50673340/123996987-32954380-d9d0-11eb-82de-451ae15e42a3.jpg)
+
 
 
 ## Istruzioni per l'installazione
