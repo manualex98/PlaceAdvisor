@@ -1150,11 +1150,11 @@ app.get('/details', authenticateToken, function(req,res){
           icon_id=info_weather.weather[0].icon;
           icon_url="http://openweathermap.org/img/wn/"+icon_id+"@2x.png"
           if(infodb.error){
-            res.render('details', {gconnected : gconnected, fconnected: true,info: info, xid: xid, lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, reviews: "", photo:photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
+            res.render('details', {gconnected : gconnected, fconnected: true,info: info, xid: xid, lat: lat , lon: lon, api: process.env.HERE_API, reviews: "", photo:photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
           } 
           else{
             //Ci sono recensioni
-            res.render('details', {gconnected : gconnected, fconnected:true,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: info.point.lat , lon: info.point.lon, api: process.env.HERE_API, photo: photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
+            res.render('details', {gconnected : gconnected, fconnected:true,info: info, xid: xid, reviews: infodb.reviews,n: infodb.reviews.length,lat: lat , lon: lon, api: process.env.HERE_API, photo: photo, info_weather:meteo, icon_id:icon_id, icon_url:icon_url});
           }
         })
         
@@ -1261,7 +1261,7 @@ app.get('/googlephotosapi', authenticateToken, function(req,res){
 
 
 app.get('/logout', authenticateToken, function(req,res){
-  res.render('logout.ejs', {user:username})
+  res.render('logout.ejs', {user:req.token.info.info.username})
 })
 
 app.post('/logout', function(req,res){
