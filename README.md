@@ -57,7 +57,6 @@ $ sudo docker-compose up --build
 ```
 Aprire un secondo terminale per avviare un docker container con l'immagine di CouchDB:
 ```
-$ sudo docker run -d --name couchdb -p 5984:5984 -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=admin couchdb
 $ sudo docker container ps  //selezionare l'id del container di couchdb
 $ sudo docker exec -it <container-name> /bin/bash
 $ curl -X PUT http://admin:admin@127.0.0.1:5984/users
