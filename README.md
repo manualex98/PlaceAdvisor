@@ -52,8 +52,7 @@ Apriamo il terminale ed eseguiamo i seguenti comandi:
 ```
 $ git clone https://github.com/manualex98/PlaceAdvisor.git
 $ cd PlaceAdvisor
-$ npm install
-$ npm start
+$ sudo docker-compose up --build
 ```
 Aprire un secondo terminale per avviare un docker container con l'immagine di CouchDB:
 ```
@@ -64,14 +63,9 @@ $ curl -X PUT http://admin:admin@127.0.0.1:5984/users
 $ curl -X PUT http://admin:admin@127.0.0.1:5984/cities
 $ curl -X PUT http://admin:admin@127.0.0.1:5984/reviews
 $ exit
-
 ```
 Questi comandi permetteranno di scaricare i file e di tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accessibile cliccando [qui](https://localhost:8000), però prima di fare ciò dobbiamo lanciare il server che si occuperà di gestire i feedback degli utenti:
-Aprire un terzo terminale per far funzionare il feedback service consumer implementato con RabbitMQ ed eseguire:
-
-```$ sudo docker run --name rabbitmq -p 5672:5672 rabbitmq```
-
-Poi con un quarto terminale lanciamo feedback_consumer.js:
+Aprire un terzo terminale per far funzionare il feedback service consumer implementato con RabbitMQ eseguire:
 ```
 $ cd PlaceAdvisor
 $ node feedback_consumer.js
@@ -80,11 +74,9 @@ Ora non rimane che andare su https://localhost:8000 e godersi il servizio!
 
 Per chiudere tutto:
 ```
-$ sudo docker ps  
-$ sudo docker rm <couchdb-container>
-$ sudo docker rm <rabbitmq-container>
+$ ^[C]
+$ sudo docker-compose down --remove
 ```
-
 
 
 ## Istruzioni per il test
