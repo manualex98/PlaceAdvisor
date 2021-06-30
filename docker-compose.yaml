@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+    couchdb:
+        image: couchdb
+        networks:
+            - app-network
+        environment:
+            - COUCHDB_USER=admin
+            - COUCHDB_PASSWORD=admin
+        volumes:
+            - "couchdb-data:/opt/couchdb/data"
+        ports:
+            - 5984:5984
+        restart: on-failure
+    nodejs:
+        build:
+            context: ./
+        ports:
+            - "8000:8000"
+            - "8080:8080"
+        depends_on:
+            - couchdb
+            - rabbitmq
+        links:
+            - couchdb  
+            - rabbitmq
+        networks:
+            - app-network
+        restart: on-failure
+    rabbitmq:
+        image: rabbitmq
+        ports:
+            - "5672:5672"
+        networks:
+            - app-network
+        restart: always
+
+
+volumes:
+    couchdb-data:
+
+
+networks:
+    app-network:
+        driver: bridge
+        
