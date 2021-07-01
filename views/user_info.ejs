@@ -2,6 +2,10 @@
     <% if (data!=""){ %>
 <head>
     <title>Info <%=data.name%> <%=data.surname%></title>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
 </head>
 <body>
     <script>
@@ -33,7 +37,7 @@
 
                     <input type="hidden" id="codice" name="codice" value=<%=data.reviews[i].codice %>>
                     <input type="hidden" id="xid" name="xid" value=<%=data.reviews[i].xid %>>
-                    <input type="submit" value="Elimina">
+                    <input class="mb-3" type="submit" value="Elimina">
                 
                   </form>
                 <h2>--------------------------------------</h2>
@@ -65,14 +69,14 @@
         <%}%>
 
         <a href= "https://localhost:8000/home">
-            <button type= 'button'>Torna alla homepage</button>
+            <button class="mb-3" type= 'button'>Torna alla homepage</button>
           </a>
         
 
     <% } else {%>
         Sembra che tu non sia collegato! :( Torna alla homepage! 
         <a href= "https://localhost:8000/">
-            <button type= 'button'>OK :(</button>
+            <button class="mb-3" type= 'button'>OK :(</button>
           </a>
     <% } %>
 </html>
