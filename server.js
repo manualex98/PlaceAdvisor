@@ -863,41 +863,16 @@ app.get('/fb_pre_access',function (req,res){
 app.get('/fbsignup', authenticateToken, function(req,res){
   const ftoken = req.token.info.fbtoken
   const fbinfo= req.token.info.info
-  fconnected=true;
   res.render('fbsignup', {fconnected: true,check: false, ftoken:ftoken, data: fbinfo});
 })
 
 
 app.post('/fbsignup', authenticateToken, function (req,res){
-  /*da implementare
-  - recuperare payload e usarlo al posto di fbinfo
-  - creare utente
-  - return a homepage
-  */
   payload=req.token.info
   username=req.body.username
-  //console.log(payload)
-  
-  
-  body1={
-    
-    "name": payload.info.first_name,
-    "surname": payload.info.last_name,
-    "email": payload.info.email,
-    "username": username,
-    "picture": {
-      "url": payload.info.picture.data.url,
-      "height": payload.info.picture.data.height,
-      "width": payload.info.picture.data.width
-    },
-    "reviews": [],
-    "feedbacks":[]
-  
-};
-//console.log(body1)
   request({
-    url: 'http://admin:admin@couchdb:5984/users/'+payload.info.email,
-    method: 'PUT',
+    url: 'http://admin:admin@couchdb:5984/users/_all_docs?include_docs=true&limit=100',
+    method: 'GET',
     headers: {
       'content-type': 'application/json'
     },
@@ -907,32 +882,76 @@ app.post('/fbsignup', authenticateToken, function (req,res){
       if(error) {
         console.log(error);
       } else {
-        //console.log(response.statusCode, body);
-        jsonobj={
-          "info":{
+        //console.log(response.statusCode, body)
+        var data = JSON.parse(body) 
+        for(var i=0; i<data.total_rows;i++){
+          if(data.rows[i].doc.username === username){
+            const ftoken = req.token.info.fbtoken
+            const fbinfo= req.token.info.info
+            res.render('fbsignup', {fconnected: true,check: true, ftoken:ftoken, data: fbinfo});
+            return;
+          }
+        }
+        body1={
+    
+          "name": payload.info.first_name,
+          "surname": payload.info.last_name,
           "email": payload.info.email,
           "username": username,
+          "picture": {
+            "url": payload.info.picture.data.url,
+            "height": payload.info.picture.data.height,
+            "width": payload.info.picture.data.width
           },
-          "fbtoken": payload.fbtoken
-        }
+          "reviews": [],
+          "feedbacks":[]
         
+      };
+      //console.log(body1)
+        request({
+          url: 'http://admin:admin@couchdb:5984/users/'+payload.info.email,
+          method: 'PUT',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(body1)
         
-          res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
-          jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
-          res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
-          res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:1800000})            
-          console.log('Questo è il nuovo JWT!!' + token)
-          
-          
-          })     //refresh_token      
-          jwt.sign({info:jsonobj}, refresh_secretKey, {expiresIn: '24h'}, (err, refreshtoken)=>{
-            res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true, maxAge:86400000})
-            res.redirect('/home');  //Utente esiste, può accedere
-          
-      })
-    }
-  });
-
+        }, function(error, response, body){
+            if(error) {
+              console.log(error);
+            } else {
+              //console.log(response.statusCode, body);
+              jsonobj={
+                "info":{
+                "email": payload.info.email,
+                "username": username,
+                },
+                "fbtoken": payload.fbtoken
+              }
+              
+              
+                res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
+                jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
+                res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
+                res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:1800000})            
+                console.log('Questo è il nuovo JWT!!' + token)
+                
+                
+                })     //refresh_token      
+                jwt.sign({info:jsonobj}, refresh_secretKey, {expiresIn: '24h'}, (err, refreshtoken)=>{
+                  res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true, maxAge:86400000})
+                  res.redirect('/home');  //Utente esiste, può accedere
+                
+            })
+          }
+        });
+      
+        
+      }
+    })
+  
+  
+  
 });
 
 app.get('/googlecallback', function (req,res){

@@ -3,15 +3,19 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
     <title>Error</title>
 </head>
 <% var uri = "https://http.cat/"+statusCode %>
-<body>
+<body class="text-center">
     
     <h1><img src= <%= uri %>><br></h1>
     <h2>Spiacenti, si è verificato un errore nell'elaborazione della tua richiesta.<br></h2>
     <h3>
-            Torna alla home <a href="https://localhost:8000/"><button>Clicca qui</button></a><br><br>
+            Torna alla home <a href="https://localhost:8000/"><button class="mb-3">Clicca qui</button></a><br><br>
         Se non hai ottenuto quello che stavi cercando, e pensi possa essere un problema legato ad un malfunzionamento della web app <a href="http://localhost:8000/newfeedback"><button>Inviaci un feedback</button></a>
     </h3>
 </body>

@@ -85,9 +85,9 @@ $ sudo docker-compose down --remove
 ## Istruzioni per il test
 Per effettuare un test loggarsi con le seguenti credenziali Facebook:
 
-email: 	test_zreyrfg_user@tfbnw.net
+email: 	harry_ewleruo_valtchanovwitz@tfbnw.net
 
-password: Passtest1
+password: testtest1
 
 Questo utente è uno user test creato direttamente da Facebook for Developers. 
 

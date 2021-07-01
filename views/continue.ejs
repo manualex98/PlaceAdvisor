@@ -1,6 +1,10 @@
 <html>
 <head>
     <title>Token</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
 </head>
 <body>
     <script>
@@ -16,15 +20,15 @@
     <% if (xid!= ''){ %>
         <% var urll= "https://localhost:8000/details?xid="+xid; %>
         <a href= <%=urll %>>
-            <button type= 'button'>YES!!</button>
+            <button class="mb-3" type= 'button'>YES!!</button>
         </a> 
     <% } else if (feedbackposting==true) { %>
         <a href= "https://localhost:8000/newfeedback">
-            <button type= 'button'>YES!!</button>
+            <button class="mb-3" type= 'button'>YES!!</button>
         </a>
     <% } else { %>
         <a href= "https://localhost:8000/homepage">
-            <button type= 'button'>YES!!</button>
+            <button class="mb-3" type= 'button'>YES!!</button>
         </a>
     <% } %>
 </html>

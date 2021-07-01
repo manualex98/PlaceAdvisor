@@ -1,6 +1,10 @@
 <html>
 <head>
     <title>Token expired</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width initial-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
 </head>
 <body>
     <% if (google==false){ %>
@@ -11,7 +15,7 @@
     <% } else { %>
         <h2>Il tuo token di Google è scaduto, per favore riaccedi:</h2>
     <br><br> <a href= 'https://localhost:8000/googlelogin'>
-        <button type= 'button'>Accedi</button>
+        <button class="mb-3" type= 'button'>Accedi</button>
     </a>
     <% } %>  
 </body>
