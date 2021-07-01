@@ -1177,7 +1177,7 @@ app.get('/googlephotosapi', authenticateToken, function(req,res){
   }
   else{
     request.get({
-      url: 'https://oauth2.googleapis.com/tokeninfo?id_token=' + req.signedCookies.gid_token
+      url: 'https://oauth2.googleapis.com/tokeninfo?access_token=' + req.signedCookies.googleaccess_token
     }, function(error, response, body){
       if(error){
         console.log(error)
