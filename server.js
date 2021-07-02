@@ -976,7 +976,7 @@ app.get('/info', authenticateToken, function(req, res){
   
   request.get('http://admin:admin@couchdb:5984/users/'+email, function callback(error, response, body){
     var data = JSON.parse(body)
-    res.render('user_info', {data: data});
+    res.render('user_info', {data: data, check:true});
   })
   
   
@@ -1797,6 +1797,64 @@ function log_on_file(data){
 app.get('/bootstrap.min.css',function (req,res){
   res.sendFile(path.resolve('bootstrap.min.css'));
 });
+
+app.get('/delete_account',authenticateToken,function (req,res){
+  payload=req.token.info
+  var email=payload.info.email
+  var username = payload.info.username
+  request.get('http://admin:admin@couchdb:5984/users/'+email, function callback(error, response, body){
+    var data = JSON.parse(body)
+    if(error) console.log(error)
+    else{
+      var rev = data._rev
+      request({
+        url: 'http://admin:admin@couchdb:5984/users/'+email+'?rev='+rev,
+        method: 'DELETE',
+        headers: {
+          'content-type': 'application/json'
+        },
+        json:true
+      }, function(error, response, body){
+        if(error) {
+          console.log(error);
+          res.render('user_info', {data: data, check:false});
+        } else {
+          //console.log(response.statusCode, body);
+          deletereview(username)
+          res.render('account_deleted', {username: username});
+        }
+      })
+    
+    }
+  })
+  
+  
+});
+function deletereview(username){
+  request({
+    url: 'http://admin:admin@couchdb:5984/reviews/_all_docs?include_docs=true',
+    method: 'GET',
+    headers: {
+      'content-type': 'application/json'
+    },
+  
+  }, function(error, response, body){
+      if(error) {
+        console.log(error);
+      } else {
+        //console.log(response.statusCode, body)
+        var data = JSON.parse(body)
+        for(var i=0; i<data.total_rows;i++){
+          for(var j=0; j<data.rows[i].doc.reviews.length;j++){
+            if(data.rows[i].doc.reviews[j].name === username){
+              deletereviewfromCity(data.rows[i].doc.reviews[j].codice,data.rows[i].id)
+            }
+          }
+          
+        }
+      }
+    })
+}
 
 app.get('/error',function(req,res){
     res.render('error', {statusCode: req.query.statusCode, fconnected: true});
