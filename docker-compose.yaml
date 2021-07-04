@@ -32,6 +32,8 @@ services:
         restart: on-failure
     rabbitmq:
         image: rabbitmq
+        volumes:
+            - rabbitmq-data:/var/lib/rabbitmq
         ports:
             - "5672:5672"
         networks:
@@ -41,6 +43,7 @@ services:
 
 volumes:
     couchdb-data:
+    rabbitmq-data:
 
 
 networks:

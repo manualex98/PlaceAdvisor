@@ -11,12 +11,20 @@
 </head>
 <% var uri = "https://http.cat/"+statusCode %>
 <body class="text-center">
-    
+    <% if (statusCode==409){ %>
+        <h1><img src= <%= uri %>><br></h1>
+    <h2>Siamo spiacenti, il nome inserito è già esistente. :'(<br></h2>
+    <h3>
+        Scegline un altro :) <a href="https://localhost:8000/fbsignup"><button class="mb-3">Clicca qui</button></a><br><br>
+    </h3>
+    <% } else {%>
     <h1><img src= <%= uri %>><br></h1>
     <h2>Spiacenti, si è verificato un errore nell'elaborazione della tua richiesta.<br></h2>
     <h3>
             Torna alla home <a href="https://localhost:8000/"><button class="mb-3">Clicca qui</button></a><br><br>
         Se non hai ottenuto quello che stavi cercando, e pensi possa essere un problema legato ad un malfunzionamento della web app <a href="http://localhost:8000/newfeedback"><button>Inviaci un feedback</button></a>
     </h3>
+    <% } %>
+
 </body>
 </html>
