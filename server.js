@@ -17,6 +17,7 @@ const swaggerJsDoc= require('swagger-jsdoc'); //usato per la documentazione
 const swaggerUi= require('swagger-ui-express'); //usato per la documentazione
 const { waitForDebugger } = require('inspector');
 require('dotenv').config()
+var appRoot=path.resolve(__dirname)
 
 const secretKey = process.env.SECRETKEY;
 const refresh_secretKey = process.env.REFRESH_SECRET;
@@ -342,9 +343,9 @@ wss.on('connection', function connection(ws) {
  *        - JWT: []
  *      responses:
  *        200: 
- *          description: HTML HOMEPAGE
+ *          description: Restituisce homepage.ejs
  *        403:
- *          description: Error 403. User not authenticated
+ *          description: Error page 401. User not authenticated.
  * 
  *  /info:
  *    get:
@@ -354,9 +355,9 @@ wss.on('connection', function connection(ws) {
  *        - JWT: []
  *      responses:
  *        200:
- *          description: HTML user_info
- *        403:
- *          description: HTML error page. user not authenticated
+ *          description: Rstituisce la pagine user_info.ejs
+ *        401:
+ *          description: Ejs error page 401. User not authenticated
  * 
  *  /city_info:
  *    get:
@@ -480,6 +481,18 @@ wss.on('connection', function connection(ws) {
  *          description: Restituisce la pagina gphotos.ejs con la lista delle foto dell'utente
  *        404:
  *          description: Error
+ * 
+ *  /delete_account:
+ *    get:
+ *      summary: Elimina il tuo account
+ *      tags: [User]
+ *      security:
+ *        - JWT: []
+ *      responses:
+ *        200:
+ *          description: EJS account_deleted 
+ *        403:
+ *          description: EJS error page. user not authenticated    
  * 
  *  /logout:
  *    get:
@@ -863,6 +876,9 @@ app.get('/fb_pre_access',function (req,res){
 app.get('/fbsignup', authenticateToken, function(req,res){
   const ftoken = req.token.info.fbtoken
   const fbinfo= req.token.info.info
+  if (req.token.info.info.username!=undefined && req.token.info.info.username!=''){
+    return res.redirect('/home')
+  }
   res.render('fbsignup', {fconnected: true,check: false, ftoken:ftoken, data: fbinfo});
 })
 
@@ -1096,8 +1112,8 @@ app.get('/city_info', authenticateToken, function(req,res){
 
 app.get('/app', authenticateToken, function(req,res){ 
   rad = req.query.rad;
-  lat = req.query.lat;
-  lon = req.query.lon;
+  lat = parseFloat(req.query.lat);
+  lon = parseFloat(req.query.lon);
   cate = req.query.cate;
   city = req.query.city;
 
@@ -1149,8 +1165,8 @@ app.get('/details', authenticateToken, function(req,res){
   request.get(options,function callback(error, response, body){
     info = JSON.parse(body);
     place_name=info.name
-    lat = info.point.lat
-    lon= info.point.lat
+    lat = parseFloat(info.point.lat);
+    lon= parseFloat(info.point.lon);
     //console.log('\r\n'+place_name+'\r\n')
     request.get('http://admin:admin@couchdb:5984/reviews/'+xid, function callback(error, response, body){
       if(error) {
@@ -1200,12 +1216,12 @@ app.get('/googlephotosapi', authenticateToken, function(req,res){
     }, function(error, response, body){
       if(error){
         console.log(error)
+        return res.status(401).render('expired_token', {google:true})
       }
       else{
-        console.log(body)
         ref=JSON.parse(body)
         if (ref.azp!=process.env.G_CLIENT_ID){
-          res.status(403).render('expired_token', {google:true})
+          res.status(401).render('expired_token', {google:true})
           return
         }
         if (feed == 'feed'){
@@ -1351,7 +1367,8 @@ function updateUserReviews(req,res, codice){
       if(error) {
           console.log(error);
       } else {
-        place_name=req.body.place;
+        place=encodeURI(req.body.place);
+        place_name= place.replace(/%2520/g, ' ')
         var info = JSON.parse(body)
         //console.log('\r\n'+place_name+'\r\n')
         data = new Date();
@@ -1788,7 +1805,7 @@ function updateFeedback(data,res){
 }
 
 function log_on_file(data){
-  fs.appendFile('logs.txt',data+'\r\n', ()=>{
+  fs.appendFile(appRoot+'/logs.txt',data+'\r\n', ()=>{
     //console.log('scritto su file')
   })
 
@@ -1820,6 +1837,10 @@ app.get('/delete_account',authenticateToken,function (req,res){
           res.render('user_info', {data: data, check:false});
         } else {
           //console.log(response.statusCode, body);
+          res.cookie('gid_token', '', {maxAge:0, secure:true, signed: true, httpOnly: true})
+          res.cookie('googleaccess_token', '', {maxAge:0, secure:true, signed: true, httpOnly: true})
+          res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0}) 
+          res.cookie('refresh', '', {httpOnly: true,secure: true, signed:true, maxAge:0}) 
           deletereview(username)
           res.render('account_deleted', {username: username});
         }

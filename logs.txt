@@ -29,3 +29,55 @@ Città: Roma, Categoria: interesting_places, Raggio: 28
 Tue Jun 29 2021 23:53:45 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
 Tue Jun 29 2021 23:57:29 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
 Città: castrovillari, Categoria: interesting_places, Raggio: 28
+Sun Jul 04 2021 10:37:02 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 28
+Sun Jul 04 2021 10:37:54 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Torino, Categoria: interesting_places, Raggio: 15
+Sun Jul 04 2021 10:44:28 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W110680297
+Sun Jul 04 2021 10:53:59 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 2
+Sun Jul 04 2021 10:55:08 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito N3594410888
+Sun Jul 04 2021 11:01:39 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Sun Jul 04 2021 11:01:47 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W254528627
+Sun Jul 04 2021 11:02:05 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Sun Jul 04 2021 11:04:20 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W254528627
+Sun Jul 04 2021 11:13:02 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W254528627
+Sun Jul 04 2021 11:16:18 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 28
+Sun Jul 04 2021 11:16:24 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W254528627
+Sun Jul 04 2021 11:20:23 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Parigi, Categoria: interesting_places, Raggio: 28
+Sun Jul 04 2021 11:20:54 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito N1656250107
+Sun Jul 04 2021 11:24:19 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 28
+Sun Jul 04 2021 11:24:26 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito N3594410888
+Sun Jul 04 2021 11:24:34 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W24164374
+Sun Jul 04 2021 11:24:40 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W24164374
+Sun Jul 04 2021 11:30:24 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 2
+Sun Jul 04 2021 11:30:32 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W254528627
+Sun Jul 04 2021 11:31:05 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W254528627
+Sun Jul 04 2021 11:33:22 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 28
+Sun Jul 04 2021 11:33:36 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W24164374
+Sun Jul 04 2021 11:44:46 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: New York, Categoria: interesting_places, Raggio: 10
+Sun Jul 04 2021 11:47:22 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Sun Jul 04 2021 11:50:09 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: theatres_and_entertainments, Raggio: 10
+Sun Jul 04 2021 11:56:46 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: New York, Categoria: theatres_and_entertainments, Raggio: 10
+Sun Jul 04 2021 11:57:33 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito N1408962432
+Sun Jul 04 2021 11:57:49 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: castrovillari, Categoria: interesting_places, Raggio: 28
+Sun Jul 04 2021 11:58:07 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W425812056
+Sun Jul 04 2021 12:03:52 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: castrovillari, Categoria: interesting_places, Raggio: 28
+Sun Jul 04 2021 12:04:00 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W426283255
+Sun Jul 04 2021 12:04:18 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito N4310488708
+Sun Jul 04 2021 12:05:42 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Sidney, Categoria: interesting_places, Raggio: 10
+Sun Jul 04 2021 12:05:55 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito Q5532119

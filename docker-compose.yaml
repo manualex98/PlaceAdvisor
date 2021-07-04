@@ -25,6 +25,8 @@ services:
         links:
             - couchdb  
             - rabbitmq
+        volumes:
+            - ./:/src/app
         networks:
             - app-network
         restart: on-failure

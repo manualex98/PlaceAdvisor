@@ -24,13 +24,13 @@
   
     const sendMessage = () => {
         var rev = document.getElementsByName('rev');
-        var head = document.getElementsByName('header');
+        var xidd = document.getElementsByName('xid');
         if(rev[0].value ===''){
           alert("Per favore riempi tutti i campi...!!!!!!");
           return false;
         }else{
           data = new Date();
-          socket.send(data+': È stato recensito '+this.query.xid);
+          socket.send(data+': È stato recensito '+xidd[0].value);
           return true;
         }
     }
@@ -116,7 +116,7 @@
                 <% } %>
             <% } %></ul>
 
-
+            <% var nome = encodeURI(info.name) %>
             <li>Scrivi la tua recensione:
             <br><form action="https://localhost:8000/reviews" method="POST">
             <% if (photo!=""){ %>
@@ -126,7 +126,7 @@
             <% } else{ %>
                 <input type="hidden" id="baseUrl" name="baseUrl" value=''>
             <% } %>
-                <input type="hidden" id="place" name="place" value= <%= info.name %>>
+                <input type="hidden" id="place" name="place" value= <%= nome %>>
                 <input type="hidden" id="xid" name="xid" value= <%= xid %>>
                 <textarea name="rev" style="resize:none" cols="30" rows="6" placeholder="Add a review"></textarea><br>
                 <input class="mb-3" type="submit" value="Condividi" size="10" onclick="sendMessage()">
