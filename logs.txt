@@ -84,3 +84,9 @@ Sun Jul 04 2021 12:05:55 GMT+0200 (Ora legale dell’Europa centrale): È stato 
 Sun Jul 04 2021 16:26:38 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
 Città: Roma, Categoria: interesting_places, Raggio: 28
 Sun Jul 04 2021 16:26:46 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito N3594410888
+Sun Jul 04 2021 17:51:36 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
+Sun Jul 04 2021 17:52:58 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: theatres_and_entertainments, Raggio: 10
+Sun Jul 04 2021 17:53:27 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: theatres_and_entertainments, Raggio: 10
+Sun Jul 04 2021 17:54:52 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito N5978649686
