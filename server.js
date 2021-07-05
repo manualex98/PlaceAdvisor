@@ -765,10 +765,8 @@ app.get('/fb_pre_access',function (req,res){
     url:     url,
     }, function(error, response, body){
       //console.log(body);
-      body1 = JSON.parse(body);
-      var stringified = JSON.stringify(body1);
-      stringified = stringified.replace('\u0040', '@');
-      var parsed =JSON.parse(stringified);
+      var body2 = body.replace('\u0040', '@');
+      var parsed =JSON.parse(body2);
       email = parsed.email
       //console.log(email)
       const fbinfo=parsed
@@ -779,7 +777,6 @@ app.get('/fb_pre_access',function (req,res){
         headers: {
           'content-type': 'application/json'
         },
-        body: JSON.stringify(body1)
   
         }, function(error, response, body){
           if(error) {
@@ -791,7 +788,7 @@ app.get('/fb_pre_access',function (req,res){
                 "info": fbinfo,
                 "fbtoken": ftoken
               }
-              jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
+              jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{  //CREO IL TOKEN
                 if (error){
                   console.log(error);
                   res.redirect('/error?statusCode=503')
@@ -842,8 +839,7 @@ app.get('/fb_pre_access',function (req,res){
 
 //Accesso con Google OAuth2.0
 app.get('/googlelogin', function(req, res){
-  gconnecting=true;
-    res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=https://localhost:8000/googlecallback&client_id="+process.env.G_CLIENT_ID);
+  res.redirect("https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/photoslibrary.readonly&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=https://localhost:8000/googlecallback&client_id="+process.env.G_CLIENT_ID);
 })
 
 
@@ -860,14 +856,8 @@ app.get('/googlecallback', function (req,res){
 
 //acquisisci google token
 app.get('/gtoken', authenticateToken, function(req, res){
-  var feedbackposting;
   code = decodeURIComponent(req.query.code)
-  if (req.query.stato != undefined){
-    feedbackposting=true;
-  }
-  else{
-    feedbackposting=false
-  }
+  
   var formData = {
     code: code,
     client_id: process.env.G_CLIENT_ID,
@@ -886,7 +876,7 @@ app.get('/gtoken', authenticateToken, function(req, res){
     }
     else{
       googletoken = info.access_token; //google access token
-      gconnected = true;
+      
       console.log("Google access token "+ info.access_token);
       res.cookie('googleaccess_token', googletoken, {maxAge:900000, secure:true, signed: true, httpOnly: true})
       if (req.signedCookies.xid!=null){
@@ -913,9 +903,12 @@ app.get('/fbsignup', authenticateToken, function(req,res){
   const ftoken = req.token.info.fbtoken
   const fbinfo= req.token.info.info
   if (req.token.info.info.username!=undefined && req.token.info.info.username!=''){
-    return res.redirect('/home')
+    res.redirect('/home')
   }
-  res.render('fbsignup', {fconnected: true,check: false, ftoken:ftoken, data: fbinfo});
+  else{
+    res.render('fbsignup', {fconnected: true,check: false, ftoken:ftoken, data: fbinfo});
+  }
+  
 })
 
 
@@ -929,7 +922,6 @@ app.post('/fbsignup', authenticateToken, function (req,res){
     headers: {
       'content-type': 'application/json'
     },
-    body: JSON.stringify(body1)
   
   }, function(error, response, body){
       if(error) {
@@ -981,9 +973,9 @@ app.post('/fbsignup', authenticateToken, function (req,res){
               
                 res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
                 jwt.sign({info:jsonobj}, secretKey, { expiresIn: '30m' }, (err, token)=>{
-                res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
-                res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:1800000})            
-                console.log('Questo è il nuovo JWT!!' + token)                
+                  res.cookie('fbaccess_token', '', {httpOnly: true,secure: true, signed:true, maxAge:0})
+                  res.cookie('jwt', token, {httpOnly: true,secure: true, signed:true, maxAge:1800000})            
+                  console.log('Questo è il nuovo JWT!!' + token)                
                 })      
                 jwt.sign({info:jsonobj}, refresh_secretKey, {expiresIn: '24h'}, (err, refreshtoken)=>{                    
                   res.cookie('refresh', refreshtoken, {httpOnly: true, secure: true, signed:true, maxAge:86400000})         //refresh_token 
@@ -1337,7 +1329,7 @@ app.post('/logout', function(req,res){
 //Posta una recensione
 app.post('/reviews', authenticateToken, function(req,res){
   codice = Date.now();
-  photo = req.body.baseUrl;
+
   if(req.body.rev==='') res.redirect('/details?xid='+req.body.xid);
   else{
     request.get('http://admin:admin@couchdb:5984/reviews/'+req.body.xid, function callback(error, response, body){
@@ -1349,7 +1341,7 @@ app.post('/reviews', authenticateToken, function(req,res){
       infodb = JSON.parse(body);
         if(infodb.error){
           //console.log(req.body)
-          newReview(req, res, codice);  //Se non esiste il documento nel db lo creo
+          newReview(req, res, codice);              //Se non esiste il documento nel db lo creo
         } 
         else{
           updateReview(req, res, codice);             //Altrimenti aggiorno quello esistente
@@ -1511,7 +1503,9 @@ function checkCity(city){               //funzione che esegue un check all'inter
       if(data.error){
         newRegisterCity(city)
       }
-      else{ updateRegisterCity(city,data) }
+      else{
+        updateRegisterCity(city,data) 
+      }
   })
 }
 
@@ -1957,7 +1951,6 @@ function updateFeedback(data,res){                      //Funzione che aggiorna 
             //console.log(data)
             
             res.render('feedback', {inviato : true})
-            feedbackposting=false;
           }
           catch(error){
             console.error(error);
