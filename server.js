@@ -672,6 +672,21 @@ app.get('/', function (req,res){
   }
 });
 
+
+//HOMEPAGE
+app.get('/home', authenticateToken, function(req,res){
+  username = req.token.info.info.username
+  if (req.signedCookies.googleaccess_token==undefined){
+    gconnected=false
+  }
+  else{
+    gconnected=true
+  }
+  res.render('homepage', {fconnected:true, gconnected:gconnected, username:username})
+})
+
+
+
 //****************************************************************OAUTH 2.0**********************************************************************************/
 
 
@@ -693,19 +708,6 @@ app.get('/facebooklogin',function (req,res){
   fconnecting=true;
   res.status(201).redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.FB_CLIENT_ID+"&redirect_uri=https://localhost:8000/homepage&response_type=code");
 });
-
-
-//Homepage
-app.get('/home', authenticateToken, function(req,res){
-  username = req.token.info.info.username
-  if (req.signedCookies.googleaccess_token==undefined){
-    gconnected=false
-  }
-  else{
-    gconnected=true
-  }
-  res.render('homepage', {fconnected:true, gconnected:gconnected, username:username})
-})
 
 
 //FACEBOOK CALLBACK
@@ -1076,7 +1078,7 @@ app.get('/delete_account',authenticateToken,function (req,res){
 
 //***********************************************OpenaMap, OpenWeather, Here API*****************************************/
 
-    
+
 //API Open Trip Map Places
 app.post('/openmap', authenticateToken, function(req,res){   
   city = req.body.city;

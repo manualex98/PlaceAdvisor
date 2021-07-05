@@ -49,5 +49,11 @@
             <input class="mb-3" type="submit" value="NEXT PAGE" size="30">
         </form>
     <% } %>
+    <% if (xid!=undefined && xid!=''){ %>
+        <% var urixid = "https://localhost:8000/details?xid="+xid %>
+        <a href= <%=urixid %> ><button class="mb-3">Torna indietro</button></a><br><br>
+    <% } else { %>
+        <a href= "https://localhost:8000/newfeedback"><button class="mb-3">Torna indietro</button></a><br><br>
+    <% } %>
     
 </html>
