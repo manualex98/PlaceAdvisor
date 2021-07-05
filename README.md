@@ -40,7 +40,7 @@ Link API usate:
 - OpenWeatherMap API: https://openweathermap.org/current
 
 ### Schema
-![schema](https://user-images.githubusercontent.com/50673340/123996987-32954380-d9d0-11eb-82de-451ae15e42a3.jpg)
+![Presentazione senza titolo (1)](https://user-images.githubusercontent.com/50673340/124521837-40dcc880-ddf1-11eb-8a11-64c961c7d262.png)
 
 
 
@@ -52,8 +52,7 @@ Una volta completati questi passaggi possiamo passare alla configurazione del se
 Apriamo il terminale, rechiamoci nella directory in cui vogliamo clonare la repo ed eseguiamo i seguenti comandi:
 ```
 $ git clone https://github.com/manualex98/PlaceAdvisor.git
-$ cd PlaceAdvisor
-$ npm install
+$ cd /PlaceAdvisor
 $ sudo docker-compose up --build
 ```
 A questo punto, eseguendo sudo docker ps, dovremmo visualizzare la lista dei nostri 3 container (placeadvisor_nodejs, rabbitmq e couchdb).
