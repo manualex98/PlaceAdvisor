@@ -70,7 +70,7 @@
 
         <a href= "https://localhost:8000/home">
             <button class="mb-3" type= 'button'>Torna alla homepage</button>
-          </a>
+        </a>
         
 
     <% } else {%>
@@ -82,9 +82,13 @@
     
     <% if(check==false){ %>
         <h3>Mi dispiace, sembra ci sia un errore nell'eliminazione del tuo account, riprova</h3>
-        <a href="https://localhost:8000/delete_account"><button class="mb-3" type="button">Elimina account</button></a>
+        <a href="https://localhost:8000/delete_account">
+            <button class="mb-3" type="button">Elimina account</button>
+        </a>
     <% } else {%>
-        <a href="https://localhost:8000/delete_account"><button class="mb-3" type="button">Elimina account</button></a>
+        <a href="https://localhost:8000/delete_account">
+            <button class="mb-3" type="button">Elimina account</button>
+        </a>
     <% } %>
 
     

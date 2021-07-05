@@ -705,7 +705,6 @@ app.post('/',function (req,res){
 
 //Accesso con Facebook Oauth2.0
 app.get('/facebooklogin',function (req,res){
-  fconnecting=true;
   res.status(201).redirect("https://www.facebook.com/v10.0/dialog/oauth?scope=email,public_profile&client_id="+process.env.FB_CLIENT_ID+"&redirect_uri=https://localhost:8000/homepage&response_type=code");
 });
 
