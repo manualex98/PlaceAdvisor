@@ -75,7 +75,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs)); //path per 
 const wss = new WebSocket.Server({ port:8080 });
 
 wss.on('connection', function connection(ws) {
-  console.log('Web Socket connection activated');
+  console.log('Connected to WebSocket Client');
   ws.send('Welcome New Client!');
 
   ws.on('message', function incoming(message) {
