@@ -105,7 +105,9 @@ Questo utente è uno user test creato direttamente da Facebook for Developers.
 
 - Una volta scelto, se questo sarà disponibile, si verrà reindirizzati alla Homepage con response status code 200 e verrà inoltre creato e firmato un jwt e un refresh jwt che verranno settati nei cookie, altrimenti verrà chiesto di scegliere un altro username. 
 
-![Homepage](https://user-images.githubusercontent.com/50673340/123555798-42bae200-d788-11eb-906c-4531dcad3d16.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/50673340/123555798-42bae200-d788-11eb-906c-4531dcad3d16.png"/>
+</p>
 
 - Cliccando su *Accedi con Google Photos* partirà il flusso OAuth di Google. Si potrà dunque accedere con il proprio account Google e si dovrà dare la propria autorizzazione per poter accedere in modalità sola lettura alle proprie foto presenti nel proprio archivio di Google Photos. Questo passaggio è indispensabile per poter condividere le proprie foto nelle recensioni (o nei feedback). Se l'accesso andrà a buon fine, verrà settato un cookie criptato: il google access token. Verrà utilizzato per accedere alle risorse presenti su google photos.
 - Cliccando su *Il tuo Profilo* verranno visualizzate le informazioni di base e le recensioni e/o feedback effettuati. 
