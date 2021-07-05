@@ -106,3 +106,13 @@ Città: New York, Categoria: interesting_places, Raggio: 28
 Mon Jul 05 2021 17:20:41 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
 Mon Jul 05 2021 17:21:14 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
 Mon Jul 05 2021 18:33:09 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
+Mon Jul 05 2021 23:45:33 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: NAPOLI, Categoria: interesting_places, Raggio: 10
+Mon Jul 05 2021 23:47:13 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito Q3694638
+Mon Jul 05 2021 23:47:32 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Tue Jul 06 2021 00:08:40 GMT+0200 (Ora legale dell’Europa centrale): È stato recensito W98554683
+Tue Jul 06 2021 00:20:15 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: Roma, Categoria: interesting_places, Raggio: 10
+Tue Jul 06 2021 00:21:00 GMT+0200 (Ora legale dell’Europa centrale): È stato cercato:
+Città: milano, Categoria: interesting_places, Raggio: 10

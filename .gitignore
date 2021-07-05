@@ -103,8 +103,6 @@ dist
 # TernJS port file
 .tern-port
 
-#CouchDB local file
-.couchdb/
-
 #RabbitMQ files
-.rabbitmq-data/
+rabbitmq-data/mnesia
+rabbitmq-data/.erlang.cookie
