@@ -485,7 +485,6 @@ wss.on('connection', function connection(ws) {
  *      security:
  *        - JWT: []
  *        - gcookieAuth: []
- *        - gidcookieAuth: []
  *      responses:
  *        200:
  *          description: Restituisce la pagina gphotos.ejs con la lista delle foto dell'utente
@@ -887,10 +886,8 @@ app.get('/gtoken', authenticateToken, function(req, res){
     }
     else{
       googletoken = info.access_token; //google access token
-      gtoken = info.id_token; //google id_token
       gconnected = true;
       console.log("Google access token "+ info.access_token);
-      res.cookie('gid_token', gtoken, {maxAge:86400000, secure:true, signed: true, httpOnly: true})
       res.cookie('googleaccess_token', googletoken, {maxAge:900000, secure:true, signed: true, httpOnly: true})
       if (req.signedCookies.xid!=null){
         xid = req.cookies.xid;
@@ -1058,7 +1055,6 @@ app.get('/delete_account',authenticateToken,function (req,res){
           res.render('user_info', {data: data, check:false});
         } else {
           //console.log(response.statusCode, body);
-          res.cookie('gid_token', '', {maxAge:0, secure:true, signed: true, httpOnly: true})
           res.cookie('googleaccess_token', '', {maxAge:0, secure:true, signed: true, httpOnly: true})
           res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0}) 
           res.cookie('refresh', '', {httpOnly: true,secure: true, signed:true, maxAge:0}) 
@@ -1329,7 +1325,6 @@ app.get('/logout', authenticateToken, function(req,res){
 
 //ESEGUI LOGOUT
 app.post('/logout', function(req,res){
-  res.cookie('gid_token', '', {maxAge:0, secure:true, signed: true, httpOnly: true})
   res.cookie('googleaccess_token', '', {maxAge:0, secure:true, signed: true, httpOnly: true})
   res.cookie('jwt', '', {httpOnly: true,secure: true, signed:true, maxAge:0}) 
   res.cookie('refresh', '', {httpOnly: true,secure: true, signed:true, maxAge:0})

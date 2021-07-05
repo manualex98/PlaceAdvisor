@@ -105,3 +105,4 @@ Mon Jul 05 2021 17:16:06 GMT+0200 (Ora legale dell’Europa centrale): È stato 
 Città: New York, Categoria: interesting_places, Raggio: 28
 Mon Jul 05 2021 17:20:41 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
 Mon Jul 05 2021 17:21:14 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
+Mon Jul 05 2021 18:33:09 GMT+0200 (Ora legale dell’Europa centrale): È stato inviato un feedback
