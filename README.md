@@ -72,7 +72,7 @@ $ exit
 Questi comandi permetteranno di scaricare i file, di configurare il nostro db se è il primo avvio e di scaricare tutti i moduli di NodeJS necessari al funzionamento del servizio che sarà accessibile cliccando [qui](https://localhost:8000).
 Aprire un terzo terminale per far funzionare il feedback service consumer implementato con RabbitMQ eseguire:
 ```
-$ cd PlaceAdvisor
+$ cd PlaceAdvisor/app
 $ node feedback_consumer.js
 ```
 Ora non rimane che andare su https://localhost:8000 e godersi il servizio!
