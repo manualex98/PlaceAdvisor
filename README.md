@@ -88,9 +88,9 @@ E, sul terminale in cui è in running il file feedback_consumer.js, digitare  ` 
 ## Istruzioni per il test
 Per effettuare un test loggarsi con le seguenti credenziali Facebook:
 
-email: 	harry_ewleruo_valtchanovwitz@tfbnw.net
+email: 	test_zreyrfg_user@tfbnw.net
 
-password: testtest1
+password: Passtest1
 
 Questo utente è uno user test creato direttamente da Facebook for Developers. 
 
